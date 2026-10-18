@@ -1,0 +1,1942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Chino Barber Shop — Sistema de reservas en línea. Tu mejor corte, sin esperas. Reserva tu cita y paga en línea." />
+<meta name="theme-color" content="#0d0d0d" />
+<title>Chino Barber Shop | Reservas en línea</title>
+
+<!-- Tipografías: Bebas Neue / Oswald para títulos (estilo letrero), Inter para texto -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+/* =========================================================
+   CHINO BARBER SHOP — Hoja de estilos
+   Proyecto académico — Interacción Humano-Computador (UCSS)
+   ========================================================= */
+
+/* ---------- Variables de diseño ---------- */
+:root{
+  --bg:#0d0d0d;          /* Fondo carbón */
+  --bg-2:#141414;        /* Superficies */
+  --bg-3:#1c1c1c;        /* Tarjetas */
+  --bg-4:#242424;        /* Hover */
+  --line:#2e2e2e;        /* Bordes */
+  --gold:#d4af37;        /* Acento dorado */
+  --gold-2:#c9a227;
+  --copper:#b87333;      /* Cobre */
+  --red:#c8102e;         /* Poste de barbería */
+  --blue:#1f3a93;        /* Poste de barbería */
+  --white:#ffffff;
+  --text:#f2efe6;        /* Texto principal crema */
+  --text-dim:#b9b3a6;    /* Texto secundario */
+  --text-mut:#8a857a;    /* Texto tenue */
+  --ok:#46c46c;
+  --warn:#e0a32e;
+  --err:#e0584d;
+  --radius:14px;
+  --radius-sm:10px;
+  --shadow:0 18px 50px rgba(0,0,0,.55);
+  --shadow-sm:0 8px 22px rgba(0,0,0,.4);
+  --maxw:1180px;
+  --header-h:70px;
+  --font-title:"Oswald",sans-serif;
+  --font-display:"Bebas Neue",sans-serif;
+  --font-body:"Inter",sans-serif;
+}
+
+/* ---------- Reset y base ---------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  font-size:1rem;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:1rem;color:inherit}
+a{color:var(--gold);text-decoration:none}
+a:hover{text-decoration:underline}
+ul{list-style:none}
+
+/* ---------- Foco visible (accesibilidad) ---------- */
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+
+/* ---------- Enlace "Saltar al contenido" ---------- */
+.skip-link{
+  position:absolute;left:50%;top:-60px;transform:translateX(-50%);
+  background:var(--gold);color:#000;font-weight:700;
+  padding:.7rem 1.2rem;border-radius:0 0 10px 10px;z-index:2000;
+  transition:top .2s ease;
+}
+.skip-link:focus{top:0;text-decoration:none}
+
+/* ---------- Encabezado fijo ---------- */
+.site-header{
+  position:fixed;top:0;left:0;right:0;height:var(--header-h);
+  background:rgba(13,13,13,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  z-index:1000;
+}
+.header-inner{
+  max-width:var(--maxw);margin:0 auto;height:100%;
+  display:flex;align-items:center;gap:1rem;padding:0 1rem;
+}
+.brand{display:flex;align-items:center;gap:.6rem;text-decoration:none;flex-shrink:0}
+.brand-logo{width:46px;height:46px;flex-shrink:0}
+.brand-name{
+  font-family:var(--font-display);font-size:1.5rem;letter-spacing:1px;
+  color:var(--text);line-height:1;
+}
+.brand-name b{color:var(--gold)}
+.brand-sub{font-size:.62rem;letter-spacing:3px;color:var(--text-mut);text-transform:uppercase}
+
+.main-nav{margin-left:auto;display:flex;align-items:center;gap:.3rem}
+.main-nav a{
+  color:var(--text-dim);font-weight:500;font-size:.95rem;
+  padding:.5rem .8rem;border-radius:8px;letter-spacing:.3px;
+  transition:color .2s,background .2s;
+}
+.main-nav a:hover{color:var(--text);background:var(--bg-4);text-decoration:none}
+.main-nav a[aria-current="page"]{color:var(--gold)}
+
+.header-actions{display:flex;align-items:center;gap:.5rem;margin-left:.5rem}
+
+/* Icono de preferencias de visualización (sobrio) */
+.prefs-btn{
+  width:44px;height:44px;border-radius:10px;border:1px solid var(--line);
+  background:var(--bg-3);display:grid;place-items:center;color:var(--text-dim);
+  transition:background .2s,color .2s,border-color .2s;
+}
+.prefs-btn:hover{background:var(--bg-4);color:var(--gold);border-color:var(--gold)}
+.prefs-btn svg{width:22px;height:22px}
+
+/* Menú de preferencias */
+.prefs-menu{
+  position:absolute;top:calc(var(--header-h) - 6px);right:1rem;
+  background:var(--bg-2);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);padding:1rem;width:280px;z-index:1500;
+  transform:translateY(-10px) scale(.97);opacity:0;pointer-events:none;
+  transition:transform .18s ease,opacity .18s ease;
+}
+.prefs-menu.open{transform:none;opacity:1;pointer-events:auto}
+.prefs-menu h3{font-family:var(--font-title);font-size:1rem;color:var(--text);margin-bottom:.6rem;letter-spacing:.5px}
+.prefs-group{margin-bottom:.9rem}
+.prefs-group label{display:block;font-size:.8rem;color:var(--text-mut);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:1px}
+.prefs-options{display:flex;gap:.4rem;flex-wrap:wrap}
+.prefs-options button{
+  flex:1;min-width:0;padding:.5rem .4rem;border:1px solid var(--line);
+  border-radius:8px;background:var(--bg-3);color:var(--text-dim);font-size:.85rem;
+  transition:all .15s;min-height:40px;
+}
+.prefs-options button[aria-pressed="true"]{
+  background:var(--gold);color:#000;border-color:var(--gold);font-weight:600;
+}
+.prefs-options button:hover{border-color:var(--gold);color:var(--gold)}
+.prefs-options button[aria-pressed="true"]:hover{color:#000}
+.prefs-menu .prefs-note{font-size:.75rem;color:var(--text-mut);margin-top:.2rem}
+
+/* Botón principal */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  min-height:46px;padding:.7rem 1.3rem;border-radius:10px;font-weight:600;
+  font-family:var(--font-title);letter-spacing:.5px;font-size:.98rem;
+  transition:transform .15s ease,background .2s,box-shadow .2s,opacity .2s;
+  text-decoration:none;border:2px solid transparent;
+}
+.btn:hover{text-decoration:none}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--gold);color:#000;box-shadow:0 8px 22px rgba(212,175,55,.25)}
+.btn-primary:hover{background:#e6c24a;box-shadow:0 10px 28px rgba(212,175,55,.35)}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--text)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-dark{background:var(--bg-3);border-color:var(--line);color:var(--text)}
+.btn-dark:hover{background:var(--bg-4);border-color:var(--gold)}
+.btn-block{display:flex;width:100%}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+.btn-sm{min-height:40px;padding:.5rem .9rem;font-size:.88rem}
+.btn-lg{min-height:54px;padding:.9rem 1.8rem;font-size:1.05rem}
+
+/* ---------- Main / vistas ---------- */
+main{flex:1 0 auto;padding-top:var(--header-h)}
+.view{display:none}
+.view.active{display:block}
+
+.container{max-width:var(--maxw);margin:0 auto;padding:0 1rem}
+.section{padding:4rem 0}
+.section-head{text-align:center;margin-bottom:2.5rem}
+.eyebrow{
+  font-family:var(--font-title);letter-spacing:4px;text-transform:uppercase;
+  font-size:.8rem;color:var(--gold);margin-bottom:.6rem;display:block;
+}
+.section-title{
+  font-family:var(--font-display);font-size:clamp(2rem,5vw,3.2rem);
+  line-height:1;color:var(--text);letter-spacing:1px;
+}
+.section-title b{color:var(--gold)}
+.section-sub{color:var(--text-dim);max-width:620px;margin:1rem auto 0;font-size:1.02rem}
+
+/* Divisor decorativo poste de barbería */
+.pole-divider{
+  height:6px;border-radius:6px;max-width:180px;margin:1.2rem auto 0;
+  background:repeating-linear-gradient(90deg,var(--red) 0 16px,var(--white) 16px 32px,var(--blue) 32px 48px);
+  opacity:.85;
+}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:
+    linear-gradient(180deg,rgba(13,13,13,.55) 0%,rgba(13,13,13,.92) 100%),
+    radial-gradient(1200px 500px at 70% 10%,rgba(212,175,55,.10),transparent 60%),
+    linear-gradient(135deg,#1a1a1a,#0d0d0d);
+}
+.hero-grain{
+  position:absolute;inset:0;z-index:0;opacity:.5;mix-blend-mode:overlay;
+  background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:3px 3px;
+}
+.hero-inner{
+  position:relative;z-index:2;display:grid;grid-template-columns:1.1fr .9fr;
+  gap:2rem;align-items:center;min-height:calc(100vh - var(--header-h));
+  padding:3rem 1rem;
+}
+.hero-copy h1{
+  font-family:var(--font-display);font-size:clamp(2.8rem,8vw,5.2rem);
+  line-height:.95;letter-spacing:1px;color:var(--text);
+}
+.hero-copy h1 span{color:var(--gold);display:block}
+.hero-copy p{color:var(--text-dim);font-size:1.15rem;margin:1.2rem 0 2rem;max-width:480px}
+.hero-cta{display:flex;gap:.8rem;flex-wrap:wrap}
+.hero-visual{position:relative;display:flex;justify-content:center}
+.hero-card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:20px;
+  padding:1.5rem;box-shadow:var(--shadow);width:100%;max-width:360px;
+}
+.hero-card .hc-ill{border-radius:14px;overflow:hidden;margin-bottom:1rem}
+.hero-card h3{font-family:var(--font-title);font-size:1.15rem;color:var(--text);margin-bottom:.3rem}
+.hero-card .rating{color:var(--gold);font-size:.95rem;letter-spacing:2px}
+.hero-card .rating small{color:var(--text-mut);letter-spacing:0;margin-left:.4rem}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:1.2rem}
+.hero-stat{background:var(--bg-3);border:1px solid var(--line);border-radius:10px;padding:.7rem;text-align:center}
+.hero-stat b{display:block;font-family:var(--font-display);font-size:1.5rem;color:var(--gold);line-height:1}
+.hero-stat span{font-size:.72rem;color:var(--text-mut);text-transform:uppercase;letter-spacing:1px}
+
+/* Datos rápidos */
+.quick-data{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:-3rem;position:relative;z-index:3}
+.qd-card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:1.2rem;
+  display:flex;gap:.9rem;align-items:flex-start;transition:border-color .2s,transform .2s;
+}
+.qd-card:hover{border-color:var(--gold);transform:translateY(-3px)}
+.qd-ic{width:44px;height:44px;border-radius:10px;background:var(--bg-3);display:grid;place-items:center;color:var(--gold);flex-shrink:0}
+.qd-card h4{font-family:var(--font-title);font-size:.95rem;color:var(--text);letter-spacing:.5px}
+.qd-card p{font-size:.9rem;color:var(--text-dim)}
+
+/* ---------- Tarjetas de servicios ---------- */
+.grid{display:grid;gap:1.2rem}
+.services-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.svc-card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.svc-card:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:var(--shadow-sm)}
+.svc-ill{height:180px;position:relative}
+.svc-body{padding:1.2rem;display:flex;flex-direction:column;flex:1}
+.svc-body h3{font-family:var(--font-title);font-size:1.25rem;color:var(--text);letter-spacing:.5px}
+.svc-desc{color:var(--text-dim);font-size:.92rem;margin:.4rem 0 1rem;flex:1}
+.svc-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:.5rem;flex-wrap:wrap}
+.svc-price{font-family:var(--font-display);font-size:1.8rem;color:var(--gold);line-height:1}
+.svc-dur{font-size:.82rem;color:var(--text-mut);display:inline-flex;align-items:center;gap:.3rem;background:var(--bg-3);padding:.3rem .6rem;border-radius:20px}
+
+/* ---------- Barberos ---------- */
+.barbers-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.barber-card{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;text-align:center;transition:transform .2s,border-color .2s;
+}
+.barber-card:hover{transform:translateY(-4px);border-color:var(--gold)}
+.barber-ill{height:240px;position:relative}
+.barber-body{padding:1.2rem}
+.barber-body h3{font-family:var(--font-title);font-size:1.35rem;color:var(--text);letter-spacing:.5px}
+.barber-role{color:var(--gold);font-size:.85rem;text-transform:uppercase;letter-spacing:2px;margin:.3rem 0 .8rem}
+.barber-tags{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem}
+.tag{font-size:.75rem;background:var(--bg-3);border:1px solid var(--line);padding:.25rem .6rem;border-radius:20px;color:var(--text-dim)}
+
+/* ---------- Galería ---------- */
+.gallery-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.gallery-item{border-radius:var(--radius-sm);overflow:hidden;position:relative;border:1px solid var(--line);cursor:pointer;aspect-ratio:1/1;transition:transform .2s}
+.gallery-item:hover{transform:scale(1.03)}
+.gallery-item .gi-label{position:absolute;left:0;right:0;bottom:0;padding:.5rem .7rem;background:linear-gradient(transparent,rgba(0,0,0,.85));font-size:.78rem;color:var(--text);font-family:var(--font-title);letter-spacing:1px}
+
+/* ---------- Testimonios ---------- */
+.test-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.test-card{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:1.5rem}
+.test-stars{color:var(--gold);letter-spacing:2px;margin-bottom:.7rem}
+.test-text{color:var(--text-dim);font-style:italic;margin-bottom:1rem}
+.test-author{display:flex;align-items:center;gap:.7rem}
+.test-av{width:42px;height:42px;border-radius:50%;background:var(--bg-3);border:1px solid var(--gold);display:grid;place-items:center;color:var(--gold);font-family:var(--font-title)}
+.test-author b{color:var(--text);font-size:.92rem}
+.test-author span{display:block;font-size:.78rem;color:var(--text-mut)}
+
+/* ---------- Ubicación y pagos ---------- */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center}
+.map-placeholder{
+  border-radius:var(--radius);border:1px solid var(--line);min-height:300px;
+  background:
+    linear-gradient(135deg,rgba(212,175,55,.06),transparent),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 40px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 40px),
+    var(--bg-2);
+  position:relative;overflow:hidden;
+}
+.map-pin{position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);text-align:center}
+.map-pin .pin{width:48px;height:48px;background:var(--red);border-radius:50% 50% 50% 0;transform:rotate(-45deg);margin:0 auto;box-shadow:0 6px 16px rgba(0,0,0,.5);position:relative}
+.map-pin .pin::after{content:"";position:absolute;top:14px;left:14px;width:20px;height:20px;background:var(--white);border-radius:50%}
+.map-pin span{display:block;margin-top:1.4rem;background:var(--bg-3);border:1px solid var(--gold);padding:.4rem .8rem;border-radius:8px;color:var(--text);font-size:.85rem;white-space:nowrap}
+
+.pay-methods{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
+.pay-chip{display:inline-flex;align-items:center;gap:.4rem;background:var(--bg-3);border:1px solid var(--line);border-radius:30px;padding:.5rem .9rem;font-size:.85rem;color:var(--text-dim)}
+.pay-chip svg{width:18px;height:18px;color:var(--gold)}
+
+/* ---------- Reservar: flujo ---------- */
+.reservar-wrap{display:grid;grid-template-columns:1fr 340px;gap:2rem;align-items:start}
+.reservar-main{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:1.6rem}
+
+/* Barra de progreso */
+.steps{display:flex;gap:.3rem;margin-bottom:1.8rem;flex-wrap:wrap}
+.step{
+  flex:1;min-width:90px;background:none;border:none;color:var(--text-mut);
+  display:flex;flex-direction:column;align-items:center;gap:.4rem;padding:.5rem;position:relative;
+  font-family:var(--font-title);font-size:.8rem;letter-spacing:.5px;text-transform:uppercase;
+}
+.step .step-num{
+  width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--bg-3);
+  display:grid;place-items:center;font-weight:700;color:var(--text-mut);transition:all .2s;
+}
+.step[aria-current="true"] .step-num{border-color:var(--gold);background:var(--gold);color:#000}
+.step[aria-current="true"]{color:var(--gold)}
+.step.done .step-num{border-color:var(--ok);background:var(--ok);color:#000}
+.step.done{color:var(--text)}
+.step .step-bar{height:2px;background:var(--line);width:100%;position:absolute;top:21px;left:50%;z-index:-1}
+.step:first-child .step-bar{display:none}
+@media(max-width:560px){.step span:not(.step-num){display:none}}
+
+.step-panel{display:none}
+.step-panel.active{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.panel-title{font-family:var(--font-title);font-size:1.4rem;color:var(--text);margin-bottom:.3rem;letter-spacing:.5px}
+.panel-help{color:var(--text-dim);font-size:.92rem;margin-bottom:1.4rem}
+
+/* Opciones seleccionables (servicio / barbero / método) */
+.opt-list{display:grid;gap:.7rem}
+.opt-card{
+  display:flex;align-items:center;gap:.9rem;background:var(--bg-3);border:2px solid var(--line);
+  border-radius:12px;padding:.9rem 1rem;text-align:left;width:100%;transition:border-color .15s,background .15s;min-height:44px;
+}
+.opt-card:hover{border-color:var(--gold)}
+.opt-card[aria-pressed="true"]{border-color:var(--gold);background:rgba(212,175,55,.08)}
+.opt-ic{width:46px;height:46px;border-radius:10px;background:var(--bg-2);display:grid;place-items:center;color:var(--gold);flex-shrink:0;border:1px solid var(--line)}
+.opt-main{flex:1}
+.opt-main b{display:block;color:var(--text);font-size:1rem;font-family:var(--font-title);letter-spacing:.3px}
+.opt-main span{color:var(--text-dim);font-size:.85rem}
+.opt-right{text-align:right;flex-shrink:0}
+.opt-right .price{font-family:var(--font-display);font-size:1.4rem;color:var(--gold);line-height:1}
+.opt-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;flex-shrink:0;color:transparent;transition:all .15s}
+.opt-card[aria-pressed="true"] .opt-check{border-color:var(--gold);background:var(--gold);color:#000}
+
+/* Calendario */
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;margin-bottom:1.2rem}
+.cal-day{
+  background:var(--bg-3);border:2px solid var(--line);border-radius:10px;padding:.6rem .3rem;
+  text-align:center;min-height:64px;transition:all .15s;color:var(--text);
+}
+.cal-day:hover:not(:disabled){border-color:var(--gold);background:var(--bg-4)}
+.cal-day[aria-pressed="true"]{border-color:var(--gold);background:rgba(212,175,55,.12)}
+.cal-day:disabled{opacity:.35;cursor:not-allowed}
+.cal-day .d-num{font-family:var(--font-display);font-size:1.3rem;line-height:1}
+.cal-day .d-name{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-mut)}
+.cal-day.closed{background:transparent;border-style:dashed;color:var(--text-mut)}
+
+.slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:.5rem}
+.slot{
+  background:var(--bg-3);border:2px solid var(--line);border-radius:8px;padding:.55rem;
+  text-align:center;font-weight:600;font-size:.9rem;color:var(--text);min-height:44px;transition:all .15s;
+}
+.slot:hover:not(:disabled){border-color:var(--gold);background:var(--bg-4)}
+.slot[aria-pressed="true"]{border-color:var(--gold);background:var(--gold);color:#000}
+.slot:disabled{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+
+/* Formularios */
+.field{margin-bottom:1.1rem}
+.field label{display:block;font-family:var(--font-title);font-size:.85rem;color:var(--text);letter-spacing:.5px;margin-bottom:.4rem}
+.field label .req{color:var(--red)}
+.input{
+  width:100%;background:var(--bg-3);border:2px solid var(--line);border-radius:10px;
+  padding:.8rem 1rem;color:var(--text);transition:border-color .15s;min-height:48px;
+}
+.input::placeholder{color:var(--text-mut)}
+.input:focus{outline:none;border-color:var(--gold)}
+.input.invalid{border-color:var(--err)}
+.field-hint{font-size:.8rem;color:var(--text-mut);margin-top:.35rem}
+.field-error{font-size:.82rem;color:var(--err);margin-top:.35rem;display:none;align-items:center;gap:.3rem}
+.field-error.show{display:flex}
+.field .input-prefix{display:flex;align-items:center;gap:.5rem;background:var(--bg-3);border:2px solid var(--line);border-radius:10px;padding:0 1rem;transition:border-color .15s}
+.field .input-prefix:focus-within{border-color:var(--gold)}
+.field .input-prefix .pre{color:var(--text-mut);font-weight:600}
+.field .input-prefix input{border:none;background:none;padding:.8rem 0;flex:1;min-width:0}
+.field .input-prefix input:focus{outline:none}
+
+/* Métodos de pago */
+.pay-tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;margin-bottom:1.3rem}
+.pay-tab{
+  display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.9rem;border:2px solid var(--line);
+  border-radius:12px;background:var(--bg-3);transition:all .15s;min-height:44px;
+}
+.pay-tab:hover{border-color:var(--gold)}
+.pay-tab[aria-pressed="true"]{border-color:var(--gold);background:rgba(212,175,55,.08)}
+.pay-tab b{font-family:var(--font-title);font-size:.92rem;color:var(--text)}
+.pay-tab span{font-size:.72rem;color:var(--text-mut)}
+
+.pay-box{background:var(--bg-3);border:1px solid var(--line);border-radius:12px;padding:1.2rem}
+.qr-block{display:flex;gap:1.2rem;flex-wrap:wrap;align-items:center}
+.qr-svg{width:150px;height:150px;background:var(--white);border-radius:10px;padding:8px;flex-shrink:0}
+.qr-info b{font-family:var(--font-title);color:var(--text);font-size:1.05rem}
+.qr-info .num{font-family:var(--font-display);font-size:1.8rem;color:var(--gold);margin:.2rem 0}
+.qr-info p{font-size:.85rem;color:var(--text-dim)}
+
+.demo-note{
+  background:rgba(224,163,46,.1);border:1px solid var(--warn);border-radius:10px;
+  padding:.7rem 1rem;font-size:.84rem;color:#f0d18a;display:flex;gap:.5rem;align-items:flex-start;margin:1rem 0;
+}
+
+/* Resumen de la cita (sidebar) */
+.resumen{
+  background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);
+  padding:1.3rem;position:sticky;top:calc(var(--header-h) + 1rem);
+}
+.resumen h3{font-family:var(--font-title);font-size:1.05rem;color:var(--text);letter-spacing:.5px;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.rsm-row{display:flex;justify-content:space-between;gap:1rem;padding:.6rem 0;border-bottom:1px dashed var(--line);font-size:.9rem}
+.rsm-row span{color:var(--text-mut)}
+.rsm-row b{color:var(--text);text-align:right;font-weight:500}
+.rsm-empty{color:var(--text-mut);font-size:.85rem;padding:.4rem 0}
+.rsm-total{display:flex;justify-content:space-between;align-items:center;margin-top:.8rem;padding-top:.8rem;border-top:2px solid var(--gold)}
+.rsm-total span{color:var(--text);font-family:var(--font-title);letter-spacing:.5px}
+.rsm-total b{font-family:var(--font-display);font-size:2rem;color:var(--gold);line-height:1}
+.resumen-toggle{display:none}
+
+.step-nav{display:flex;justify-content:space-between;gap:.6rem;margin-top:1.8rem;flex-wrap:wrap}
+
+/* ---------- Confirmación ---------- */
+.confirm{max-width:560px;margin:0 auto;text-align:center;padding:1rem}
+.confirm-icon{width:84px;height:84px;border-radius:50%;background:rgba(70,196,108,.12);border:2px solid var(--ok);display:grid;place-items:center;margin:0 auto 1.2rem;color:var(--ok)}
+.confirm h2{font-family:var(--font-display);font-size:2.6rem;color:var(--text);letter-spacing:1px}
+.confirm h2 span{color:var(--gold)}
+.confirm .op-num{font-family:var(--font-display);font-size:1.8rem;color:var(--gold);letter-spacing:2px;margin:.6rem 0}
+.receipt{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:1.3rem;text-align:left;margin:1.5rem 0}
+.receipt .rsm-row:last-of-type{border-bottom:none}
+.status-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .9rem;border-radius:30px;font-size:.82rem;font-weight:600;font-family:var(--font-title);letter-spacing:.5px}
+.status-pagado{background:rgba(70,196,108,.12);color:var(--ok);border:1px solid var(--ok)}
+.status-pendiente{background:rgba(224,163,46,.12);color:var(--warn);border:1px solid var(--warn)}
+.status-cancelada{background:rgba(224,88,77,.12);color:var(--err);border:1px solid var(--err)}
+.confirm-actions{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
+
+/* ---------- Mis citas ---------- */
+.appt-list{display:grid;gap:1rem}
+.appt-card{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:1.2rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center}
+.appt-date{background:var(--bg-3);border:1px solid var(--line);border-radius:12px;text-align:center;padding:.7rem .9rem;min-width:72px}
+.appt-date b{font-family:var(--font-display);font-size:1.7rem;color:var(--gold);line-height:1;display:block}
+.appt-date span{font-size:.7rem;text-transform:uppercase;color:var(--text-mut);letter-spacing:1px}
+.appt-info{flex:1;min-width:180px}
+.appt-info h4{font-family:var(--font-title);font-size:1.1rem;color:var(--text);letter-spacing:.3px}
+.appt-info p{font-size:.85rem;color:var(--text-dim)}
+.appt-meta{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-top:.4rem}
+.appt-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.empty-state{text-align:center;padding:4rem 1rem;color:var(--text-dim)}
+.empty-state .es-ic{width:80px;height:80px;border-radius:50%;background:var(--bg-2);border:1px solid var(--line);display:grid;place-items:center;margin:0 auto 1.2rem;color:var(--text-mut)}
+.empty-state h3{font-family:var(--font-title);font-size:1.4rem;color:var(--text);margin-bottom:.5rem}
+
+/* ---------- Encuesta ---------- */
+.survey{background:var(--bg-2);border:1px solid var(--gold);border-radius:var(--radius);padding:1.5rem;margin-top:1.5rem}
+.survey h3{font-family:var(--font-title);color:var(--text);margin-bottom:.5rem}
+.stars{display:flex;gap:.3rem;margin:.8rem 0}
+.star-btn{width:48px;height:48px;color:var(--line);transition:color .15s,transform .1s}
+.star-btn:hover,.star-btn[aria-pressed="true"]{color:var(--gold)}
+.star-btn:hover{transform:scale(1.1)}
+
+/* ---------- Toast / mensajes aria-live ---------- */
+.toast-wrap{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);z-index:3000;display:flex;flex-direction:column;gap:.6rem;align-items:center;pointer-events:none;width:calc(100% - 2rem);max-width:420px}
+.toast{
+  background:var(--bg-3);border:1px solid var(--gold);border-radius:10px;padding:.8rem 1.1rem;
+  color:var(--text);font-size:.9rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:.5rem;
+  animation:toastin .3s ease;pointer-events:auto;
+}
+.toast.ok{border-color:var(--ok)}
+.toast.err{border-color:var(--err)}
+@keyframes toastin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ---------- Modal genérico ---------- */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2500;
+  display:none;align-items:center;justify-content:center;padding:1rem;
+}
+.modal-overlay.open{display:flex;animation:fade .2s ease}
+.modal{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);max-width:420px;width:100%;padding:1.5rem;box-shadow:var(--shadow)}
+.modal h3{font-family:var(--font-title);font-size:1.3rem;color:var(--text);margin-bottom:.5rem}
+.modal p{color:var(--text-dim);margin-bottom:1.2rem}
+.modal-actions{display:flex;gap:.6rem;justify-content:flex-end;flex-wrap:wrap}
+
+/* ---------- Procesando pago ---------- */
+.processing{display:none;text-align:center;padding:1rem}
+.processing.show{display:block}
+.spinner{width:48px;height:48px;border:4px solid var(--line);border-top-color:var(--gold);border-radius:50%;margin:0 auto 1rem;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.processing p{color:var(--text-dim)}
+
+/* ---------- Pie de página ---------- */
+.site-footer{
+  background:var(--bg-2);border-top:1px solid var(--line);margin-top:auto;
+}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:2rem;padding:3rem 0}
+.footer-brand p{color:var(--text-dim);font-size:.9rem;margin:.8rem 0;max-width:280px}
+.footer-social{display:flex;gap:.5rem;margin-top:.8rem}
+.footer-social a{width:40px;height:40px;border-radius:10px;background:var(--bg-3);border:1px solid var(--line);display:grid;place-items:center;color:var(--text-dim);transition:all .2s}
+.footer-social a:hover{color:var(--gold);border-color:var(--gold);text-decoration:none}
+.footer-col h4{font-family:var(--font-title);font-size:.95rem;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:1rem}
+.footer-col ul li{margin-bottom:.5rem}
+.footer-col ul a{color:var(--text-dim);font-size:.9rem}
+.footer-col ul a:hover{color:var(--gold)}
+.footer-col p{color:var(--text-dim);font-size:.9rem;line-height:1.7}
+.footer-bottom{border-top:1px solid var(--line);padding:1.2rem 0;text-align:center}
+.footer-bottom p{color:var(--text-mut);font-size:.8rem;letter-spacing:.5px}
+.footer-bottom b{color:var(--gold)}
+
+/* ---------- Ilustraciones SVG placeholder ---------- */
+.ill{width:100%;height:100%;display:block}
+
+/* ---------- Preferencias: tamaños de texto ---------- */
+html[data-textsize="large"]{font-size:18px}
+html[data-textsize="xlarge"]{font-size:20px}
+
+/* ---------- Preferencias: alto contraste ---------- */
+body.hc{
+  --bg:#000;--bg-2:#0a0a0a;--bg-3:#141414;--bg-4:#1f1f1f;--line:#3a3a3a;
+  --gold:#ffd400;--gold-2:#ffd400;--copper:#ff9e3d;
+  --text:#ffffff;--text-dim:#f0f0f0;--text-mut:#cfcfcf;
+}
+body.hc .svc-card,body.hc .barber-card,body.hc .test-card,body.hc .appt-card,body.hc .modal,body.hc .resumen,body.hc .reservar-main{border-color:#5a5a5a}
+body.hc a,body.hc .opt-card[aria-pressed="true"] b{color:#ffd400}
+body.hc :focus-visible{outline:3px solid #ffd400;outline-offset:3px}
+
+/* ---------- Responsive ---------- */
+@media(max-width:980px){
+  .hero-inner{grid-template-columns:1fr;min-height:auto;padding:2.5rem 1rem}
+  .hero-visual{order:-1}
+  .hero-card{max-width:420px}
+  .quick-data{grid-template-columns:1fr;margin-top:1.5rem}
+  .split{grid-template-columns:1fr}
+  .reservar-wrap{grid-template-columns:1fr}
+  .resumen{position:static}
+  .footer-top{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  .main-nav{display:none}
+  .main-nav.open{
+    display:flex;flex-direction:column;position:fixed;top:var(--header-h);left:0;right:0;
+    background:var(--bg-2);border-bottom:1px solid var(--line);padding:1rem;gap:.3rem;z-index:999;
+  }
+  .main-nav.open a{width:100%;padding:.9rem 1rem;font-size:1rem}
+  .menu-toggle{display:grid !important}
+  .section{padding:3rem 0}
+}
+.menu-toggle{display:none;width:44px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--bg-3);place-items:center;color:var(--text)}
+.menu-toggle:hover{border-color:var(--gold);color:var(--gold)}
+@media(max-width:560px){
+  .pay-tabs{grid-template-columns:1fr}
+  .hero-stats{grid-template-columns:1fr 1fr 1fr}
+  .step-nav .btn{flex:1}
+}
+
+/* Resumen plegable en móvil */
+@media(max-width:980px){
+  .resumen{max-height:0;overflow:hidden;padding:0 1.3rem;border:none;margin-top:0;transition:max-height .3s ease}
+  .resumen.expanded{max-height:900px;padding:1.3rem;border:1px solid var(--line);border-radius:var(--radius)}
+  .resumen-toggle{display:flex;width:100%;justify-content:space-between;align-items:center;background:var(--bg-3);border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;color:var(--text);font-family:var(--font-title)}
+  .resumen-toggle .chev{transition:transform .2s}
+  .resumen-toggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
+}
+
+/* Respeto a prefers-reduced-motion */
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  .spinner{animation:none;border-top-color:var(--gold)}
+}
+
+/* Utilidades */
+.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.muted{color:var(--text-mut)}
+.center{text-align:center}
+.mt-1{margin-top:1rem}.mt-2{margin-top:2rem}
+.mb-1{margin-bottom:1rem}
+</style>
+</head>
+<body>
+
+<!-- Enlace de salto (accesibilidad) -->
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<!-- ===================== ENCABEZADO ===================== -->
+<header class="site-header" role="banner">
+  <div class="header-inner">
+    <a class="brand" href="#inicio" aria-label="Chino Barber Shop — Inicio">
+      <!-- Logo emblema circular (SVG inline, sustituye a logo.png) -->
+      <svg class="brand-logo" viewBox="0 0 100 100" role="img" aria-label="Logo de Chino Barber Shop">
+        <circle cx="50" cy="50" r="48" fill="#141414" stroke="#d4af37" stroke-width="2.5"/>
+        <path id="logoCircle" d="M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0" fill="none"/>
+        <text font-family="Oswald,sans-serif" font-size="9" fill="#d4af37" letter-spacing="1.5">
+          <textPath href="#logoCircle" startOffset="0%">CHINO BARBERSHOP • PROFESIONAL • </textPath>
+        </text>
+        <!-- perfil con barba -->
+        <path d="M40 30c5 0 9 4 9 9 0 3-1 5-1 7 0 2 1 3 1 5 0 4-4 7-9 7s-9-3-9-7c0-2 1-3 1-5 0-2-1-4-1-7 0-5 4-9 9-9z" transform="translate(11 8)" fill="#f2efe6"/>
+        <path d="M40 52c-2 0-4 1-5 2 1 2 3 3 5 3s4-1 5-3c-1-1-3-2-5-2z" transform="translate(11 8)" fill="#d4af37"/>
+        <path d="M31 58c0 6 4 11 9 11s9-5 9-11c-2 4-5 6-9 6s-7-2-9-6z" transform="translate(11 8)" fill="#b87333"/>
+        <!-- tijeras cruzadas -->
+        <g transform="translate(50 66)" stroke="#d4af37" stroke-width="2" fill="none">
+          <circle cx="-7" cy="-3" r="3"/><circle cx="7" cy="-3" r="3"/>
+          <line x1="-5" y1="-1" x2="7" y2="9"/><line x1="5" y1="-1" x2="-7" y2="9"/>
+        </g>
+      </svg>
+      <span>
+        <span class="brand-name">CHINO <b>BARBER</b></span>
+        <span class="brand-sub">Shop Profesional</span>
+      </span>
+    </a>
+
+    <nav class="main-nav" id="mainNav" role="navigation" aria-label="Navegación principal">
+      <a href="#inicio" data-nav="inicio">Inicio</a>
+      <a href="#servicios" data-nav="servicios">Servicios</a>
+      <a href="#barberos" data-nav="barberos">Barberos</a>
+      <a href="#reservar" data-nav="reservar">Reservar</a>
+      <a href="#miscitas" data-nav="miscitas">Mis citas</a>
+    </nav>
+
+    <div class="header-actions">
+      <!-- Botón de preferencias de visualización (sobrio) -->
+      <button class="prefs-btn" id="prefsBtn" aria-haspopup="true" aria-expanded="false" aria-label="Preferencias de visualización" aria-controls="prefsMenu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+      </button>
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="mainNav">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <button class="btn btn-primary" onclick="go('reservar')">Reservar cita</button>
+    </div>
+  </div>
+
+  <!-- Menú de preferencias -->
+  <div class="prefs-menu" id="prefsMenu" role="dialog" aria-label="Preferencias de visualización" aria-modal="false">
+    <h3>Visualización</h3>
+    <div class="prefs-group">
+      <label id="lbl-ts">Tamaño de texto</label>
+      <div class="prefs-options" role="group" aria-labelledby="lbl-ts">
+        <button data-textsize="normal" aria-pressed="false">Normal</button>
+        <button data-textsize="large" aria-pressed="false">Grande</button>
+        <button data-textsize="xlarge" aria-pressed="false">Muy grande</button>
+      </div>
+    </div>
+    <div class="prefs-group">
+      <label id="lbl-hc">Alto contraste</label>
+      <div class="prefs-options" role="group" aria-labelledby="lbl-hc">
+        <button data-hc="off" aria-pressed="false">No</button>
+        <button data-hc="on" aria-pressed="false">Sí</button>
+      </div>
+    </div>
+    <p class="prefs-note">Tu preferencia se guarda en este dispositivo.</p>
+  </div>
+</header>
+
+<!-- ===================== CONTENIDO PRINCIPAL ===================== -->
+<main id="contenido" role="main">
+
+  <!-- ============ VISTA: INICIO ============ -->
+  <section class="view active" id="view-inicio" aria-labelledby="hero-title">
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-grain" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <span class="eyebrow">Barbería moderna • Desde 2015</span>
+          <h1 id="hero-title">Tu mejor corte,<span>sin esperas.</span></h1>
+          <p>Reserva tu cita en menos de un minuto, elige tu barbero y paga como prefieras. Calidad premium con carácter propio.</p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-lg" onclick="go('reservar')">Reservar cita</button>
+            <a class="btn btn-ghost btn-lg" href="#servicios" onclick="go('servicios');return false">Ver servicios</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-card">
+            <div class="hc-ill" id="hero-ill"></div>
+            <h3>Corte + Barba clásico</h3>
+            <div class="rating">★★★★★ <small>+1,200 clientes felices</small></div>
+            <div class="hero-stats">
+              <div class="hero-stat"><b>10-20h</b><span>Atención</span></div>
+              <div class="hero-stat"><b>4.9</b><span>Calificación</span></div>
+              <div class="hero-stat"><b>3</b><span>Barberos</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATOS RÁPIDOS -->
+    <div class="container">
+      <div class="quick-data">
+        <div class="qd-card">
+          <div class="qd-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <div><h4>Horario</h4><p>Lun a Sáb · 10:00 a 20:00<br><span class="muted">Domingo cerrado</span></p></div>
+        </div>
+        <div class="qd-card">
+          <div class="qd-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+          <div><h4>Dirección</h4><p>Av. Los Barberos 123<br>Centro, Lima</p></div>
+        </div>
+        <div class="qd-card">
+          <div class="qd-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.5a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/></svg></div>
+          <div><h4>Teléfono</h4><p>+51 987 654 321<br>+51 01 234 5678</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICIOS DESTACADOS -->
+    <section class="section container" aria-labelledby="svc-title">
+      <div class="section-head">
+        <span class="eyebrow">Lo que hacemos</span>
+        <h2 class="section-title" id="svc-title">Servicios <b>destacados</b></h2>
+        <div class="pole-divider" aria-hidden="true"></div>
+        <p class="section-sub">Cortes y arreglos pensados para cada estilo. Precios claros, sin sorpresas.</p>
+      </div>
+      <div class="grid services-grid" id="homeServices"></div>
+      <div class="center mt-2"><button class="btn btn-dark" onclick="go('servicios')">Ver todos los servicios</button></div>
+    </section>
+
+    <!-- EQUIPO -->
+    <section class="section container" aria-labelledby="team-title">
+      <div class="section-head">
+        <span class="eyebrow">El equipo</span>
+        <h2 class="section-title" id="team-title">Nuestros <b>barberos</b></h2>
+        <div class="pole-divider" aria-hidden="true"></div>
+        <p class="section-sub">Profesionales con experiencia, listos para darte el look que buscas.</p>
+      </div>
+      <div class="grid barbers-grid" id="homeBarbers"></div>
+    </section>
+
+    <!-- GALERÍA -->
+    <section class="section container" aria-labelledby="gal-title">
+      <div class="section-head">
+        <span class="eyebrow">Nuestro trabajo</span>
+        <h2 class="section-title" id="gal-title">Galería de <b>cortes</b></h2>
+        <div class="pole-divider" aria-hidden="true"></div>
+      </div>
+      <div class="grid gallery-grid" id="gallery"></div>
+    </section>
+
+    <!-- TESTIMONIOS -->
+    <section class="section container" aria-labelledby="test-title">
+      <div class="section-head">
+        <span class="eyebrow">Opiniones</span>
+        <h2 class="section-title" id="test-title">Lo que dicen <b>nuestros clientes</b></h2>
+        <div class="pole-divider" aria-hidden="true"></div>
+      </div>
+      <div class="grid test-grid" id="testimonials"></div>
+    </section>
+
+    <!-- UBICACIÓN Y PAGOS -->
+    <section class="section container" aria-labelledby="loc-title">
+      <div class="section-head">
+        <span class="eyebrow">Visítanos</span>
+        <h2 class="section-title" id="loc-title">Ubicación y <b>pagos</b></h2>
+        <div class="pole-divider" aria-hidden="true"></div>
+      </div>
+      <div class="split">
+        <div>
+          <div class="map-placeholder" role="img" aria-label="Mapa de ubicación de Chino Barber Shop en Av. Los Barberos 123, Centro, Lima. Mostrando zona céntrica de la ciudad.">
+            <div class="map-pin"><div class="pin" aria-hidden="true"></div><span>Av. Los Barberos 123, Lima</span></div>
+          </div>
+        </div>
+        <div>
+          <h3 class="panel-title">Cómo llegar</h3>
+          <p class="panel-help">Estamos en el centro de Lima, a una cuadra del Jirón de la Unión. Fácil acceso en transporte público.</p>
+          <p><b style="color:var(--text)">Dirección:</b> Av. Los Barberos 123, Centro, Lima</p>
+          <p><b style="color:var(--text)">Teléfono:</b> +51 987 654 321</p>
+          <p class="mt-1"><b style="color:var(--text)">Aceptamos:</b></p>
+          <div class="pay-methods">
+            <span class="pay-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Yape</span>
+            <span class="pay-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Plin</span>
+            <span class="pay-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Tarjeta</span>
+            <span class="pay-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Efectivo</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ============ VISTA: SERVICIOS ============ -->
+  <section class="view" id="view-servicios" aria-labelledby="svc-all-title">
+    <div class="section container">
+      <div class="section-head">
+        <span class="eyebrow">Catálogo</span>
+        <h2 class="section-title" id="svc-all-title">Todos los <b>servicios</b></h2>
+        <div class="pole-divider" aria-hidden="true"></div>
+        <p class="section-sub">Selecciona un servicio para iniciar tu reserva.</p>
+      </div>
+      <div class="grid services-grid" id="allServices"></div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA: BARBEROS ============ -->
+  <section class="view" id="view-barberos" aria-labelledby="bar-all-title">
+    <div class="section container">
+      <div class="section-head">
+        <span class="eyebrow">Equipo</span>
+        <h2 class="section-title" id="bar-all-title">Conoce a los <b>barberos</b></h2>
+        <div class="pole-divider" aria-hidden="true"></div>
+        <p class="section-sub">Reserva con tu barbero favorito o elige "cualquier barbero" al reservar.</p>
+      </div>
+      <div class="grid barbers-grid" id="allBarbers"></div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA: RESERVAR ============ -->
+  <section class="view" id="view-reservar" aria-labelledby="res-title">
+    <div class="section container">
+      <div class="section-head">
+        <span class="eyebrow">Reserva en línea</span>
+        <h2 class="section-title" id="res-title">Agenda tu <b>cita</b></h2>
+        <div class="pole-divider" aria-hidden="true"></div>
+        <p class="section-sub">Un flujo simple: servicio, barbero, fecha y hora, tus datos y pago.</p>
+      </div>
+
+      <div class="reservar-wrap">
+        <div class="reservar-main">
+          <!-- Botón repetir última cita -->
+          <div id="repeatBar" style="display:none;margin-bottom:1rem">
+            <button class="btn btn-dark btn-block" id="repeatBtn" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+              Repetir mi última cita
+            </button>
+          </div>
+
+          <!-- Barra de progreso -->
+          <div class="steps" role="list" aria-label="Pasos de la reserva">
+            <button class="step" data-step="1" role="listitem"><span class="step-bar"></span><span class="step-num">1</span><span>Servicio</span></button>
+            <button class="step" data-step="2" role="listitem"><span class="step-bar"></span><span class="step-num">2</span><span>Barbero</span></button>
+            <button class="step" data-step="3" role="listitem"><span class="step-bar"></span><span class="step-num">3</span><span>Fecha y hora</span></button>
+            <button class="step" data-step="4" role="listitem"><span class="step-bar"></span><span class="step-num">4</span><span>Tus datos</span></button>
+            <button class="step" data-step="5" role="listitem"><span class="step-bar"></span><span class="step-num">5</span><span>Pago</span></button>
+          </div>
+
+          <!-- Paso 1: Servicio -->
+          <div class="step-panel active" id="panel-1" role="region" aria-label="Paso 1: elegir servicio">
+            <h3 class="panel-title">Elige tu servicio</h3>
+            <p class="panel-help">Selecciona el servicio que deseas reservar.</p>
+            <div class="opt-list" id="svcOptions" role="radiogroup" aria-label="Servicios"></div>
+          </div>
+
+          <!-- Paso 2: Barbero -->
+          <div class="step-panel" id="panel-2" role="region" aria-label="Paso 2: elegir barbero">
+            <h3 class="panel-title">Elige tu barbero</h3>
+            <p class="panel-help">Selecciona un barbero o deja que te asigne cualquiera disponible.</p>
+            <div class="opt-list" id="barberOptions" role="radiogroup" aria-label="Barberos"></div>
+          </div>
+
+          <!-- Paso 3: Fecha y hora -->
+          <div class="step-panel" id="panel-3" role="region" aria-label="Paso 3: elegir fecha y hora">
+            <h3 class="panel-title">Fecha y hora</h3>
+            <p class="panel-help">Próximos 14 días. Atendemos de 10:00 a 20:00 (domingo cerrado).</p>
+            <div class="cal-week" id="calendar" role="group" aria-label="Calendario de próximos días"></div>
+            <div id="slotsWrap" aria-live="polite">
+              <p class="panel-help" id="slotsHint">Selecciona un día para ver los horarios disponibles.</p>
+              <div class="slot-grid" id="slots" role="group" aria-label="Horarios disponibles"></div>
+            </div>
+          </div>
+
+          <!-- Paso 4: Datos -->
+          <div class="step-panel" id="panel-4" role="region" aria-label="Paso 4: tus datos">
+            <h3 class="panel-title">Tus datos</h3>
+            <p class="panel-help">Necesitamos tu nombre y celular para confirmar la cita.</p>
+            <div class="field">
+              <label for="r-name">Nombre completo <span class="req" aria-hidden="true">*</span></label>
+              <input class="input" id="r-name" name="nombre" type="text" autocomplete="name" placeholder="Ej. Juan Pérez" aria-required="true" aria-describedby="name-err" />
+              <div class="field-error" id="name-err" role="alert"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg><span></span></div>
+            </div>
+            <div class="field">
+              <label for="r-cel">Celular <span class="req" aria-hidden="true">*</span></label>
+              <div class="input-prefix"><span class="pre">+51</span><input id="r-cel" name="celular" type="tel" inputmode="numeric" maxlength="9" autocomplete="tel" placeholder="9 87 65 4321" aria-required="true" aria-describedby="cel-err cel-hint" /></div>
+              <p class="field-hint" id="cel-hint">9 dígitos, debe empezar con 9.</p>
+              <div class="field-error" id="cel-err" role="alert"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg><span></span></div>
+            </div>
+          </div>
+
+          <!-- Paso 5: Pago -->
+          <div class="step-panel" id="panel-5" role="region" aria-label="Paso 5: pago">
+            <h3 class="panel-title">Pago</h3>
+            <p class="panel-help">Elige cómo prefieres pagar. Tus datos están seguros.</p>
+
+            <div class="pay-tabs" id="payTabs" role="radiogroup" aria-label="Métodos de pago"></div>
+
+            <div id="payContent" aria-live="polite"></div>
+
+            <div class="demo-note" id="demoNote" style="display:none">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+              <span>Entorno de demostración: no ingreses datos reales de tarjeta. Solo es una simulación.</span>
+            </div>
+
+            <!-- Procesando -->
+            <div class="processing" id="processing" aria-live="assertive">
+              <div class="spinner" role="status" aria-hidden="true"></div>
+              <p>Procesando pago…</p>
+            </div>
+
+            <!-- Resumen de cobro + política -->
+            <div class="receipt" id="paySummary" style="margin-top:1rem">
+              <h3 class="panel-title" style="font-size:1.1rem">Resumen del cobro</h3>
+              <div class="rsm-row"><span>Servicio</span><b id="paySvcName">—</b></div>
+              <div class="rsm-row"><span>Total a pagar</span><b id="payTotal" style="color:var(--gold);font-family:var(--font-display);font-size:1.4rem">S/ 0</b></div>
+              <p class="field-hint mt-1" style="margin-top:.6rem"><b style="color:var(--text)">Política de cancelación:</b> Puedes cancelar hasta 2 horas antes sin costo. Si ya pagaste, el reembolso es simulado e inmediato en este entorno de prueba.</p>
+            </div>
+          </div>
+
+          <!-- Navegación entre pasos -->
+          <div class="step-nav" id="stepNav">
+            <button class="btn btn-dark" id="prevBtn" type="button">Atrás</button>
+            <button class="btn btn-primary" id="nextBtn" type="button" disabled>Siguiente</button>
+          </div>
+        </div>
+
+        <!-- Resumen lateral -->
+        <button class="resumen-toggle" id="resumenToggle" aria-expanded="false" aria-controls="resumenBox" type="button">
+          <span>Ver resumen de la cita</span>
+          <svg class="chev" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <aside class="resumen" id="resumenBox" aria-label="Resumen de tu cita">
+          <h3><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Resumen</h3>
+          <div id="resumenContent"></div>
+          <div class="rsm-total"><span>Total</span><b id="resumenTotal">S/ 0</b></div>
+        </aside>
+      </div>
+
+      <!-- Confirmación (se inyecta aquí tras pagar) -->
+      <div id="confirmWrap"></div>
+    </div>
+  </section>
+
+  <!-- ============ VISTA: MIS CITAS ============ -->
+  <section class="view" id="view-miscitas" aria-labelledby="mc-title">
+    <div class="section container">
+      <div class="section-head">
+        <span class="eyebrow">Tus reservas</span>
+        <h2 class="section-title" id="mc-title">Mis <b>citas</b></h2>
+        <div class="pole-divider" aria-hidden="true"></div>
+        <p class="section-sub">Revisa el estado de tus citas y cancéralas si lo necesitas.</p>
+      </div>
+      <div id="apptListWrap"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===================== TOAST / ARIA-LIVE ===================== -->
+<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ===================== MODAL GENÉRICO ===================== -->
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+  <div class="modal">
+    <h3 id="modalTitle">—</h3>
+    <p id="modalDesc">—</p>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<!-- ===================== PIE DE PÁGINA ===================== -->
+<footer class="site-footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="brand" href="#inicio" onclick="go('inicio');return false" aria-label="Chino Barber Shop">
+          <svg class="brand-logo" viewBox="0 0 100 100" role="img" aria-label="Logo Chino Barber Shop" aria-hidden="true">
+            <circle cx="50" cy="50" r="48" fill="#141414" stroke="#d4af37" stroke-width="2.5"/>
+            <path id="logoCircle2" d="M50,50 m-37,0 a37,37 0 1,1 74,0 a37,37 0 1,1 -74,0" fill="none"/>
+            <text font-family="Oswald,sans-serif" font-size="9" fill="#d4af37" letter-spacing="1.5"><textPath href="#logoCircle2" startOffset="0%">CHINO BARBERSHOP • PROFESIONAL • </textPath></text>
+            <g transform="translate(50 50)" stroke="#d4af37" stroke-width="2" fill="none"><circle cx="-7" cy="-3" r="3"/><circle cx="7" cy="-3" r="3"/><line x1="-5" y1="-1" x2="7" y2="9"/><line x1="5" y1="-1" x2="-7" y2="9"/></g>
+          </svg>
+          <span><span class="brand-name">CHINO <b>BARBER</b></span><span class="brand-sub">Shop Profesional</span></span>
+        </a>
+        <p>Barbería moderna y premium. Tu mejor corte, sin esperas. Reserva en línea y paga como prefieras.</p>
+        <div class="footer-social" aria-label="Redes sociales">
+          <a href="#" aria-label="Facebook" onclick="return false"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H9v3h2v6h3v-6h2.5l.5-3H14V9z"/></svg></a>
+          <a href="#" aria-label="Instagram" onclick="return false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1" fill="currentColor"/></svg></a>
+          <a href="#" aria-label="TikTok" onclick="return false"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M16 3c.3 2 1.7 3.6 3.7 3.9V10c-1.4 0-2.7-.4-3.8-1v6.3A5.3 5.3 0 1 1 11 10v3a2.3 2.3 0 1 0 2 2.3V3z"/></svg></a>
+          <a href="#" aria-label="WhatsApp" onclick="return false"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3.2-.5 0-.2 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5a1 1 0 0 0-.7.3c-.6.6-.9 1.4-.9 2.3.1 1.5.8 2.9 1.8 4 1.9 2.3 4.4 3.3 5.4 3 .4-.1 1.1-.5 1.3-1 .1-.4.1-.7.1-.8-.1-.1-.2-.1-.4-.2z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Navegación</h4>
+        <ul>
+          <li><a href="#inicio" onclick="go('inicio');return false">Inicio</a></li>
+          <li><a href="#servicios" onclick="go('servicios');return false">Servicios</a></li>
+          <li><a href="#barberos" onclick="go('barberos');return false">Barberos</a></li>
+          <li><a href="#reservar" onclick="go('reservar');return false">Reservar</a></li>
+          <li><a href="#miscitas" onclick="go('miscitas');return false">Mis citas</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <p>Av. Los Barberos 123<br>Centro, Lima, Perú</p>
+        <p>+51 987 654 321<br>+51 01 234 5678</p>
+        <p>hola@chinobarber.pe</p>
+      </div>
+      <div class="footer-col">
+        <h4>Horario</h4>
+        <p>Lunes a Sábado<br>10:00 — 20:00</p>
+        <p>Domingo<br>Cerrado</p>
+        <div class="pay-methods" style="margin-top:.8rem">
+          <span class="pay-chip">Yape</span><span class="pay-chip">Plin</span><span class="pay-chip">Tarjeta</span><span class="pay-chip">Efectivo</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© <span id="year"></span> Chino Barber Shop · Proyecto académico — <b>Interacción Humano-Computador (UCSS)</b> · Reservas y pagos simulados</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   CHINO BARBER SHOP — Lógica de la aplicación
+   Proyecto académico — IHC (UCSS)
+   ========================================================= */
+
+/* ---------- Datos editables (arreglos) ---------- */
+const SERVICIOS = [
+  { id:'corte', nombre:'Corte de cabello', desc:'Corte personalizado a tijera y máquina según tu estilo.', dur:30, precio:15, color:'#2b2b2b', acc:'#d4af37' },
+  { id:'corte_barba', nombre:'Corte + Barba', desc:'Corte de cabello completo más arreglo de barba con toalla caliente.', dur:45, precio:25, color:'#3a2a1a', acc:'#b87333' },
+  { id:'barba', nombre:'Arreglo de barba', desc:'Perfilado y diseño de barba con navaja y toalla caliente.', dur:25, precio:12, color:'#22182a', acc:'#c8102e' },
+  { id:'cejas', nombre:'Perfilado de cejas', desc:'Diseño y limpieza de cejas con cuchilla.', dur:10, precio:5, color:'#1a2230', acc:'#1f3a93' },
+  { id:'ninos', nombre:'Corte para niños', desc:'Corte infantil hasta 10 años, ambiente cómodo y paciente.', dur:30, precio:12, color:'#1f2a1a', acc:'#46c46c' },
+  { id:'diseno', nombre:'Corte con diseño', desc:'Corte con diseño y líneas personalizadas para un look único.', dur:40, precio:20, color:'#2a1a1a', acc:'#d4af37' },
+];
+
+const BARBEROS = [
+  { id:'chino', nombre:'Chino', rol:'Barbero fundador', esp:'Fades y diseños', tags:['Fade','Diseño','Navaja'], color:'#3a2a1a' },
+  { id:'diego', nombre:'Diego', rol:'Barbero senior', esp:'Barba y clásicos', tags:['Barba','Clásico','Tijera'], color:'#1a2230' },
+  { id:'marco', nombre:'Marco', rol:'Barbero estilista', esp:'Cortes modernos', tags:['Textura','Moderno','Niños'], color:'#22182a' },
+];
+
+const METODOS_PAGO = [
+  { id:'yape', nombre:'Yape', desc:'Paga escaneando el QR', color:'#7128b0' },
+  { id:'plin', nombre:'Plin', desc:'Paga escaneando el QR', color:'#00a3e0' },
+  { id:'tarjeta', nombre:'Tarjeta', desc:'Crédito o débito', color:'#1f3a93' },
+  { id:'efectivo', nombre:'Efectivo', desc:'Paga en el local', color:'#46703c' },
+];
+
+const TESTIMONIOS = [
+  { nombre:'Carlos Mendoza', texto:'Reservé por la web en 2 minutos y pagué con Yape. Llegué y me atendieron al toque. Súper recomendado.', estrellas:5, ini:'C' },
+  { nombre:'José Quispe', texto:'El mejor fade que me han hecho. Chino es un crack. La página es fácil de usar y se ve genial.', estrellas:5, ini:'J' },
+  { nombre:'André Ríos', texto:'Me gustó poder elegir barbero y ver los horarios libres. Sin esperas, sin complicaciones.', estrellas:5, ini:'A' },
+  { nombre:'Luis Fernández', texto:'Ambiente premium y atención de primera. El sistema de reservas funciona súper bien.', estrellas:4, ini:'L' },
+];
+
+const GALERIA = [
+  { label:'Fade bajo', c1:'#2b2b2b', c2:'#000' },
+  { label:'Barba completa', c1:'#3a2a1a', c2:'#1a1008' },
+  { label:'Diseño líneas', c1:'#2a1a1a', c2:'#000' },
+  { label:'Corte clásico', c1:'#1a2230', c2:'#000' },
+  { label:'Textura moderna', c1:'#22182a', c2:'#000' },
+  { label:'Cejas perfiladas', c1:'#1f2a1a', c2:'#000' },
+  { label:'Niños', c1:'#1f2a1a', c2:'#000' },
+  { label:'Mid fade', c1:'#2b2b2b', c2:'#000' },
+];
+
+/* ---------- Estado y almacenamiento ---------- */
+const LS = {
+  get(k,d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } },
+  set(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+};
+
+let state = {
+  view:'inicio',
+  step:1,
+  reservation: resetReservation(),
+  appointments: LS.get('cbs_citas', []),
+  ratings: LS.get('cbs_ratings', {}),
+  lastRes: LS.get('cbs_lastres', null),
+  userData: LS.get('cbs_user', { nombre:'', celular:'' }),
+};
+
+function resetReservation(){
+  return { service:null, barber:null, date:null, time:null, name:'', celular:'', method:null, ref:'', paid:false, opNum:null };
+}
+
+/* ---------- Utilidades ---------- */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const fmt = n => 'S/ ' + n.toFixed(0);
+const svcById = id => SERVICIOS.find(s=>s.id===id);
+const barberById = id => BARBEROS.find(b=>b.id===id);
+const pad = n => String(n).padStart(2,'0');
+
+function toast(msg, type=''){
+  const wrap = $('#toastWrap');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3200);
+}
+
+/* ---------- Ilustraciones SVG (placeholders de buena calidad) ---------- */
+function svcIllustration(svc){
+  // Ilustración temática para cada servicio (gradiente + icono)
+  const icons = {
+    corte:'<path d="M6 9c0-3 2-5 6-5s6 2 6 5v3H6z" fill="none" stroke="#d4af37" stroke-width="2"/><path d="M5 12h14l-1 8H6z" fill="none" stroke="#d4af37" stroke-width="2"/>',
+    corte_barba:'<circle cx="12" cy="9" r="4" fill="none" stroke="#d4af37" stroke-width="2"/><path d="M7 14c0 4 2 6 5 6s5-2 5-6" fill="none" stroke="#b87333" stroke-width="2"/>',
+    barba:'<circle cx="12" cy="8" r="3" fill="none" stroke="#d4af37" stroke-width="2"/><path d="M7 12c0 5 2 7 5 7s5-2 5-7c-1 2-3 3-5 3s-4-1-5-3z" fill="none" stroke="#c8102e" stroke-width="2"/>',
+    cejas:'<path d="M4 12c2-3 6-3 8 0 2-3 6-3 8 0" fill="none" stroke="#1f3a93" stroke-width="2"/>',
+    ninos:'<circle cx="12" cy="8" r="3" fill="none" stroke="#46c46c" stroke-width="2"/><path d="M6 20c0-4 3-6 6-6s6 2 6 6" fill="none" stroke="#d4af37" stroke-width="2"/>',
+    diseno:'<path d="M4 14l4-4 4 4 4-4 4 4" fill="none" stroke="#d4af37" stroke-width="2"/><circle cx="12" cy="6" r="3" fill="none" stroke="#d4af37" stroke-width="2"/>'
+  };
+  return `<svg class="ill" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><linearGradient id="g${svc.id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${svc.color}"/><stop offset="1" stop-color="#0d0d0d"/></linearGradient></defs>
+    <rect width="200" height="120" fill="url(#g${svc.id})"/>
+    <g transform="translate(76 30) scale(2)">${icons[svc.id]||icons.corte}</g>
+    <text x="100" y="108" text-anchor="middle" font-family="Bebas Neue" font-size="14" fill="${svc.acc}" letter-spacing="2">${svc.nombre.toUpperCase()}</text>
+  </svg>`;
+}
+
+function barberIllustration(b){
+  return `<svg class="ill" viewBox="0 0 240 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><linearGradient id="bg${b.id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${b.color}"/><stop offset="1" stop-color="#0d0d0d"/></linearGradient></defs>
+    <rect width="240" height="240" fill="url(#bg${b.id})"/>
+    <circle cx="120" cy="95" r="40" fill="#f2efe6" opacity=".95"/>
+    <path d="M55 230c0-40 30-65 65-65s65 25 65 65z" fill="#f2efe6" opacity=".95"/>
+    <path d="M85 75c0-20 16-35 35-35s35 15 35 35c0 5-1 8-1 12 2-2 4-5 4-10 0-22-17-38-38-38S82 55 82 77c0 5 2 8 4 10 0-4-1-7-1-12z" fill="${b.tags.includes('Diseño')?'#b87333':'#1a1a1a'}"/>
+    <path d="M88 130c0 18 14 32 32 32s32-14 32-32c-2 6-6 10-12 12-6 2-12 1-20 1s-14 1-20-1c-6-2-10-6-12-12z" fill="${b.id==='chino'?'#3a2a1a':b.id==='diego'?'#5a3a1a':'#2a2a2a'}"/>
+    <text x="120" y="222" text-anchor="middle" font-family="Bebas Neue" font-size="20" fill="#d4af37" letter-spacing="2">${b.nombre.toUpperCase()}</text>
+  </svg>`;
+}
+
+function galleryIllustration(g){
+  return `<svg class="ill" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><linearGradient id="gal${g.label.replace(/\s/g,'')}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${g.c1}"/><stop offset="1" stop-color="${g.c2}"/></linearGradient></defs>
+    <rect width="200" height="200" fill="url(#gal${g.label.replace(/\s/g,'')})"/>
+    <g transform="translate(70 55) scale(1.3)" stroke="#d4af37" stroke-width="2" fill="none" opacity=".5">
+      <circle cx="24" cy="20" r="14"/><path d="M6 48c0-12 8-20 18-20s18 8 18 20z"/>
+    </g>
+  </svg>`;
+}
+
+/* ---------- Generación de QR (SVG simple) ---------- */
+function qrSVG(seed){
+  // QR simulado como patrón de cuadrados pseudoaleatorio determinista
+  let h = 0; for(let i=0;i<seed.length;i++) h = (h*31 + seed.charCodeAt(i))>>>0;
+  const rand = ()=>{ h = (h*1103515245 + 12345) & 0x7fffffff; return h/0x7fffffff; };
+  const N = 21, cell = 6;
+  let rects = '';
+  // esquinas de posición
+  const corner = (x,y)=>`<rect x="${x}" y="${y}" width="${cell*7}" height="${cell*7}" fill="#000"/><rect x="${x+cell}" y="${y+cell}" width="${cell*5}" height="${cell*5}" fill="#fff"/><rect x="${x+cell*2}" y="${y+cell*2}" width="${cell*3}" height="${cell*3}" fill="#000"/>`;
+  rects += corner(0,0)+corner(cell*(N-7),0)+corner(0,cell*(N-7));
+  for(let y=0;y<N;y++){
+    for(let x=0;x<N;x++){
+      if((x<8&&y<8)||(x>N-9&&y<8)||(x<8&&y>N-9)) continue;
+      if(rand()>0.55) rects += `<rect x="${x*cell}" y="${y*cell}" width="${cell}" height="${cell}" fill="#000"/>`;
+    }
+  }
+  return `<svg class="qr-svg" viewBox="0 0 ${N*cell} ${N*cell}" role="img" aria-label="Código QR de ejemplo para pago. Paga escaneando este código con la app de tu banco o Yape/Plin al número 987 654 321."><rect width="100%" height="100%" fill="#fff"/>${rects}</svg>`;
+}
+
+/* ---------- Renderizado: Inicio ---------- */
+function renderHome(){
+  // servicios destacados (4)
+  $('#homeServices').innerHTML = SERVICIOS.slice(0,4).map(s=>svcCard(s)).join('');
+  $('#homeBarbers').innerHTML = BARBEROS.map(b=>barberCard(b)).join('');
+  $('#gallery').innerHTML = GALERIA.map(g=>`<div class="gallery-item">${galleryIllustration(g)}<div class="gi-label">${g.label}</div></div>`).join('');
+  $('#testimonials').innerHTML = TESTIMONIOS.map(t=>`
+    <div class="test-card">
+      <div class="test-stars" aria-label="${t.estrellas} de 5 estrellas">${'★'.repeat(t.estrellas)}${'☆'.repeat(5-t.estrellas)}</div>
+      <p class="test-text">"${t.texto}"</p>
+      <div class="test-author"><div class="test-av" aria-hidden="true">${t.ini}</div><div><b>${t.nombre}</b><span>Cliente verificado</span></div></div>
+    </div>`).join('');
+  // hero illustration
+  const sb = SERVICIOS[1];
+  $('#hero-ill').innerHTML = svcIllustration(sb);
+}
+
+function svcCard(s){
+  return `<article class="svc-card">
+    <div class="svc-ill">${svcIllustration(s)}</div>
+    <div class="svc-body">
+      <h3>${s.nombre}</h3>
+      <p class="svc-desc">${s.desc}</p>
+      <div class="svc-meta">
+        <span class="svc-price">${fmt(s.precio)}</span>
+        <span class="svc-dur"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${s.dur} min</span>
+      </div>
+      <button class="btn btn-primary btn-block btn-sm" onclick="startReserve('${s.id}')">Reservar</button>
+    </div>
+  </article>`;
+}
+
+function barberCard(b){
+  return `<article class="barber-card">
+    <div class="barber-ill">${barberIllustration(b)}</div>
+    <div class="barber-body">
+      <h3>${b.nombre}</h3>
+      <div class="barber-role">${b.rol}</div>
+      <div class="barber-tags">${b.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <p class="muted" style="font-size:.85rem;margin-bottom:1rem">Especialista en ${b.esp}</p>
+      <button class="btn btn-dark btn-block btn-sm" onclick="startReserve(null,'${b.id}')">Reservar con ${b.nombre}</button>
+    </div>
+  </article>`;
+}
+
+function renderAllServices(){ $('#allServices').innerHTML = SERVICIOS.map(s=>svcCard(s)).join(''); }
+function renderAllBarbers(){ $('#allBarbers').innerHTML = BARBEROS.map(b=>barberCard(b)).join(''); }
+
+/* ---------- Navegación entre vistas ---------- */
+function go(view, opts={}){
+  state.view = view;
+  $$('.view').forEach(v=>v.classList.remove('active'));
+  const target = $('#view-'+view);
+  if(target) target.classList.add('active');
+  // actualizar aria-current del menú
+  $$('.main-nav a').forEach(a=>{
+    a.removeAttribute('aria-current');
+    if(a.dataset.nav===view) a.setAttribute('aria-current','page');
+  });
+  // cerrar menú móvil
+  $('#mainNav').classList.remove('open');
+  $('#menuToggle').setAttribute('aria-expanded','false');
+  window.scrollTo({top:0,behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+  // acciones por vista
+  if(view==='reservar'){
+    $('#repeatBar').style.display = state.lastRes ? 'block' : 'none';
+    if(!opts.keepStep){ state.reservation = resetReservation(); state.step = 1; }
+    renderReservation();
+  }
+  if(view==='miscitas') renderAppointments();
+  // hash
+  history.replaceState(null,'','#'+view);
+}
+
+/* ---------- Menú móvil ---------- */
+$('#menuToggle').addEventListener('click',()=>{
+  const nav = $('#mainNav'); const open = nav.classList.toggle('open');
+  $('#menuToggle').setAttribute('aria-expanded', open?'true':'false');
+});
+
+/* ---------- Preferencias de visualización ---------- */
+function loadPrefs(){
+  const ts = LS.get('cbs_textsize','normal');
+  const hc = LS.get('cbs_hc','off');
+  applyTextSize(ts); applyHC(hc);
+  $$('[data-textsize]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.textsize===ts?'true':'false'));
+  $$('[data-hc]').forEach(b=>b.setAttribute('aria-pressed', b.dataset.hc===hc?'true':'false'));
+}
+function applyTextSize(v){ document.documentElement.setAttribute('data-textsize', v); }
+function applyHC(v){ document.body.classList.toggle('hc', v==='on'); }
+
+$('#prefsBtn').addEventListener('click', e=>{
+  e.stopPropagation();
+  const m = $('#prefsMenu'); const open = m.classList.toggle('open');
+  $('#prefsBtn').setAttribute('aria-expanded', open?'true':'false');
+});
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#prefsMenu') && !e.target.closest('#prefsBtn')){
+    $('#prefsMenu').classList.remove('open');
+    $('#prefsBtn').setAttribute('aria-expanded','false');
+  }
+});
+$$('.prefs-options button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    if(b.dataset.textsize){ LS.set('cbs_textsize', b.dataset.textsize); applyTextSize(b.dataset.textsize); }
+    if(b.dataset.hc){ LS.set('cbs_hc', b.dataset.hc); applyHC(b.dataset.hc); }
+    loadPrefs();
+    toast('Preferencias guardadas','ok');
+  });
+});
+
+/* ---------- Reserva: inicio rápido ---------- */
+function startReserve(svcId, barberId){
+  state.reservation = resetReservation();
+  if(svcId) state.reservation.service = svcId;
+  if(barberId) state.reservation.barber = barberId;
+  // Determinar paso inicial según lo preseleccionado
+  if(svcId && barberId) state.step = 3;
+  else if(svcId) state.step = 2;
+  else if(barberId) state.step = 1;
+  else state.step = 1;
+  go('reservar', {keepStep:true});
+}
+
+$('#repeatBtn').addEventListener('click',()=>{
+  const lr = state.lastRes;
+  if(!lr) return;
+  state.reservation = resetReservation();
+  state.reservation.service = lr.service;
+  state.reservation.barber = lr.barber;
+  state.reservation.name = state.userData.nombre;
+  state.reservation.celular = state.userData.celular;
+  state.step = 3; // ir a fecha y hora (servicio y barbero ya elegidos)
+  renderReservation();
+  toast('Cargamos tu última cita. Elige fecha y hora.','ok');
+});
+
+/* ---------- Render del flujo de reserva ---------- */
+function renderReservation(){
+  // mostrar panel correcto
+  $$('.step-panel').forEach(p=>p.classList.remove('active'));
+  $('#panel-'+state.step).classList.add('active');
+  // barra de progreso
+  $$('.step').forEach(s=>{
+    const n = +s.dataset.step;
+    s.classList.toggle('done', n < state.step || (n===state.step && stepComplete(n)));
+    s.removeAttribute('aria-current');
+    if(n===state.step) s.setAttribute('aria-current','true');
+  });
+  // pasos clickeables (volver a uno completado)
+  $$('.step').forEach(s=>{
+    s.onclick = ()=>{ const n=+s.dataset.step; if(n < state.step || stepComplete(n)) { state.step=n; renderReservation(); } };
+  });
+
+  renderStepContent();
+  renderResumen();
+  renderStepNav();
+}
+
+function stepComplete(n){
+  const r = state.reservation;
+  switch(n){
+    case 1: return !!r.service;
+    case 2: return !!r.barber;
+    case 3: return !!r.date && !!r.time;
+    case 4: return validateName(r.name).ok && validateCel(r.celular).ok;
+    case 5: return !!r.method && payStepValid();
+  }
+  return false;
+}
+
+function renderStepContent(){
+  const r = state.reservation;
+  if(state.step===1){
+    $('#svcOptions').innerHTML = SERVICIOS.map(s=>`
+      <button class="opt-card" role="radio" aria-checked="${r.service===s.id}" aria-pressed="${r.service===s.id}" data-svc="${s.id}">
+        <span class="opt-ic">${miniIcon(s.id)}</span>
+        <span class="opt-main"><b>${s.nombre}</b><span>${s.desc}</span></span>
+        <span class="opt-right"><span class="price">${fmt(s.precio)}</span></span>
+        <span class="opt-check"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+      </button>`).join('');
+    $$('#svcOptions .opt-card').forEach(b=>b.onclick=()=>{ r.service=b.dataset.svc; renderReservation(); });
+  }
+  if(state.step===2){
+    const anyCard = `<button class="opt-card" role="radio" aria-checked="${r.barber==='any'}" aria-pressed="${r.barber==='any'}" data-barber="any">
+        <span class="opt-ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M14 20c0-3 2-5 4-5s4 2 4 5"/></svg></span>
+        <span class="opt-main"><b>Cualquier barbero</b><span>Asignamos el primero disponible</span></span>
+        <span class="opt-check"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+      </button>`;
+    $('#barberOptions').innerHTML = anyCard + BARBEROS.map(b=>`
+      <button class="opt-card" role="radio" aria-checked="${r.barber===b.id}" aria-pressed="${r.barber===b.id}" data-barber="${b.id}">
+        <span class="opt-ic" style="border-radius:50%;overflow:hidden;width:46px;height:46px;padding:0">${barberIllustration({...b,color:'#2a2a2a'})}</span>
+        <span class="opt-main"><b>${b.nombre}</b><span>${b.rol} · ${b.esp}</span></span>
+        <span class="opt-check"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+      </button>`).join('');
+    $$('#barberOptions .opt-card').forEach(b=>b.onclick=()=>{ r.barber=b.dataset.barber; renderReservation(); });
+  }
+  if(state.step===3){
+    renderCalendar();
+  }
+  if(state.step===4){
+    $('#r-name').value = r.name || state.userData.nombre;
+    $('#r-cel').value = r.celular || state.userData.celular;
+    validateDataFields();
+  }
+  if(state.step===5){
+    renderPayStep();
+  }
+}
+
+function miniIcon(id){
+  const m = {corte:'✂',corte_barba:'✂',barba:'🪒',cejas:'•',ninos:'✂',diseno:'✂'};
+  return `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="8" y1="8" x2="20" y2="18"/><line x1="8" y1="16" x2="20" y2="6"/></svg>`;
+}
+
+/* ---------- Calendario (14 días, sin domingos) ---------- */
+function renderCalendar(){
+  const r = state.reservation;
+  const days = [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  let d = new Date(today);
+  let added = 0, guard = 0;
+  while(added < 14 && guard < 40){
+    guard++;
+    const dow = d.getDay(); // 0=domingo
+    if(dow !== 0){
+      days.push(new Date(d));
+      added++;
+    }
+    d.setDate(d.getDate()+1);
+  }
+  const names = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  $('#calendar').innerHTML = days.map(dt=>{
+    const iso = isoDate(dt);
+    const sel = r.date===iso;
+    return `<button class="cal-day" data-date="${iso}" aria-pressed="${sel}" aria-label="${names[dt.getDay()]} ${dt.getDate()} de ${mes(dt.getMonth())}">
+      <span class="d-name">${names[dt.getDay()]}</span><span class="d-num">${dt.getDate()}</span>
+    </button>`;
+  }).join('');
+  $$('#calendar .cal-day').forEach(b=>b.onclick=()=>{ r.date=b.dataset.date; r.time=null; renderReservation(); });
+  // slots
+  if(r.date){ renderSlots(); } else { $('#slots').innerHTML=''; $('#slotsHint').textContent='Selecciona un día para ver los horarios disponibles.'; }
+}
+
+function isoDate(dt){ return dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate()); }
+function mes(m){ return ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][m]; }
+
+function renderSlots(){
+  const r = state.reservation;
+  const slots = [];
+  for(let h=10; h<20; h++){ slots.push(pad(h)+':00'); slots.push(pad(h)+':30'); }
+  // ocupadas
+  const taken = takenSlots(r.date, r.barber);
+  // pasadas (si la fecha es hoy)
+  const now = new Date();
+  const isToday = r.date === isoDate(new Date(now.getFullYear(),now.getMonth(),now.getDate()));
+  $('#slotsHint').textContent = 'Horarios disponibles para '+formatDateLong(r.date)+(r.barber!=='any'?' con '+barberById(r.barber).nombre:' con cualquier barbero')+'.';
+  $('#slots').innerHTML = slots.map(t=>{
+    const pas = isToday && timeToMinutes(t) <= (now.getHours()*60+now.getMinutes());
+    const occ = taken.includes(t);
+    const dis = !pas && !occ;
+    const sel = r.time===t;
+    return `<button class="slot" data-time="${t}" aria-pressed="${sel}" ${dis?'':'disabled'} aria-label="${t} ${dis?'disponible':'no disponible'}">${t}</button>`;
+  }).join('');
+  $$('#slots .slot').forEach(b=>{ if(!b.disabled) b.onclick=()=>{ r.time=b.dataset.time; renderReservation(); }; });
+}
+
+function timeToMinutes(t){ const [h,m]=t.split(':').map(Number); return h*60+m; }
+
+function takenSlots(date, barber){
+  // Devuelve horas ocupadas para la fecha y barbero seleccionados.
+  // Si barber==='any', una hora se considera ocupada solo si los 3 barberos están ocupados.
+  const appts = state.appointments.filter(a=>a.date===date && a.status!=='cancelada');
+  if(barber==='any'){
+    const result = [];
+    const times = [];
+    for(let h=10;h<20;h++){ times.push(pad(h)+':00'); times.push(pad(h)+':30'); }
+    times.forEach(t=>{
+      const count = appts.filter(a=>a.time===t).length;
+      if(count >= BARBEROS.length) result.push(t); // todos ocupados
+    });
+    return result;
+  }
+  return appts.filter(a=>a.barber===barber).map(a=>a.time);
+}
+
+function formatDateLong(iso){
+  const [y,m,d] = iso.split('-').map(Number);
+  const dt = new Date(y,m-1,d);
+  return dt.getDate()+' de '+mes(dt.getMonth())+' de '+y;
+}
+
+/* ---------- Validación de datos ---------- */
+function validateName(v){
+  v = (v||'').trim();
+  if(!v) return {ok:false, msg:'Ingresa tu nombre.'};
+  if(v.length < 2) return {ok:false, msg:'Tu nombre debe tener al menos 2 letras.'};
+  if(!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v)) return {ok:false, msg:'Usa solo letras y espacios.'};
+  return {ok:true};
+}
+function validateCel(v){
+  v = (v||'').replace(/\s/g,'');
+  if(!v) return {ok:false, msg:'Ingresa tu número de celular.'};
+  if(!/^\d{9}$/.test(v)) return {ok:false, msg:'El celular debe tener 9 dígitos numéricos.'};
+  if(!v.startsWith('9')) return {ok:false, msg:'El celular debe empezar con 9.'};
+  return {ok:true};
+}
+
+function showFieldError(inputId, errId, res){
+  const inp = $('#'+inputId), err = $('#'+errId);
+  if(res.ok){ inp.classList.remove('invalid'); err.classList.remove('show'); }
+  else { inp.classList.add('invalid'); err.classList.add('show'); err.querySelector('span').textContent = res.msg; }
+}
+
+function validateDataFields(){
+  const r = state.reservation;
+  r.name = $('#r-name').value; r.celular = $('#r-cel').value;
+  const n = validateName(r.name), c = validateCel(r.celular);
+  // no mostrar errores agresivamente hasta que el usuario interactúe, pero sí para enable
+  return n.ok && c.ok;
+}
+
+['r-name','r-cel'].forEach(id=>{
+  const el = $('#'+id);
+  el.addEventListener('input',()=>{
+    const r = state.reservation;
+    r.name = $('#r-name').value; r.celular = $('#r-cel').value;
+    const n = validateName(r.name), c = validateCel(r.celular);
+    showFieldError('r-name','name-err', n);
+    showFieldError('r-cel','cel-err', c);
+    renderStepNav();
+  });
+  el.addEventListener('blur',()=>{
+    const r = state.reservation;
+    r.name = $('#r-name').value; r.celular = $('#r-cel').value;
+    showFieldError('r-name','name-err', validateName(r.name));
+    showFieldError('r-cel','cel-err', validateCel(r.celular));
+    renderStepNav();
+  });
+});
+
+/* ---------- Paso de pago ---------- */
+function renderPayStep(){
+  const r = state.reservation;
+  const svc = svcById(r.service);
+  $('#paySvcName').textContent = svc ? svc.nombre : '—';
+  $('#payTotal').textContent = svc ? fmt(svc.precio) : 'S/ 0';
+  // tabs
+  $('#payTabs').innerHTML = METODOS_PAGO.map(m=>`
+    <button class="pay-tab" role="radio" aria-checked="${r.method===m.id}" aria-pressed="${r.method===m.id}" data-method="${m.id}">
+      <span style="width:28px;height:28px;border-radius:6px;background:${m.color};display:grid;place-items:center;color:#fff">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      </span>
+      <b>${m.nombre}</b><span>${m.desc}</span>
+    </button>`).join('');
+  $$('#payTabs .pay-tab').forEach(b=>b.onclick=()=>{ r.method=b.dataset.method; r.ref=''; renderPayStep(); renderResumen(); renderStepNav(); });
+  renderPayContent();
+}
+
+function renderPayContent(){
+  const r = state.reservation; const box = $('#payContent');
+  $('#demoNote').style.display = 'none';
+  if(!r.method){ box.innerHTML = '<p class="muted center" style="padding:1rem">Selecciona un método de pago para continuar.</p>'; return; }
+  if(r.method==='yape' || r.method==='plin'){
+    const m = METODOS_PAGO.find(x=>x.id===r.method);
+    $('#demoNote').style.display = 'flex';
+    box.innerHTML = `<div class="pay-box">
+      <div class="qr-block">
+        ${qrSVG('chino-'+r.method+'-'+(r.service||''))}
+        <div class="qr-info">
+          <b>Paga con ${m.nombre}</b>
+          <div class="num">987 654 321</div>
+          <p>Escanea el QR o envía el monto al número del local. Luego ingresa el código de operación (6 dígitos).</p>
+        </div>
+      </div>
+      <div class="field" style="margin-top:1rem;margin-bottom:0">
+        <label for="op-code">Código de operación <span class="req" aria-hidden="true">*</span></label>
+        <input class="input" id="op-code" name="op${r.method}" type="text" inputmode="numeric" maxlength="6" placeholder="123456" value="${r.ref}" aria-required="true" aria-describedby="op-err op-hint" />
+        <p class="field-hint" id="op-hint">6 dígitos. Prueba con cualquier número excepto 000000 (error simulado).</p>
+        <div class="field-error" id="op-err" role="alert"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg><span></span></div>
+      </div>
+    </div>`;
+    bindOpCode();
+  } else if(r.method==='tarjeta'){
+    $('#demoNote').style.display = 'flex';
+    box.innerHTML = `<div class="pay-box">
+      <div class="field"><label for="tc-num">Número de tarjeta <span class="req" aria-hidden="true">*</span></label>
+        <input class="input" id="tc-num" type="text" inputmode="numeric" maxlength="19" placeholder="4111 1111 1111 1111" value="${r.ref}" aria-describedby="tc-err" /></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+        <div class="field"><label for="tc-exp">Vencimiento <span class="req" aria-hidden="true">*</span></label><input class="input" id="tc-exp" type="text" maxlength="5" placeholder="MM/YY" /></div>
+        <div class="field"><label for="tc-cvv">CVV <span class="req" aria-hidden="true">*</span></label><input class="input" id="tc-cvv" type="text" inputmode="numeric" maxlength="3" placeholder="123" /></div>
+      </div>
+      <div class="field" style="margin-bottom:0"><label for="tc-name">Nombre en la tarjeta <span class="req" aria-hidden="true">*</span></label><input class="input" id="tc-name" type="text" placeholder="Como aparece en la tarjeta" /></div>
+      <div class="field-error" id="tc-err" role="alert" style="margin-top:.5rem"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg><span></span></div>
+    </div>`;
+    bindTarjeta();
+  } else if(r.method==='efectivo'){
+    box.innerHTML = `<div class="pay-box">
+      <b class="panel-title" style="display:block;margin-bottom:.5rem">Pago en efectivo</b>
+      <p class="muted" style="margin-bottom:0">Pagarás directamente en el local al momento de tu cita. Tu reserva quedará con estado <b style="color:var(--warn)">Pendiente en el local</b>.</p>
+    </div>`;
+    r.ref = 'EFECTIVO';
+  }
+}
+
+function bindOpCode(){
+  const inp = $('#op-code');
+  if(!inp) return;
+  inp.addEventListener('input',()=>{
+    state.reservation.ref = inp.value.replace(/\D/g,'').slice(0,6);
+    inp.value = state.reservation.ref;
+    const err = $('#op-err');
+    err.classList.remove('show');
+    inp.classList.remove('invalid');
+    renderStepNav();
+  });
+}
+function bindTarjeta(){
+  const num = $('#tc-num');
+  if(!num) return;
+  num.addEventListener('input',()=>{
+    let v = num.value.replace(/\D/g,'').slice(0,16);
+    v = v.replace(/(.{4})/g,'$1 ').trim();
+    num.value = v;
+    state.reservation.ref = v.replace(/\s/g,'');
+    renderStepNav();
+  });
+  ['tc-exp','tc-cvv','tc-name'].forEach(id=>{
+    const el = $('#'+id); if(!el) return;
+    el.addEventListener('input',()=>{ renderStepNav(); });
+    if(id==='tc-exp'){ el.addEventListener('input',()=>{
+      let v = el.value.replace(/\D/g,'').slice(0,4);
+      if(v.length>=3) v = v.slice(0,2)+'/'+v.slice(2);
+      el.value = v;
+    }); }
+    if(id==='tc-cvv'){ el.addEventListener('input',()=>{ el.value = el.value.replace(/\D/g,'').slice(0,3); }); }
+  });
+}
+
+function payStepValid(){
+  const r = state.reservation;
+  if(!r.method) return false;
+  if(r.method==='yape'||r.method==='plin'){ return /^\d{6}$/.test(r.ref); }
+  if(r.method==='tarjeta'){
+    const num = (r.ref||'').replace(/\s/g,'');
+    const exp = $('#tc-exp')?.value||'';
+    const cvv = $('#tc-cvv')?.value||'';
+    const name = $('#tc-name')?.value.trim()||'';
+    return /^\d{16}$/.test(num) && /^\d{2}\/\d{2}$/.test(exp) && /^\d{3}$/.test(cvv) && name.length>=3;
+  }
+  if(r.method==='efectivo') return true;
+  return false;
+}
+
+/* ---------- Resumen ---------- */
+function renderResumen(){
+  const r = state.reservation;
+  const svc = svcById(r.service);
+  const bar = r.barber ? (r.barber==='any'?'Cualquier barbero':barberById(r.barber).nombre) : null;
+  const rows = [];
+  if(svc) rows.push(['Servicio', svc.nombre]);
+  if(bar) rows.push(['Barbero', bar]);
+  if(r.date) rows.push(['Fecha', formatDateShort(r.date)]);
+  if(r.time) rows.push(['Hora', r.time]);
+  if(r.name) rows.push(['Cliente', r.name]);
+  if(r.method){ const m = METODOS_PAGO.find(x=>x.id===r.method); rows.push(['Pago', m?m.nombre:'']); }
+
+  if(rows.length===0){
+    $('#resumenContent').innerHTML = '<p class="rsm-empty">Aún no has completado datos. Tu cita aparecerá aquí.</p>';
+  } else {
+    $('#resumenContent').innerHTML = rows.map(([k,v])=>`<div class="rsm-row"><span>${k}</span><b>${v}</b></div>`).join('');
+  }
+  $('#resumenTotal').textContent = svc ? fmt(svc.precio) : 'S/ 0';
+}
+function formatDateShort(iso){ const [y,m,d]=iso.split('-').map(Number); return d+'/'+pad(m)+'/'+y; }
+
+/* ---------- Navegación de pasos ---------- */
+function renderStepNav(){
+  const r = state.reservation;
+  const prev = $('#prevBtn'), next = $('#nextBtn');
+  prev.style.visibility = state.step===1 ? 'hidden':'visible';
+  // texto del botón siguiente
+  if(state.step===5){
+    next.textContent = r.method==='efectivo' ? 'Confirmar reserva' : 'Pagar y reservar';
+  } else {
+    next.textContent = 'Siguiente';
+  }
+  next.disabled = !stepComplete(state.step);
+}
+
+$('#prevBtn').addEventListener('click',()=>{
+  if(state.step>1){ state.step--; renderReservation(); }
+});
+$('#nextBtn').addEventListener('click',()=>{
+  if(state.step<5){ state.step++; renderReservation(); return; }
+  // paso 5: procesar pago
+  processPayment();
+});
+
+/* ---------- Procesamiento de pago ---------- */
+function processPayment(){
+  const r = state.reservation;
+  const next = $('#nextBtn');
+  // validación de error simulado en códigos Yape/Plin: 000000 inválido
+  if((r.method==='yape'||r.method==='plin') && r.ref==='000000'){
+    showPayError('El código de operación 000000 no es válido. Verifica el código de tu comprobante e inténtalo nuevamente.');
+    return;
+  }
+  // validación tarjeta: número que no empiece con 4/5 -> error simulado
+  if(r.method==='tarjeta'){
+    const num = r.ref;
+    if(!/^(4|5)/.test(num)){ showPayError('La tarjeta no es válida en este entorno de demostración. Prueba con un número que empiece en 4 o 5.'); return; }
+  }
+  // procesando
+  $('#processing').classList.add('show');
+  next.disabled = true;
+  $('#payContent').style.opacity = '.4';
+  $('#payContent').style.pointerEvents = 'none';
+  setTimeout(()=>{
+    $('#processing').classList.remove('show');
+    $('#payContent').style.opacity = '1';
+    $('#payContent').style.pointerEvents = 'auto';
+    finalizeReservation();
+  }, 1800);
+}
+
+function showPayError(msg){
+  const r = state.reservation;
+  const errBox = r.method==='tarjeta' ? $('#tc-err') : $('#op-err');
+  if(errBox){
+    errBox.classList.add('show');
+    errBox.querySelector('span').textContent = msg;
+    const inp = r.method==='tarjeta' ? $('#tc-num') : $('#op-code');
+    if(inp){ inp.classList.add('invalid'); inp.focus(); }
+  }
+  toast(msg,'err');
+  // ofrecer cambio de método vía aria-live
+  const live = document.createElement('div');
+  live.setAttribute('role','alert');
+  live.textContent = 'Error en el pago: '+msg+' Puedes corregir los datos o cambiar de método.';
+  $('#toastWrap').appendChild(live);
+  setTimeout(()=>live.remove(), 3200);
+}
+
+/* ---------- Finalizar reserva ---------- */
+function finalizeReservation(){
+  const r = state.reservation;
+  const svc = svcById(r.service);
+  const opNum = 'OP'+Date.now().toString().slice(-8);
+  const paid = r.method !== 'efectivo';
+  const cita = {
+    id: 'C'+Date.now(),
+    opNum,
+    service: r.service,
+    serviceName: svc.nombre,
+    barber: r.barber,
+    barberName: r.barber==='any'?'Cualquier barbero':barberById(r.barber).nombre,
+    date: r.date,
+    time: r.time,
+    name: r.name,
+    celular: r.celular,
+    method: r.method,
+    methodName: METODOS_PAGO.find(m=>m.id===r.method).nombre,
+    total: svc.precio,
+    paid,
+    status: 'activa',
+    createdAt: new Date().toISOString(),
+  };
+  state.appointments.unshift(cita);
+  LS.set('cbs_citas', state.appointments);
+  // guardar última reserva y datos del usuario
+  state.lastRes = { service: r.service, barber: r.barber };
+  LS.set('cbs_lastres', state.lastRes);
+  state.userData = { nombre: r.name, celular: r.celular };
+  LS.set('cbs_user', state.userData);
+  // mostrar confirmación
+  renderConfirmation(cita);
+  toast(paid?'¡Pago confirmado! Tu cita está lista.':'¡Reserva registrada! Pendiente de pago en el local.','ok');
+}
+
+function renderConfirmation(cita){
+  const paid = cita.paid;
+  $('#confirmWrap').innerHTML = `
+    <div class="confirm" role="status" aria-live="polite">
+      <div class="confirm-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></div>
+      <h2>¡Listo!<span>${paid?'Tu cita está pagada':'Reserva registrada'}</span></h2>
+      <p class="muted">${paid?'El pago se procesó correctamente.':'Recuerda pagar en el local al momento de tu cita.'}</p>
+      <div class="op-num" aria-label="Número de operación ${cita.opNum}">${cita.opNum}</div>
+      <div class="receipt">
+        <div class="rsm-row"><span>Servicio</span><b>${cita.serviceName}</b></div>
+        <div class="rsm-row"><span>Barbero</span><b>${cita.barberName}</b></div>
+        <div class="rsm-row"><span>Fecha</span><b>${formatDateLong(cita.date)}</b></div>
+        <div class="rsm-row"><span>Hora</span><b>${cita.time}</b></div>
+        <div class="rsm-row"><span>Pago</span><b>${cita.methodName}</b></div>
+        <div class="rsm-row"><span>Estado del pago</span><b><span class="status-badge ${paid?'status-pagado':'status-pendiente'}">${paid?'Pagado':'Pendiente en el local'}</span></b></div>
+        <div class="rsm-total"><span>Total</span><b>${fmt(cita.total)}</b></div>
+      </div>
+      <div class="confirm-actions">
+        <button class="btn btn-dark" onclick="addToCalendar('${cita.id}')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>Agregar al calendario</button>
+        <button class="btn btn-primary" onclick="go('miscitas')">Ver mis citas</button>
+        <button class="btn btn-ghost" onclick="reserveAnother()">Reservar otra</button>
+      </div>
+      <div id="surveyBox"></div>
+    </div>`;
+  // encuesta de satisfacción
+  setTimeout(()=>renderSurvey(cita.id), 400);
+  // scroll a la confirmación
+  setTimeout(()=>$('#confirmWrap').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth', block:'start'}), 100);
+}
+
+function addToCalendar(id){
+  toast('Calendario: evento de cita agregado (simulado).','ok');
+}
+
+function reserveAnother(){
+  state.reservation = resetReservation();
+  state.step = 1;
+  $('#confirmWrap').innerHTML = '';
+  renderReservation();
+  $('#panel-1').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth', block:'start'});
+}
+
+/* ---------- Encuesta de satisfacción ---------- */
+function renderSurvey(citaId){
+  if(state.ratings[citaId]){ return; } // ya evaluó
+  $('#surveyBox').innerHTML = `
+    <div class="survey">
+      <h3>¿Cómo fue tu experiencia reservando?</h3>
+      <p class="muted" style="font-size:.9rem">Tu opinión nos ayuda a mejorar. Toma solo 10 segundos.</p>
+      <div class="stars" role="radiogroup" aria-label="Calificación de 1 a 5 estrellas">
+        ${[1,2,3,4,5].map(n=>`<button class="star-btn" data-star="${n}" role="radio" aria-checked="false" aria-label="${n} estrella${n>1?'s':''}"><svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.3 7L12 18l-6.3 3.2L7 14.2l-5-4.8 7-.9z"/></svg></button>`).join('')}
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="survey-comment">Comentario (opcional)</label>
+        <textarea class="input" id="survey-comment" rows="2" placeholder="Cuéntanos qué piensas..."></textarea>
+      </div>
+      <button class="btn btn-primary btn-block" id="survey-submit" disabled style="margin-top:1rem">Enviar opinión</button>
+    </div>`;
+  let sel = 0;
+  $$('#surveyBox .star-btn').forEach(b=>{
+    b.onclick = ()=>{
+      sel = +b.dataset.star;
+      $$('#surveyBox .star-btn').forEach(x=>{
+        const n = +x.dataset.star;
+        x.setAttribute('aria-checked', n===sel?'true':'false');
+        x.style.color = n<=sel ? 'var(--gold)' : 'var(--line)';
+      });
+      $('#survey-submit').disabled = false;
+    };
+  });
+  $('#survey-submit').onclick = ()=>{
+    const comment = $('#survey-comment').value.trim();
+    state.ratings[citaId] = { estrellas: sel, comentario: comment, fecha: new Date().toISOString() };
+    LS.set('cbs_ratings', state.ratings);
+    $('#surveyBox').innerHTML = `<div class="survey" style="border-color:var(--ok)"><h3 style="color:var(--ok)">¡Gracias por tu opinión! ⭐</h3><p class="muted" style="margin:0">Valoramos mucho tu feedback.</p></div>`;
+    toast('¡Gracias por calificarnos!','ok');
+  };
+}
+
+/* ---------- Mis citas ---------- */
+function renderAppointments(){
+  const wrap = $('#apptListWrap');
+  const list = state.appointments;
+  if(!list.length){
+    wrap.innerHTML = `<div class="empty-state">
+      <div class="es-ic"><svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></div>
+      <h3>Aún no tienes citas</h3>
+      <p>Cuando reserves, tus citas aparecerán aquí con su estado de pago.</p>
+      <button class="btn btn-primary mt-1" onclick="go('reservar')">Reservar mi primera cita</button>
+    </div>`;
+    return;
+  }
+  wrap.innerHTML = `<div class="appt-list">${list.map(a=>apptCard(a)).join('')}</div>`;
+  $$('.appt-card .cancel-btn').forEach(b=>b.onclick=()=>confirmCancel(b.dataset.id));
+}
+
+function apptCard(a){
+  const [y,m,d] = a.date.split('-').map(Number);
+  const meses=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  const statusBadge = a.status==='cancelada'
+    ? '<span class="status-badge status-cancelada">Cancelada</span>'
+    : (a.paid ? '<span class="status-badge status-pagado">Pagado</span>' : '<span class="status-badge status-pendiente">Pendiente en el local</span>');
+  return `<article class="appt-card">
+    <div class="appt-date"><b>${d}</b><span>${meses[m-1]}</span></div>
+    <div class="appt-info">
+      <h4>${a.serviceName}</h4>
+      <p>${a.time} · ${a.barberName} · ${a.methodName}</p>
+      <div class="appt-meta">${statusBadge}<span class="muted" style="font-size:.78rem">Op. ${a.opNum}</span></div>
+    </div>
+    <div class="appt-actions">
+      ${a.status!=='cancelada' ? `<button class="btn btn-dark btn-sm cancel-btn" data-id="${a.id}">Cancelar cita</button>` : ''}
+    </div>
+  </article>`;
+}
+
+function confirmCancel(id){
+  const a = state.appointments.find(x=>x.id===id);
+  if(!a) return;
+  openModal(
+    '¿Cancelar esta cita?',
+    `Vas a cancelar tu cita de ${a.serviceName} el ${formatDateLong(a.date)} a las ${a.time}.` + (a.paid ? ' Como ya estaba pagada, procesaremos un reembolso simulado de inmediato.' : ' No se realizó ningún cobro.'),
+    [
+      { label:'Seguir con la cita', cls:'btn-ghost', action: closeModal },
+      { label:'Sí, cancelar', cls:'btn-primary', action: ()=>{ doCancel(id); closeModal(); } }
+    ]
+  );
+}
+
+function doCancel(id){
+  const a = state.appointments.find(x=>x.id===id);
+  if(!a) return;
+  a.status = 'cancelada';
+  LS.set('cbs_citas', state.appointments);
+  renderAppointments();
+  if(a.paid){
+    toast('Cita cancelada. Reembolso simulado procesado por '+fmt(a.total)+'.','ok');
+  } else {
+    toast('Cita cancelada correctamente.','ok');
+  }
+}
+
+/* ---------- Modal genérico ---------- */
+function openModal(title, desc, actions){
+  $('#modalTitle').textContent = title;
+  $('#modalDesc').textContent = desc;
+  $('#modalActions').innerHTML = '';
+  actions.forEach(a=>{
+    const b = document.createElement('button');
+    b.className = 'btn '+a.cls; b.textContent = a.label; b.onclick = a.action;
+    $('#modalActions').appendChild(b);
+  });
+  $('#modal').classList.add('open');
+  // foco al primer botón
+  setTimeout(()=>{ const f=$('#modalActions button'); if(f) f.focus(); }, 50);
+}
+function closeModal(){ $('#modal').classList.remove('open'); }
+$('#modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ closeModal(); $('#prefsMenu').classList.remove('open'); $('#prefsBtn').setAttribute('aria-expanded','false'); }
+});
+
+/* ---------- Resumen plegable (móvil) ---------- */
+$('#resumenToggle').addEventListener('click',()=>{
+  const box = $('#resumenBox');
+  const open = box.classList.toggle('expanded');
+  $('#resumenToggle').setAttribute('aria-expanded', open?'true':'false');
+  $('#resumenToggle').querySelector('span').textContent = open?'Ocultar resumen':'Ver resumen de la cita';
+});
+
+/* ---------- Navegación por hash ---------- */
+function handleHash(){
+  const h = location.hash.replace('#','') || 'inicio';
+  const valid = ['inicio','servicios','barberos','reservar','miscitas'];
+  if(valid.includes(h)) go(h, {keepStep:true});
+}
+window.addEventListener('hashchange', handleHash);
+
+/* ---------- Inicio ---------- */
+document.addEventListener('DOMContentLoaded', ()=>{
+  $('#year').textContent = new Date().getFullYear();
+  loadPrefs();
+  renderHome();
+  renderAllServices();
+  renderAllBarbers();
+  handleHash();
+  // si hay citas previas, mostrar badge en Mis citas (aria)
+  if(state.appointments.length){
+    const mc = $('.main-nav a[data-nav="miscitas"]');
+    if(mc) mc.setAttribute('aria-label','Mis citas ('+state.appointments.filter(a=>a.status!=='cancelada').length+' activas)');
+  }
+});
+</script>
+</body>
+</html>
