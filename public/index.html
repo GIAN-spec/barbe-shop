@@ -1127,24 +1127,274 @@ main { flex: 1 0 auto; padding-top: var(--header-h); }
 .status-pill.completada { background: rgba(139, 92, 246, 0.18); color: #c4b5fd; border: 1px solid #8b5cf6; }
 .status-pill.rechazada { background: rgba(239, 68, 68, 0.15); color: var(--err); border: 1px solid var(--err); }
 
-/* ==================== MIS CITAS ==================== */
-.citas-grid { display: grid; gap: 1.2rem; }
+/* ==================== MIS CITAS - DISEÑO RESPONSIVO Y EJECUTIVO ==================== */
+.citas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.4rem;
+  margin-top: 1.5rem;
+}
+
 .cita-card {
-  background: var(--bg-surface); border: 1px solid var(--line);
-  border-radius: var(--radius-md); padding: 1.4rem; display: flex;
-  align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;
-  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1.5px solid var(--line-strong);
+  border-left: 5px solid var(--gold);
+  border-radius: 16px;
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  position: relative;
+  overflow: hidden;
 }
-.cita-card:hover { border-color: var(--line-gold); }
+
+.cita-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--line-gold);
+  box-shadow: 0 16px 36px -12px rgba(232, 185, 65, 0.25), 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+body.light .cita-card {
+  background: #ffffff;
+  border-color: rgba(40, 30, 10, 0.12);
+  border-left: 5px solid #c89416;
+  box-shadow: 0 10px 28px -12px rgba(35, 25, 10, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+body.light .cita-card:hover {
+  border-color: rgba(200, 148, 22, 0.4);
+  box-shadow: 0 18px 38px -12px rgba(200, 148, 22, 0.18), 0 4px 10px rgba(35, 25, 10, 0.06);
+}
+
+/* Acentos distintivos por estado */
+.cita-card.estado-confirmada { border-left-color: #22c55e !important; }
+.cita-card.estado-pendiente { border-left-color: #f59e0b !important; }
+.cita-card.estado-pagado { border-left-color: #3b82f6 !important; }
+.cita-card.estado-completada { border-left-color: #a855f7 !important; }
+.cita-card.estado-cancelada,
+.cita-card.estado-rechazada { border-left-color: #ef4444 !important; opacity: 0.88; }
+
+/* Cabecera de la tarjeta */
+.cita-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  margin-bottom: 0.95rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--line-strong);
+}
+body.light .cita-card-top {
+  border-bottom-color: rgba(40, 30, 10, 0.08);
+}
+
 .cita-date-badge {
-  background: var(--bg-card); border: 1px solid var(--line-gold); border-radius: var(--radius-sm);
-  padding: 0.8rem 1rem; text-align: center; min-width: 80px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--line-gold);
+  border-radius: 12px;
+  padding: 0.45rem 0.8rem;
+  text-align: center;
+  min-width: 66px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
-.cita-date-badge b { font-family: var(--font-display); font-size: 2rem; color: var(--gold); line-height: 1; display: block; }
-.cita-date-badge span { font-size: 0.72rem; text-transform: uppercase; color: var(--text-mut); font-weight: 700; }
-.cita-info h4 { font-family: var(--font-serif); font-size: 1.2rem; color: #fff; margin-bottom: 0.2rem; }
-.cita-info p { color: var(--text-dim); font-size: 0.9rem; }
-.cita-actions { display: flex; gap: 0.6rem; align-items: center; }
+
+body.light .cita-date-badge {
+  background: #fdfaf3;
+  border-color: rgba(200, 148, 22, 0.35);
+}
+
+.cita-date-badge b {
+  font-family: var(--font-display, "Bebas Neue", sans-serif);
+  font-size: 1.85rem;
+  color: var(--gold);
+  line-height: 1;
+  display: block;
+}
+
+body.light .cita-date-badge b {
+  color: #c89416;
+}
+
+.cita-date-badge span {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  display: block;
+  margin-top: 0.1rem;
+}
+
+.cita-top-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.cita-price-badge {
+  font-family: var(--font-display, "Bebas Neue", sans-serif);
+  font-size: 1.65rem;
+  color: var(--gold);
+  line-height: 1;
+}
+
+body.light .cita-price-badge {
+  color: #c89416;
+}
+
+/* Cuerpo de la tarjeta */
+.cita-card-body {
+  flex: 1;
+  margin-bottom: 1rem;
+}
+
+.cita-svc-title {
+  font-family: var(--font-serif);
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--title);
+  line-height: 1.3;
+  margin: 0 0 0.65rem;
+  letter-spacing: 0.01em;
+}
+
+.cita-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+
+.cita-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg-surface);
+  border: 1px solid var(--line-strong);
+  padding: 0.3rem 0.65rem;
+  border-radius: 8px;
+}
+
+body.light .cita-chip {
+  background: #fbfaf7;
+  border-color: rgba(40, 30, 10, 0.12);
+  color: #2c2518;
+}
+
+.cita-chip svg {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+body.light .cita-chip svg {
+  color: #c89416;
+}
+
+.cita-advice-text {
+  font-size: 0.77rem;
+  color: var(--text-dim);
+  line-height: 1.35;
+  margin: 0.35rem 0 0;
+}
+
+.cita-notes-text {
+  font-size: 0.8rem;
+  color: var(--gold);
+  background: rgba(232, 185, 65, 0.07);
+  border: 1px dashed var(--line-gold);
+  border-radius: 8px;
+  padding: 0.4rem 0.65rem;
+  margin-top: 0.5rem;
+  line-height: 1.35;
+}
+
+/* Acciones y Botones */
+.cita-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line-strong);
+}
+
+body.light .cita-actions {
+  border-top-color: rgba(40, 30, 10, 0.08);
+}
+
+.cita-actions .btn {
+  flex: 1 1 auto;
+  justify-content: center;
+  font-size: 0.82rem !important;
+  padding: 0.52rem 0.75rem !important;
+  white-space: nowrap;
+}
+
+.cita-btn-cancel {
+  color: var(--err) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+}
+
+.cita-btn-cancel:hover {
+  background: rgba(239, 68, 68, 0.12) !important;
+}
+
+.cita-btn-ws {
+  color: #25d366 !important;
+  border-color: rgba(37, 211, 102, 0.4) !important;
+}
+
+.cita-btn-ws:hover {
+  background: rgba(37, 211, 102, 0.12) !important;
+}
+
+.cita-cancel-hint {
+  font-size: 0.74rem;
+  color: var(--text-mut);
+  line-height: 1.25;
+}
+
+.cita-closed-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cita-closed-label {
+  font-size: 0.78rem;
+  color: var(--text-mut);
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .citas-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .cita-card {
+    padding: 1.1rem 1.15rem;
+  }
+  .cita-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cita-actions .btn {
+    width: 100%;
+  }
+  .cita-closed-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
 
 /* ==================== MODAL DE AUTENTICACIÓN RESPONSIVO ==================== */
 .modal-overlay {
@@ -1527,7 +1777,1194 @@ body.light .loyalty-msg.free {
 }
 
 
-/* ---------- TIENDA OFICIAL & HEADER BUTTONS ---------- */
+/* ---------- A. MODO CLARO: bordes y contrastes más suaves ---------- */
+body.light {
+  --bg: #f6f4ef;
+  --bg-surface: #fbfaf7;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f7f4ed;
+  --line: rgba(40, 30, 10, 0.09);
+  --line-strong: rgba(40, 30, 10, 0.14);
+  --line-gold: rgba(160, 120, 30, 0.28);
+}
+body.light .site-header { border-bottom: 1px solid var(--line); background: rgba(255,255,255,0.86); }
+body.light .hero-stat-box,
+body.light .service-dur-pill,
+body.light .tag-pill,
+body.light .auth-close,
+body.light .btn-social,
+body.light .form-input,
+body.light .phone-input-wrap,
+body.light .option-select-card,
+body.light .cal-day-btn,
+body.light .slot-btn,
+body.light .pay-method-btn,
+body.light .pay-body-box,
+body.light .receipt-card,
+body.light .icon-btn,
+body.light .btn-dark,
+body.light .filter-btn,
+body.light .demo-creds { border-color: var(--line-strong); }
+body.light .hero-stat-box { background: transparent; border-top: none; border-bottom: none; border-left: none; }
+body.light .hero-stat-box:last-child { border-right: none; }
+body.light .btn-dark { background: transparent; color: var(--title); }
+body.light .btn-dark:hover { background: transparent; color: var(--gold); border-color: var(--gold); }
+body.light .filter-btn { background: transparent; color: var(--text-dim); }
+body.light .filter-btn:hover { background: rgba(160,120,30,0.06); color: var(--title); }
+body.light .filter-btn.active {
+  background: rgba(160, 120, 30, 0.10);
+  color: var(--gold);
+  border-color: var(--line-gold);
+}
+body.light .main-nav a[aria-current="page"] { background: transparent; }
+body.light .main-nav a:hover { background: transparent; color: var(--title); }
+body.light .reservar-card,
+body.light .resumen-sidebar { border-color: var(--line); box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 20px 40px -28px rgba(60,40,10,0.25); }
+@media (max-width: 900px) { body.light .main-nav { border-bottom-color: var(--line); } }
+
+/* ---------- B. FLUJO DE RESERVA ---------- */
+.reservar-layout {
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 1.5rem;
+}
+.reservar-card {
+  min-width: 0;
+  max-width: 100%;
+  padding: 1.75rem 1.85rem;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+.step-panel { min-width: 0; max-width: 100%; }
+
+/* Stepper refinado y más compacto */
+.stepper-nav { margin-bottom: 1.6rem; }
+.step-circle {
+  width: 32px; height: 32px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--bg-card);
+  font-size: 0.8rem; font-weight: 600;
+}
+.step-item[aria-current="true"] .step-circle {
+  background: var(--gold-gradient);
+  border-color: transparent;
+  color: #1a1408;
+  box-shadow: 0 0 0 4px rgba(201, 162, 74, 0.14);
+}
+.step-item.done .step-circle {
+  background: rgba(201, 162, 74, 0.12);
+  border-color: var(--line-gold);
+  color: var(--gold);
+}
+.step-label { font-size: 0.66rem; letter-spacing: 0.12em; font-weight: 600; }
+.step-item.done .step-label { color: var(--text-dim); }
+.step-line { top: 16px; height: 1.5px; background: var(--line-strong); }
+.step-item.done .step-line { background: linear-gradient(90deg, var(--gold), var(--line-gold)); }
+
+.panel-heading { font-weight: 600; font-size: 1.25rem; letter-spacing: 0.02em; color: var(--title); margin-bottom: 0.2rem; }
+.panel-sub { color: var(--text-mut); font-size: 0.86rem; margin-bottom: 1rem; }
+
+/* Tarjetas de opción (servicio / barbero) */
+.options-stack { gap: 0.65rem; }
+.option-select-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.8rem 1rem;
+  background: var(--bg-card);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+.option-select-card:hover { border-color: var(--line-gold); transform: translateX(2px); }
+.option-select-card[aria-pressed="true"] {
+  border-color: var(--gold);
+  background: linear-gradient(90deg, rgba(201,162,74,0.10), rgba(201,162,74,0.02) 60%), var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(201, 162, 74, 0.12);
+}
+.osc-media { width: 54px; height: 54px; border-radius: 10px; border: none; box-shadow: 0 6px 14px -6px rgba(0,0,0,0.5); }
+.osc-title { font-weight: 600; font-size: 0.96rem; color: var(--title); margin-bottom: 0.12rem; }
+.osc-desc { font-size: 0.8rem; color: var(--text-mut); line-height: 1.4; }
+.osc-price { font-size: 1.4rem; color: var(--gold-light); }
+body.light .osc-price { color: var(--gold); }
+.osc-radio { width: 20px; height: 20px; border: 1.5px solid var(--line-strong); font-size: 0.7rem; }
+.option-select-card[aria-pressed="true"] .osc-radio { background: var(--gold-gradient); border-color: transparent; color: #1a1408; }
+
+/* Calendario compacto y 100% responsivo (2 filas de 7 columnas sin desbordar) */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.38rem;
+  padding: 0;
+  margin-bottom: 1rem;
+  overflow: visible;
+  -webkit-mask-image: none;
+          mask-image: none;
+}
+.cal-day-btn {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.42rem 0.15rem 0.38rem;
+  background: var(--bg-card);
+  color: var(--title);
+  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+.cal-day-btn:hover:not(:disabled) { border-color: var(--line-gold); transform: translateY(-1px); background: var(--bg-card); }
+.cal-day-btn .cd-name { color: var(--text-mut); font-weight: 600; letter-spacing: 0.08em; font-size: 0.58rem; line-height: 1.1; }
+.cal-day-btn .cd-num { font-size: 1.22rem; line-height: 1.05; margin: 0.06rem 0; }
+.cal-day-btn .cd-month { color: var(--text-mut); letter-spacing: 0.06em; font-size: 0.55rem !important; line-height: 1; }
+.cal-day-btn[aria-pressed="true"] {
+  background: var(--gold-gradient);
+  border-color: transparent;
+  color: #1a1408;
+  box-shadow: 0 6px 16px -6px rgba(201, 162, 74, 0.65);
+}
+.cal-day-btn[aria-pressed="true"] .cd-name,
+.cal-day-btn[aria-pressed="true"] .cd-month { color: rgba(26, 20, 8, 0.78); }
+
+/* Cabecera de Horarios en una sola línea */
+#stepPanel-3 > div:last-child { margin-top: 0.85rem !important; }
+#slotsHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem !important;
+  font-size: 0.9rem !important;
+}
+.slots-date-pill {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--gold);
+  background: rgba(201, 162, 74, 0.10);
+  border: 1px solid var(--line-gold);
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+}
+
+/* Horarios agrupados en filas horizontales compactas */
+#reserveSlots { display: flex; flex-direction: column; gap: 0.45rem; }
+.slot-group {
+  display: grid;
+  grid-template-columns: 98px minmax(0, 1fr);
+  gap: 0.65rem;
+  align-items: center;
+  margin-bottom: 0;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-card);
+}
+.slot-group-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0 0.5rem 0 0;
+  border-bottom: none;
+  border-right: 1px solid var(--line);
+}
+.slot-group-head span { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--title); white-space: nowrap; }
+.slot-group-head small { font-size: 0.68rem; color: var(--text-mut); }
+.slot-group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 0.35rem;
+  min-width: 0;
+}
+.slot-btn {
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  padding: 0.36rem 0.15rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  background: var(--bg-surface);
+  color: var(--title);
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+.slot-btn:hover:not(:disabled) { border-color: var(--gold); background: rgba(201,162,74,0.08); color: var(--title); }
+.slot-btn[aria-pressed="true"] {
+  background: var(--gold-gradient);
+  border-color: transparent;
+  color: #1a1408;
+  box-shadow: 0 6px 14px -6px rgba(201, 162, 74, 0.65);
+}
+.slot-btn:disabled { opacity: 0.3; background: transparent; border-style: dashed; }
+
+.slot-note {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap;
+  margin-top: 0.55rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 12px;
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  background: linear-gradient(90deg, rgba(201,162,74,0.12), transparent 85%);
+  border: 1px solid var(--line-gold);
+  border-left: 3px solid var(--gold);
+}
+.slot-note .sn-from, .slot-note .sn-to { color: var(--title); }
+.slot-note .sn-from { color: var(--gold); }
+.slot-note .sn-dur { color: var(--text-mut); }
+
+@media (max-width: 980px) {
+  .reservar-layout { grid-template-columns: minmax(0, 1fr); }
+  .resumen-sidebar { position: static; margin-top: 1rem; }
+}
+@media (max-width: 640px) {
+  .reservar-card { padding: 1.2rem 1rem; }
+  .cal-grid { gap: 0.25rem; }
+  .cal-day-btn { padding: 0.35rem 0.1rem; border-radius: 8px; }
+  .cal-day-btn .cd-num { font-size: 1.05rem; }
+  .cal-day-btn .cd-name { font-size: 0.54rem; }
+  .slot-group {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+    padding: 0.5rem 0.6rem;
+  }
+  .slot-group-head {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 0 0.3rem 0;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .slot-group-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Navegación de pasos */
+.stepper-actions { border-top: 1px solid var(--line); padding-top: 1.5rem; margin-top: 2rem; }
+
+/* Resumen lateral */
+.resumen-sidebar { border: 1px solid var(--line); border-radius: 18px; }
+.rs-row { border-bottom: 1px solid var(--line); font-size: 0.88rem; }
+.rs-row span { color: var(--text-mut); }
+.rs-row b { color: var(--title); font-weight: 600; }
+.rs-total { border-top: 1px solid var(--line-gold); }
+.rs-badge { letter-spacing: 0.08em; }
+
+/* ---------- C. BANNER "RESERVA DIRECTA" ---------- */
+.guest-banner {
+  display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap;
+  padding: 0.95rem 1.1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--gold);
+  background: linear-gradient(90deg, rgba(201,162,74,0.08), transparent 70%), var(--bg-card);
+}
+.gb-ico {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center;
+  background: rgba(201,162,74,0.12); color: var(--gold);
+}
+.gb-text { flex: 1; min-width: 200px; }
+.gb-text b { display: block; color: var(--title); font-size: 0.92rem; font-weight: 600; }
+.gb-text span { font-size: 0.8rem; color: var(--text-mut); }
+.gb-link { margin-left: auto; font-size: 0.82rem; color: var(--text-dim); padding: 0.4rem 0; transition: color 0.2s; }
+.gb-link u { color: var(--gold); text-underline-offset: 3px; text-decoration-thickness: 1px; font-weight: 600; }
+.gb-link:hover { color: var(--title); }
+
+/* ---------- D. TARJETA FIDELIDAD VIP (estilo tarjeta física) ---------- */
+.lv-card {
+  position: relative; overflow: hidden; isolation: isolate;
+  margin: 0.4rem 0 1.6rem;
+  padding: 1.4rem 1.5rem 1.2rem;
+  border-radius: 18px;
+  color: #f5efe4;
+  background:
+    radial-gradient(120% 140% at 0% 0%, #2e2619 0%, #17130e 45%, #0d0b09 100%);
+  border: 1px solid rgba(201, 162, 74, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 235, 190, 0.10),
+    0 24px 48px -24px rgba(0, 0, 0, 0.7);
+}
+.lv-card::before {   /* textura guilloché sutil */
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.5;
+  background:
+    repeating-radial-gradient(circle at 110% -20%, transparent 0 14px, rgba(201,162,74,0.05) 14px 15px);
+}
+.lv-shine {
+  position: absolute; top: 0; left: -60%; width: 40%; height: 100%; z-index: -1;
+  background: linear-gradient(100deg, transparent, rgba(255, 230, 170, 0.08), transparent);
+  transform: skewX(-20deg);
+  animation: lvShine 6s ease-in-out infinite;
+}
+@keyframes lvShine { 0%, 60% { left: -60%; } 100% { left: 130%; } }
+
+.lv-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.3rem; }
+.lv-eyebrow { display: block; font-size: 0.62rem; letter-spacing: 0.28em; text-transform: uppercase; color: #9c7b4a; font-weight: 600; margin-bottom: 0.25rem; }
+.lv-title { font-family: var(--font-serif); font-size: 1.15rem; font-weight: 600; color: #f5efe4; letter-spacing: 0.03em; }
+.lv-title em {
+  font-style: normal;
+  background: linear-gradient(135deg, #f3dc9c, #c9a24a 55%, #8a6a24);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.lv-count {
+  text-align: center; min-width: 58px; padding: 0.35rem 0.6rem;
+  border: 1px solid rgba(201,162,74,0.4); border-radius: 12px;
+  background: rgba(0,0,0,0.25);
+}
+.lv-count b { display: block; font-family: var(--font-display); font-size: 1.7rem; line-height: 1; color: #e3c47e; }
+.lv-count small { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(245,239,228,0.55); }
+
+.lv-stamps { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.lv-stamp {
+  width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center;
+  border: 1.5px dashed rgba(201, 162, 74, 0.35);
+  color: rgba(245, 239, 228, 0.4);
+  font-family: var(--font-display); font-size: 1.15rem;
+  background: rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+.lv-stamp.done {
+  border: none;
+  color: #1a1408;
+  background: linear-gradient(135deg, #f3dc9c, #c9a24a 55%, #8a6a24);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 6px 14px -6px rgba(201,162,74,0.8);
+  transform: rotate(-8deg);
+}
+.lv-stamp.next { border-style: solid; border-color: #c9a24a; color: #e3c47e; animation: lvPulse 2s ease-in-out infinite; }
+@keyframes lvPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(201,162,74,0.35); } 50% { box-shadow: 0 0 0 6px rgba(201,162,74,0); } }
+.lv-arrow { color: rgba(201,162,74,0.45); font-size: 0.9rem; flex-shrink: 0; }
+.lv-gift {
+  width: 54px; height: 54px;
+  border: 1.5px solid rgba(74, 222, 128, 0.45);
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.08);
+}
+.lv-gift.ready {
+  background: #22c55e; color: #052e16; border-color: transparent;
+  animation: lvGift 1.6s ease-in-out infinite;
+}
+@keyframes lvGift { 0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.5); } 50% { box-shadow: 0 0 0 10px rgba(34,197,94,0); } }
+
+.lv-progress { height: 3px; border-radius: 3px; background: rgba(255,255,255,0.08); margin: 1.2rem 0 0.8rem; overflow: hidden; }
+.lv-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #8a6a24, #e3c47e); transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.lv-msg { font-size: 0.82rem; color: rgba(245, 239, 228, 0.62); text-align: center; }
+.lv-msg.free { color: #4ade80; font-weight: 600; }
+.lv-card.celebrate { border-color: rgba(74, 222, 128, 0.45); }
+
+@media (max-width: 520px) {
+  .lv-card { padding: 1.2rem 1rem 1rem; }
+  .lv-stamp { width: 36px; height: 36px; font-size: 0.95rem; }
+  .lv-gift { width: 42px; height: 42px; }
+  .lv-arrow { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-shine, .lv-stamp.next, .lv-gift.ready { animation: none; }
+}
+
+/* ---------- E. HERO EN MODO CLARO (imagen de fondo visible) ---------- */
+.hero-backdrop {
+  filter: brightness(0.74) contrast(1.06);
+}
+body.light .hero-backdrop {
+  filter: contrast(1.05) saturate(1.05);
+  background:
+    linear-gradient(90deg,
+      rgba(246, 244, 239, 0.94) 0%,
+      rgba(246, 244, 239, 0.82) 34%,
+      rgba(246, 244, 239, 0.32) 65%,
+      rgba(246, 244, 239, 0.55) 100%),
+    linear-gradient(180deg,
+      rgba(246, 244, 239, 0.15) 0%,
+      transparent 35%,
+      rgba(246, 244, 239, 0.92) 100%),
+    url("https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat;
+}
+body.light .hero-desc {
+  color: #2f2d28;
+  font-weight: 500;
+}
+
+/* ---------- F. TARJETAS DE BARBEROS (alineadas, limpias y sin neblina blanca) ---------- */
+.barber-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+.barber-media {
+  height: 280px;
+  position: relative;
+  overflow: hidden;
+}
+.barber-media img {
+  object-position: center top;
+}
+/* Quitar la neblina blanca de medio cuerpo en modo claro */
+body.light .barber-media::after {
+  background: linear-gradient(180deg, transparent 82%, rgba(255, 255, 255, 0.95) 100%);
+}
+body.light .barber-media img {
+  filter: saturate(0.95) contrast(1.03) brightness(0.98);
+}
+.barber-body {
+  padding: 1.25rem 1.4rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.barber-role {
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bronze);
+  margin: 0 0 0.3rem;
+}
+body.light .barber-role {
+  color: var(--gold);
+}
+.barber-name {
+  font-size: 1.26rem;
+  font-weight: 700;
+  color: var(--title);
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.barber-desc {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text-mut);
+  margin-bottom: 0.95rem;
+  flex: 1;
+}
+body.light .barber-desc {
+  color: var(--text-dim);
+}
+.barber-tags {
+  display: flex;
+  gap: 0.38rem;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 1.15rem;
+}
+.barber-card .tag-pill {
+  font-size: 0.72rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(201, 162, 74, 0.07);
+  border: 1px solid var(--line-strong);
+  color: var(--text-dim);
+  font-weight: 500;
+}
+body.light .barber-card .tag-pill {
+  background: #f5f2ea;
+  border-color: rgba(40, 30, 10, 0.12);
+  color: #3f3a32;
+}
+.barber-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  background-image: linear-gradient(90deg, var(--line-strong) 0%, var(--line-strong) 80%, transparent 100%);
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+}
+
+/* ---------- G. BOTÓN "SIGUIENTE PASO" INMEDIATO AL ELEGIR + BARRA STICKY ---------- */
+.osc-next-btn {
+  flex-shrink: 0;
+  padding: 0.48rem 0.95rem;
+  font-size: 0.82rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  animation: fadeIn 0.2s ease;
+}
+.stepper-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 25;
+  background: rgba(20, 19, 17, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  margin: 1.6rem -2.2rem -2.2rem;
+  padding: 1rem 2.2rem;
+  border-top: 1px solid var(--line-strong);
+  border-radius: 0 0 18px 18px;
+}
+body.light .stepper-actions {
+  background: rgba(255, 255, 255, 0.92);
+  border-top-color: var(--line-strong);
+}
+@media (max-width: 600px) {
+  .osc-next-btn { padding: 0.4rem 0.75rem; font-size: 0.76rem; }
+  .stepper-actions { margin: 1.2rem -0.9rem -1.25rem; padding: 0.85rem 0.9rem; }
+}
+
+/* ---------- H. BOTÓN ÚNICO DE FECHA + CALENDARIO DESPLEGABLE ---------- */
+.date-picker-wrap {
+  position: relative;
+  width: 100%;
+}
+.date-picker-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.15rem;
+  border-radius: 14px;
+  border: 1.5px solid var(--line-gold);
+  background: linear-gradient(90deg, rgba(201,162,74,0.10), transparent 70%), var(--bg-card);
+  color: var(--title);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.18s ease;
+}
+.date-picker-btn:hover,
+.date-picker-btn.open {
+  border-color: var(--gold);
+  box-shadow: 0 8px 24px -12px rgba(201, 162, 74, 0.45);
+}
+.dp-btn-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+.dp-ico {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: var(--gold-gradient);
+  color: #1a1408;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(201, 162, 74, 0.35);
+}
+.dp-btn-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.dp-btn-text small {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.dp-btn-text b {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--title);
+  line-height: 1.25;
+}
+.dp-btn-action {
+  padding: 0.42rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(201, 162, 74, 0.14);
+  border: 1px solid var(--line-gold);
+  color: var(--gold);
+  font-size: 0.84rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+body.light .dp-btn-action {
+  color: var(--gold-dark);
+  background: rgba(160, 120, 30, 0.12);
+}
+
+/* Calendario mensual desplegable */
+.dp-popover {
+  margin-top: 0.65rem;
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--line-gold);
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn 0.2s ease;
+  max-width: 400px;
+}
+.dp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--line-strong);
+}
+.dp-head b {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: var(--title);
+  font-weight: 700;
+}
+.dp-nav {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-surface);
+  color: var(--title);
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  transition: all 0.18s;
+}
+.dp-nav:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.dp-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.dp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: 0.45rem;
+}
+.dp-weekdays .sun {
+  color: var(--err);
+  opacity: 0.7;
+}
+.dp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.3rem;
+}
+.dp-day {
+  height: 38px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: var(--bg-surface);
+  color: var(--title);
+  font-weight: 600;
+  font-size: 0.88rem;
+  display: grid;
+  place-items: center;
+  transition: all 0.16s ease;
+}
+.dp-day:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: rgba(201, 162, 74, 0.14);
+}
+.dp-day.today {
+  border-color: var(--line-gold);
+}
+.dp-day[aria-pressed="true"] {
+  background: var(--gold-gradient);
+  color: #1a1408;
+  font-weight: 800;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(201, 162, 74, 0.5);
+}
+.dp-day:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  background: transparent;
+  text-decoration: line-through;
+}
+
+/* ---------- I. CUADRÍCULA LIMPIA Y UNIFORME DE HORARIOS ---------- */
+.slots-clean-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+.slots-clean-grid .slot-btn {
+  padding: 0.62rem 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-card);
+  color: var(--title);
+}
+.slots-clean-grid .slot-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  background: rgba(201, 162, 74, 0.1);
+}
+.slots-clean-grid .slot-btn[aria-pressed="true"] {
+  background: var(--gold-gradient);
+  color: #1a1408;
+  font-weight: 700;
+  border-color: transparent;
+}
+@media (max-width: 680px) {
+  .slots-clean-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 440px) {
+  .slots-clean-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .date-picker-btn { padding: 0.75rem 0.9rem; }
+  .dp-btn-text b { font-size: 0.92rem; }
+  .dp-btn-action { padding: 0.35rem 0.65rem; font-size: 0.76rem; }
+}
+
+/* ---------- J. TIPOGRAFÍA SECUNDARIA MÁS GRANDE Y LEGIBLE EN TODA LA WEB ---------- */
+:root {
+  --text-dim: rgba(244, 239, 230, 0.82);
+  --text-mut: rgba(235, 228, 216, 0.68);
+}
+body.light {
+  --text-dim: #36312a;
+  --text-mut: #524b40;
+}
+.section-sub { font-size: 1.05rem; color: var(--text-dim); }
+.panel-sub { font-size: 0.94rem; color: var(--text-dim); }
+.service-desc, .barber-desc, .test-quote, .feature-card p {
+  font-size: 0.93rem;
+  color: var(--text-dim);
+}
+.osc-desc { font-size: 0.88rem; color: var(--text-dim); }
+.gb-text span { font-size: 0.86rem; color: var(--text-dim); }
+.step-label { font-size: 0.74rem; color: var(--text-dim); }
+.form-hint { font-size: 0.86rem; color: var(--text-dim); }
+.rs-row { font-size: 0.92rem; }
+.rs-row span { color: var(--text-dim); }
+.lv-msg { font-size: 0.88rem; color: rgba(245, 239, 228, 0.82); }
+
+/* ---------- K. FOOTER ARREGLADO EN MODO CLARO ---------- */
+body.light .site-footer {
+  background: #ebe5d9;
+  border-top: 1px solid rgba(40, 30, 10, 0.14);
+}
+body.light .footer-col h4,
+body.light .footer-col b {
+  color: var(--title) !important;
+}
+body.light .footer-brand p,
+body.light .footer-col ul a,
+body.light .footer-col span,
+body.light .footer-col p {
+  color: #36312a;
+}
+body.light .footer-col ul a:hover {
+  color: var(--gold);
+}
+body.light .social-icon-btn {
+  background: #ffffff;
+  border-color: rgba(40, 30, 10, 0.15);
+  color: #23201b;
+}
+body.light .social-icon-btn:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #ffffff;
+}
+body.light .footer-bottom {
+  border-top-color: rgba(40, 30, 10, 0.12);
+  color: #4a4338;
+}
+
+/* ---------- L. BOLETA ELECTRÓNICA VERTICAL Y ORDENADA ---------- */
+.voucher-wrap {
+  max-width: 460px;
+  margin: 0.25rem auto 2.2rem;
+  animation: fadeIn 0.3s ease;
+}
+.voucher-ticket {
+  background: var(--bg-card);
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 20px 44px -18px rgba(0, 0, 0, 0.45);
+}
+body.light .voucher-ticket {
+  background: #ffffff;
+  border-color: rgba(40, 30, 10, 0.14);
+  box-shadow: 0 18px 40px -20px rgba(30, 25, 15, 0.14), 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* Cabecera centrada */
+.rcp-header {
+  text-align: center;
+  padding: 1.6rem 1.5rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0%, transparent 100%);
+}
+body.light .rcp-header {
+  background: linear-gradient(180deg, #faf7f0 0%, #ffffff 100%);
+}
+.rcp-check {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  margin: 0 auto 0.75rem;
+  display: grid;
+  place-items: center;
+  background: rgba(34, 197, 94, 0.14);
+  border: 1.5px solid rgba(34, 197, 94, 0.4);
+  color: #22c55e;
+}
+body.light .rcp-check {
+  background: #ecfdf3;
+  border-color: #86efac;
+  color: #16a34a;
+}
+.rcp-title {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--title);
+  margin-bottom: 0.2rem;
+}
+.rcp-shop {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-bottom: 0.75rem;
+}
+.rcp-code {
+  display: inline-block;
+  padding: 0.26rem 0.85rem;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+}
+
+/* Bloque simétrico de Fecha y Hora */
+.rcp-schedule {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--line);
+}
+body.light .rcp-schedule {
+  background: #f9f7f2;
+}
+.rcp-sch-col {
+  padding: 0.95rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.rcp-sch-col:first-child {
+  border-right: 1px solid var(--line);
+}
+.rcp-sch-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-mut);
+}
+.rcp-sch-val {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--title);
+  line-height: 1.3;
+}
+
+/* Lista ordenada fila por fila */
+.rcp-rows {
+  padding: 0.6rem 1.4rem;
+}
+.rcp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.68rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.rcp-row:last-child {
+  border-bottom: none;
+}
+.rcp-row > span:first-child {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.rcp-row > b {
+  color: var(--title);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Fila de Importe Total */
+.rcp-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 1.4rem;
+  background: var(--bg-surface);
+  border-top: 1.5px dashed var(--line-strong);
+}
+body.light .rcp-total {
+  background: #faf7f0;
+}
+.rcp-total-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+.rcp-total-left span {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--title);
+}
+.rcp-total-left small {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.rcp-total-amount {
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: 0.03em;
+}
+
+/* Botones ordenados y simétricos */
+.rcp-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+.rcp-btn-main {
+  width: 100%;
+  justify-content: center;
+  padding: 0.85rem 1.2rem;
+  font-size: 0.94rem;
+}
+.rcp-sub-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+.rcp-sub-actions .btn {
+  padding: 0.68rem 0.5rem;
+  font-size: 0.82rem;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .rcp-schedule {
+    grid-template-columns: 1fr;
+  }
+  .rcp-sch-col:first-child {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .rcp-sub-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- M. TARJETA FIDELIDAD VIP COMPACTA Y MODO CLARO ---------- */
+.lv-card {
+  padding: 1.15rem 1.35rem 1.05rem;
+  margin: 0.35rem 0 1.35rem;
+  border-radius: 16px;
+}
+.lv-top {
+  margin-bottom: 0.9rem;
+  align-items: center;
+}
+.lv-stamps {
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(201, 162, 74, 0.18);
+}
+.lv-stamp {
+  width: 44px;
+  height: 44px;
+}
+.lv-gift {
+  width: 48px;
+  height: 48px;
+}
+.lv-progress {
+  margin: 0.85rem 0 0.6rem;
+}
+
+/* Tarjeta Fidelidad VIP en Modo Claro (Marfil & Oro Cepillado) */
+body.light .lv-card {
+  color: #1f1b14;
+  background: linear-gradient(135deg, #fdfaf2 0%, #f3e8ce 100%);
+  border: 1.5px solid rgba(160, 120, 30, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 14px 30px -18px rgba(120, 85, 15, 0.22);
+}
+body.light .lv-card::before {
+  opacity: 0.35;
+  background: repeating-radial-gradient(circle at 110% -20%, transparent 0 14px, rgba(160, 120, 30, 0.08) 14px 15px);
+}
+body.light .lv-eyebrow {
+  color: #8a6518;
+  font-weight: 700;
+}
+body.light .lv-title {
+  color: #1f1b14;
+}
+body.light .lv-title em {
+  background: linear-gradient(135deg, #9a7018, #c4952c 55%, #75530c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body.light .lv-count {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(160, 120, 30, 0.38);
+}
+body.light .lv-count b {
+  color: #8a6518;
+}
+body.light .lv-count small {
+  color: #574c3a;
+  font-weight: 600;
+}
+body.light .lv-stamps {
+  background: rgba(255, 255, 255, 0.68);
+  border-color: rgba(160, 120, 30, 0.24);
+}
+body.light .lv-stamp {
+  background: #ffffff;
+  border-color: rgba(160, 120, 30, 0.42);
+  color: #6e5d42;
+}
+body.light .lv-stamp.next {
+  border-style: solid;
+  border-color: #9a7018;
+  color: #8a6518;
+  background: #fffdf7;
+  font-weight: 700;
+}
+body.light .lv-arrow {
+  color: #9a7018;
+}
+body.light .lv-gift {
+  background: #ecfdf3;
+  border-color: #4ade80;
+  color: #15803d;
+}
+body.light .lv-progress {
+  background: rgba(40, 30, 10, 0.10);
+}
+body.light .lv-msg {
+  color: #3d3529;
+  font-weight: 500;
+}
+body.light .lv-msg.free {
+  color: #15803d;
+}
+
+/* ---------- N. CALENDARIO ARRIBA (SIN CORTARSE) + MODO OSCURO DESCANSADO ---------- */
+/* 1. Subir la sección de reserva para que el calendario quede arriba y visible */
+#view-reservar.section {
+  padding: 1.4rem 0 3.5rem;
+}
+#view-reservar .section-head {
+  margin-bottom: 1.1rem;
+}
+#view-reservar .section-head .eyebrow,
+#view-reservar .section-head .section-sub,
+#view-reservar .section-head .barber-pole-line {
+  display: none;
+}
+#view-reservar .section-head .section-title {
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+}
+
+/* En pasos 3, 4 y 5 la barra inferior no se superpone encima del calendario */
+.stepper-actions.unstick {
+  position: static;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  margin: 1.4rem 0 0;
+  padding: 1rem 0 0;
+}
+
+/* Calendario más compacto para que quepa entero en cualquier pantalla */
+.dp-popover {
+  position: relative;
+  z-index: 40;
+  margin-top: 0.5rem;
+  padding: 0.75rem 0.95rem;
+  max-width: 360px;
+}
+.dp-head {
+  margin-bottom: 0.55rem;
+  padding-bottom: 0.45rem;
+}
+.dp-grid {
+  gap: 0.22rem;
+}
+.dp-day {
+  height: 32px;
+  font-size: 0.83rem;
+}
+
+/* 2. Modo Oscuro Grafito Neutro (descansado para la vista, sin tono marrón/mostaza) */
+:root {
+  --bg:            #121418;
+  --bg-surface:    #171a20;
+  --bg-card:       #1c2027;
+  --bg-card-hover: #222730;
+  --bg-elevated:   #282e38;
+
+  --line:        rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.13);
+  --line-gold:   rgba(194, 163, 107, 0.26);
+
+  --gold:          #c2a36b;
+  --gold-light:    #d4ba8a;
+  --gold-dark:     #947742;
+  --gold-gradient: linear-gradient(135deg, #d0b786 0%, #b8985e 50%, #967840 100%);
+  --bronze:        #a68c5e;
+
+  --title:     #e8ebf0;
+  --text:      #cfd5df;
+  --text-dim:  #9ca4b2;
+  --text-mut:  #7b8393;
+}
+
+body:not(.light) {
+  background:
+    radial-gradient(1100px 550px at 50% -10%, rgba(194, 163, 107, 0.04), transparent 60%),
+    var(--bg);
+}
+
+body:not(.light) .site-header {
+  background-color: rgba(18, 20, 24, 0.86);
+}
+body:not(.light) .stepper-actions:not(.unstick) {
+  background: rgba(28, 32, 39, 0.94);
+}
+body:not(.light) .hero-backdrop {
+  filter: brightness(0.62) contrast(1.02);
+  background:
+    linear-gradient(180deg, rgba(18, 20, 24, 0.55) 0%, rgba(18, 20, 24, 0.94) 100%),
+    url("https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1600&q=80") center/cover no-repeat;
+}
+body:not(.light) .btn-primary {
+  color: #16130d;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 8px 20px -10px rgba(194, 163, 107, 0.38);
+}
+
+
+
 /* ---------- O. TIENDA OFICIAL DE PRODUCTOS, CARRITO & VENTA CRUZADA ---------- */
 .cart-header-btn {
   position: relative;
@@ -1599,19 +3036,30 @@ body.light .product-card:hover {
 
 .product-media {
   position: relative;
-  height: 220px;
-  background: var(--bg-surface);
+  height: 240px;
+  background: #ffffff !important;
+  border-radius: 14px 14px 0 0;
   overflow: hidden;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+body.light .product-media {
+  background: #ffffff !important;
 }
 .product-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  transition: transform 0.35s ease;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.08));
 }
 .product-card:hover .product-media img {
-  transform: scale(1.05);
+  transform: scale(1.07);
 }
 .product-badge {
   position: absolute;
@@ -1786,19 +3234,26 @@ body.light .cart-drawer {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 0.75rem;
-  border-radius: 12px;
+  padding: 0.85rem;
+  border-radius: 14px;
   background: var(--bg-card);
-  border: 1px solid var(--line-strong);
+  border: 1.5px solid var(--line-strong);
+  margin-bottom: 0.65rem;
+  box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.25);
 }
 body.light .cd-item {
-  background: #f9f7f2;
+  background: #ffffff;
+  border-color: rgba(40, 30, 10, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .cd-item img {
-  width: 56px;
-  height: 56px;
-  border-radius: 9px;
-  object-fit: cover;
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: contain !important;
+  background: #ffffff;
+  padding: 4px;
+  border: 1px solid var(--line-strong);
   flex-shrink: 0;
 }
 .cd-item-info {
@@ -1806,17 +3261,25 @@ body.light .cd-item {
   min-width: 0;
 }
 .cd-item-info b {
-  display: block;
-  font-size: 0.9rem;
-  color: var(--title);
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--title);
+  line-height: 1.35;
+  margin-bottom: 0.2rem;
+  white-space: normal !important;
 }
 .cd-item-info span {
   font-size: 0.84rem;
   color: var(--gold);
-  font-weight: 700;
+  font-weight: 800;
+  display: block;
+}
+body.light .cd-item-info span {
+  color: #c89416;
 }
 .cd-footer {
   padding: 1.15rem 1.4rem 1.35rem;
@@ -1825,6 +3288,544 @@ body.light .cd-item {
 }
 body.light .cd-footer {
   background: #faf7f0;
+}
+
+
+/* ---------- ESTILOS CHECKOUT DE TIENDA Y BOLSA (SC-*) ---------- */
+.sc-back-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.95rem;
+  margin-bottom: 0.95rem;
+  border-radius: 12px;
+  background: rgba(232, 185, 65, 0.08);
+  border: 1px solid var(--line-gold);
+}
+body.light .sc-back-bar {
+  background: #fffdf5;
+  border-color: rgba(200, 148, 22, 0.28);
+}
+.sc-back-btn {
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: transform 0.2s, color 0.2s;
+  padding: 0;
+}
+.sc-back-btn:hover {
+  transform: translateX(-3px);
+  color: var(--title);
+}
+body.light .sc-back-btn {
+  color: #c89416;
+}
+body.light .sc-back-btn:hover {
+  color: #181510;
+}
+
+.sc-segmented-control {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  background: var(--bg-card);
+  padding: 0.35rem;
+  border-radius: 13px;
+  border: 1px solid var(--line-strong);
+  margin-bottom: 1rem;
+}
+body.light .sc-segmented-control {
+  background: #f4f1ea;
+  border-color: rgba(40, 30, 10, 0.12);
+}
+.sc-segment-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+.sc-segment-btn:hover {
+  color: var(--title);
+  background: rgba(255, 255, 255, 0.04);
+}
+body.light .sc-segment-btn:hover {
+  background: rgba(40, 30, 10, 0.05);
+  color: #181510;
+}
+.sc-segment-btn.active {
+  background: var(--gold-gradient);
+  color: #171104;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(232, 185, 65, 0.32);
+  border-color: transparent;
+}
+.sc-seg-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.18rem 0.45rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.sc-seg-tag.free {
+  background: rgba(34, 197, 94, 0.22);
+  color: #22c55e;
+}
+body.light .sc-seg-tag.free {
+  background: #dcfce7;
+  color: #15803d;
+}
+.sc-segment-btn.active .sc-seg-tag.free {
+  background: rgba(0, 0, 0, 0.2);
+  color: #000000;
+}
+.sc-seg-tag.cost {
+  background: rgba(232, 185, 65, 0.22);
+  color: var(--gold);
+}
+.sc-segment-btn.active .sc-seg-tag.cost {
+  background: rgba(0, 0, 0, 0.2);
+  color: #000000;
+}
+
+.sc-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 15px;
+  padding: 1.1rem 1.15rem;
+  margin-bottom: 0.95rem;
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s;
+}
+body.light .sc-card {
+  background: #ffffff;
+  border-color: rgba(40, 30, 10, 0.14);
+  box-shadow: 0 4px 16px -6px rgba(35, 25, 10, 0.08);
+}
+.sc-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line-strong);
+}
+body.light .sc-card-head {
+  border-bottom-color: rgba(40, 30, 10, 0.08);
+}
+.sc-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 700;
+  font-size: 0.94rem;
+  color: var(--title);
+  letter-spacing: 0.01em;
+}
+.sc-step-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--gold-gradient);
+  color: #171104;
+  font-size: 0.76rem;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(232, 185, 65, 0.4);
+}
+.sc-card-sub {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+body.light .sc-card-sub {
+  color: #c89416;
+}
+
+.sc-user-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(232, 185, 65, 0.08);
+  border: 1px solid var(--line-gold);
+  border-radius: 11px;
+  margin-bottom: 0.85rem;
+}
+.sc-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #171104;
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+}
+.sc-user-meta {
+  flex: 1;
+  min-width: 0;
+}
+.sc-user-name {
+  display: block;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--title);
+}
+.sc-user-sub {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.sc-badge-verified {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.14);
+  padding: 0.22rem 0.55rem;
+  border-radius: 6px;
+}
+
+.sc-guest-login-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  background: var(--bg-surface);
+  border: 1px dashed var(--line-strong);
+  border-radius: 11px;
+  margin-bottom: 0.85rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+body.light .sc-guest-login-bar {
+  background: #fbfaf7;
+  border-color: rgba(40, 30, 10, 0.18);
+  color: #6a5d45;
+}
+
+.sc-field {
+  margin-bottom: 0.8rem;
+}
+.sc-label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--title);
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+body.light .sc-label {
+  color: #2c2518;
+}
+.sc-input {
+  width: 100%;
+  padding: 0.68rem 0.9rem;
+  border-radius: 10px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--line-strong);
+  color: var(--title);
+  font-size: 0.88rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+.sc-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(232, 185, 65, 0.18);
+}
+body.light .sc-input {
+  background: #ffffff;
+  border-color: rgba(40, 30, 10, 0.2);
+  color: #181510;
+}
+body.light .sc-input:focus {
+  border-color: #c89416;
+  box-shadow: 0 0 0 3px rgba(200, 148, 22, 0.22);
+}
+
+.sc-pay-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 12px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--line-strong);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.6rem;
+  width: 100%;
+  text-align: left;
+}
+.sc-pay-option:hover {
+  border-color: var(--line-gold);
+  background: var(--bg-card);
+  transform: translateY(-1px);
+}
+.sc-pay-option.selected {
+  border-color: var(--gold) !important;
+  background: linear-gradient(90deg, rgba(232, 185, 65, 0.14) 0%, rgba(232, 185, 65, 0.02) 100%), var(--bg-card) !important;
+  box-shadow: 0 4px 14px -4px rgba(232, 185, 65, 0.35);
+}
+body.light .sc-pay-option {
+  background: #fbfaf7;
+  border-color: rgba(40, 30, 10, 0.16);
+}
+body.light .sc-pay-option:hover {
+  background: #ffffff;
+  border-color: rgba(200, 148, 22, 0.35);
+}
+body.light .sc-pay-option.selected {
+  background: #fffdf5 !important;
+  border-color: #c89416 !important;
+  box-shadow: 0 4px 14px -4px rgba(200, 148, 22, 0.25);
+}
+.sc-pay-badge-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 0.72rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.sc-pay-badge-icon.yape { background: #742284; color: #ffffff; }
+.sc-pay-badge-icon.plin { background: #00bcd4; color: #ffffff; }
+.sc-pay-badge-icon.bank { background: #1e3a8a; color: #ffffff; }
+.sc-pay-badge-icon.card { background: #0f172a; color: #ffffff; }
+.sc-pay-badge-icon.local { background: #166534; color: #ffffff; }
+
+.sc-pay-info {
+  flex: 1;
+  min-width: 0;
+}
+.sc-pay-title {
+  display: block;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--title);
+  margin-bottom: 0.15rem;
+}
+.sc-pay-sub {
+  display: block;
+  font-size: 0.74rem;
+  color: var(--text-dim);
+}
+.sc-radio-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.sc-pay-option.selected .sc-radio-indicator {
+  border-color: var(--gold);
+  background: var(--gold);
+}
+body.light .sc-pay-option.selected .sc-radio-indicator {
+  border-color: #c89416;
+  background: #c89416;
+}
+.sc-pay-option.selected .sc-radio-indicator::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #171104;
+}
+
+.sc-yape-box {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0.85rem;
+  background: var(--bg-surface);
+  border-radius: 12px;
+  border: 1px solid var(--line-gold);
+  margin-bottom: 0.85rem;
+  align-items: center;
+}
+body.light .sc-yape-box {
+  background: #fffdf7;
+  border-color: rgba(200, 148, 22, 0.25);
+}
+.sc-qr-wrap {
+  width: 90px;
+  height: 90px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 5px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.sc-qr-wrap svg {
+  width: 100%;
+  height: 100%;
+}
+.sc-yape-info {
+  flex: 1;
+  min-width: 0;
+}
+.sc-yape-amount {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-bottom: 0.35rem;
+  line-height: 1.35;
+}
+.sc-yape-amount b {
+  color: var(--gold);
+  font-size: 0.92rem;
+}
+body.light .sc-yape-amount b {
+  color: #c89416;
+}
+.sc-phone-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--line-gold);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 0.35rem;
+}
+body.light .sc-phone-chip {
+  background: #ffffff;
+}
+.sc-phone-chip:hover {
+  background: rgba(232, 185, 65, 0.15);
+}
+.sc-phone-num {
+  font-family: var(--font-mono, monospace);
+  font-weight: 800;
+  font-size: 0.94rem;
+  color: var(--title);
+}
+.sc-copy-btn {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+body.light .sc-copy-btn {
+  color: #c89416;
+}
+.sc-yape-titular {
+  font-size: 0.73rem;
+  color: var(--text-mut);
+}
+
+.sc-footer-bar {
+  background: var(--bg-card);
+  border-top: 1px solid var(--line-strong);
+  padding: 1rem 1.15rem 1.25rem;
+}
+body.light .sc-footer-bar {
+  background: #ffffff;
+  border-top-color: rgba(40, 30, 10, 0.12);
+}
+.sc-footer-breakdown {
+  margin-bottom: 0.85rem;
+  display: grid;
+  gap: 0.35rem;
+}
+.sc-fb-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+.sc-fb-row b {
+  color: var(--title);
+  font-weight: 700;
+}
+.sc-fb-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 0.5rem;
+  margin-top: 0.4rem;
+  border-top: 1px dashed var(--line-strong);
+}
+body.light .sc-fb-total {
+  border-top-color: rgba(40, 30, 10, 0.12);
+}
+.sc-fb-total span {
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--title);
+  letter-spacing: 0.04em;
+}
+.sc-fb-amount {
+  font-family: var(--font-display, 'Bebas Neue', sans-serif);
+  font-size: 1.95rem;
+  color: var(--gold);
+  line-height: 1;
+}
+body.light .sc-fb-amount {
+  color: #c89416;
+}
+.sc-confirm-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.88rem 1.25rem !important;
+  font-size: 0.98rem !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+  letter-spacing: 0.02em;
+  background: var(--gold-gradient) !important;
+  color: #171104 !important;
+  border: none !important;
+  box-shadow: 0 6px 18px -4px rgba(232, 185, 65, 0.55) !important;
+}
+.sc-confirm-btn:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+.sc-secure-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--text-mut);
+  margin-top: 0.6rem;
 }
 
 /* Venta Cruzada (Upsell) dentro del Paso 5 de Reserva */
@@ -1989,6 +3990,725 @@ body.light .header-reg-btn:hover {
   filter: brightness(1.08);
 }
 
+/* ---------- Q. TARJETAS DE SERVICIOS Y BARBEROS EN RESERVA (2 COLUMNAS COMPACTAS Y ALTO CONTRASTE) ---------- */
+.options-stack {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0.9rem !important;
+  align-items: stretch;
+}
+@media (max-width: 720px) {
+  .options-stack {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+body.light .reservar-card {
+  background: #f6f2e8 !important;
+  border: 1.5px solid rgba(40, 30, 10, 0.16) !important;
+}
+
+.option-select-card {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.85rem !important;
+  padding: 0.95rem 1.05rem !important;
+  border-radius: 14px !important;
+  background: linear-gradient(145deg, #231f19 0%, #171410 100%) !important;
+  border: 1.5px solid rgba(232, 185, 65, 0.28) !important;
+  border-left: 4px solid var(--gold) !important;
+  box-shadow:
+    0 10px 24px -12px rgba(0, 0, 0, 0.72),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease !important;
+}
+
+body.light .option-select-card {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(160, 115, 20, 0.34) !important;
+  border-left: 4px solid #c89416 !important;
+  box-shadow:
+    0 10px 22px -12px rgba(35, 25, 10, 0.18),
+    0 2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+.option-select-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: var(--gold) !important;
+  box-shadow: 0 14px 28px -12px rgba(232, 185, 65, 0.32) !important;
+}
+
+body.light .option-select-card:hover {
+  border-color: #b88412 !important;
+  box-shadow:
+    0 14px 28px -12px rgba(35, 25, 10, 0.25),
+    0 4px 10px rgba(0, 0, 0, 0.08) !important;
+}
+
+.option-select-card[aria-pressed="true"] {
+  background: linear-gradient(135deg, rgba(232, 185, 65, 0.22), rgba(232, 185, 65, 0.06)), #211c15 !important;
+  border: 2px solid var(--gold) !important;
+  border-left: 5px solid var(--gold) !important;
+  box-shadow:
+    0 0 0 3px rgba(232, 185, 65, 0.22),
+    0 14px 28px -12px rgba(0, 0, 0, 0.65) !important;
+}
+
+body.light .option-select-card[aria-pressed="true"] {
+  background: linear-gradient(135deg, #fff8e6 0%, #ffffff 100%) !important;
+  border: 2px solid #b88412 !important;
+  border-left: 5px solid #b88412 !important;
+  box-shadow:
+    0 0 0 3px rgba(200, 148, 22, 0.22),
+    0 12px 24px -10px rgba(35, 25, 10, 0.22) !important;
+}
+
+.option-select-card .osc-media {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 12px !important;
+  border: 1.5px solid var(--line-gold) !important;
+  box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.45) !important;
+  flex-shrink: 0;
+}
+
+.option-select-card .osc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.option-select-card .osc-title {
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  color: var(--title) !important;
+  line-height: 1.25 !important;
+  margin-bottom: 0.22rem !important;
+}
+
+.option-select-card .osc-desc {
+  font-size: 0.79rem !important;
+  color: var(--text-dim) !important;
+  line-height: 1.38 !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.option-select-card .osc-price {
+  font-size: 1.38rem !important;
+  font-weight: 800 !important;
+  color: var(--gold) !important;
+  white-space: nowrap;
+  margin-top: 0.1rem;
+}
+
+.option-select-card .osc-radio {
+  width: 22px !important;
+  height: 22px !important;
+  border: 2px solid var(--line-gold) !important;
+  margin-top: 0.15rem;
+}
+
+/* Evitar que la barra inferior tape las tarjetas de servicios */
+.stepper-actions {
+  position: static !important;
+  margin: 1.5rem 0 0 !important;
+  padding: 1.1rem 0 0 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+
+/* ---------- R. NOTIFICACIONES TOAST PROFESIONALES (ESTILO LUXURY / SONNER) ---------- */
+.toast-container {
+  position: fixed !important;
+  top: calc(var(--header-h) + 14px) !important;
+  right: 22px !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 0.65rem !important;
+  width: auto !important;
+  max-width: calc(100vw - 28px) !important;
+  pointer-events: none !important;
+}
+
+.toast {
+  position: relative !important;
+   overflow: hidden !important;
+  width: auto !important;
+  min-width: 290px !important;
+  max-width: 380px !important;
+  padding: 0.85rem 1rem 0.95rem 0.95rem !important;
+  border-radius: 14px !important;
+  background: rgba(24, 21, 17, 0.97) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(232, 185, 65, 0.28) !important;
+  border-left: 4px solid var(--gold) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 18px 40px -12px rgba(0, 0, 0, 0.7),
+    0 4px 12px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.8rem !important;
+  pointer-events: auto !important;
+  animation: toastSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+body.light .toast {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid rgba(40, 30, 10, 0.14) !important;
+  border-left: 4px solid #c89416 !important;
+  color: #171410 !important;
+  box-shadow:
+    0 18px 38px -12px rgba(35, 25, 10, 0.22),
+    0 4px 12px rgba(0, 0, 0, 0.07) !important;
+}
+
+.toast.ok {
+  border-left-color: #10b981 !important;
+}
+body.light .toast.ok {
+  border-left-color: #059669 !important;
+}
+
+.toast.err,
+.toast.error {
+  border-left-color: #ef4444 !important;
+}
+body.light .toast.err,
+body.light .toast.error {
+  border-left-color: #dc2626 !important;
+}
+
+.toast-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  background: rgba(232, 185, 65, 0.15);
+  color: var(--gold);
+  border: 1px solid rgba(232, 185, 65, 0.3);
+}
+.toast.ok .toast-icon {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.32);
+}
+body.light .toast.ok .toast-icon {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: rgba(5, 150, 105, 0.25);
+}
+.toast.err .toast-icon,
+.toast.error .toast-icon {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.32);
+}
+body.light .toast.err .toast-icon,
+body.light .toast.error .toast-icon {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.25);
+}
+
+.toast-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+.toast-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  line-height: 1.1;
+}
+.toast.ok .toast-title {
+  color: #34d399;
+}
+body.light .toast.ok .toast-title {
+  color: #059669;
+}
+.toast.err .toast-title,
+.toast.error .toast-title {
+  color: #f87171;
+}
+body.light .toast.err .toast-title,
+body.light .toast.error .toast-title {
+  color: #dc2626;
+}
+
+.toast-msg {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #f5f2eb;
+  line-height: 1.35;
+}
+body.light .toast-msg {
+  color: #181510;
+}
+
+.toast-close {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: transparent;
+  border: none;
+  color: var(--text-mut);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.toast-close:hover {
+  background: rgba(128, 128, 128, 0.14);
+  color: var(--title);
+}
+
+.toast-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2.5px;
+  width: 100%;
+  background: var(--gold);
+  transform-origin: left;
+  animation: toastBar 3.4s linear forwards;
+}
+.toast.ok .toast-progress {
+  background: #10b981;
+}
+.toast.err .toast-progress,
+.toast.error .toast-progress {
+  background: #ef4444;
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(24px) scale(0.96); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes toastBar {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+@media (max-width: 600px) {
+  .toast-container {
+    top: calc(var(--header-h) + 10px) !important;
+    right: 12px !important;
+    left: 12px !important;
+    align-items: stretch !important;
+  }
+  .toast {
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
+
+/* ---------- S. SELECTOR DE PRODUCTOS DENTRO DE LA RESERVA (PASO 1 Y PASO 5) ---------- */
+.rp-section {
+  margin-top: 1.65rem;
+  padding: 1.2rem 1.25rem;
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(232, 185, 65, 0.07) 0%, rgba(24, 21, 16, 0.75) 100%);
+  border: 1.5px dashed rgba(232, 185, 65, 0.38);
+}
+body.light .rp-section {
+  background: #ffffff;
+  border: 1.5px solid rgba(160, 115, 20, 0.32);
+  box-shadow: 0 8px 20px -12px rgba(35, 25, 10, 0.14);
+}
+.rp-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+.rp-title-wrap b {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.98rem;
+  color: var(--title);
+  margin-bottom: 0.18rem;
+}
+.rp-title-wrap span {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.rp-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.rp-toggle-btn {
+  padding: 0.38rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(232, 185, 65, 0.14);
+  color: var(--gold);
+  border: 1px solid var(--line-gold);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.rp-toggle-btn:hover {
+  background: var(--gold-gradient);
+  color: #171104;
+}
+body.light .rp-toggle-btn {
+  background: #fdf6e4;
+  color: #9a6d08;
+  border-color: rgba(160, 115, 20, 0.38);
+}
+body.light .rp-toggle-btn:hover {
+  background: #c89416;
+  color: #ffffff;
+}
+
+.rp-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--line);
+}
+.rp-tab {
+  padding: 0.3rem 0.72rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--bg-card);
+  color: var(--text-dim);
+  border: 1px solid var(--line-strong);
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+.rp-tab.active {
+  background: var(--gold-gradient);
+  color: #171104;
+  border-color: transparent;
+}
+body.light .rp-tab {
+  background: #f6f2e8;
+  color: #3f3a32;
+}
+body.light .rp-tab.active {
+  background: #181510;
+  color: #ffe082;
+}
+
+.rp-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+@media (max-width: 680px) {
+  .rp-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rp-card {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--line-strong);
+  transition: all 0.18s ease;
+}
+body.light .rp-card {
+  background: #faf7f0;
+  border-color: rgba(40, 30, 10, 0.15);
+}
+.rp-card:hover {
+  border-color: var(--gold);
+}
+.rp-card.selected {
+  border-color: var(--gold);
+  background: linear-gradient(135deg, rgba(232, 185, 65, 0.16), rgba(232, 185, 65, 0.04)), var(--bg-card);
+  box-shadow: 0 0 0 2px rgba(232, 185, 65, 0.18);
+}
+body.light .rp-card.selected {
+  background: #fff9e8;
+  border-color: #b88412;
+}
+.rp-media {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 3px;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.rp-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important;
+  filter: none !important;
+}
+.rp-info {
+  flex: 1;
+  min-width: 0;
+}
+.rp-info b {
+  display: block;
+  font-size: 0.83rem;
+  color: var(--title);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rp-info small {
+  display: block;
+  font-size: 0.73rem;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+.rp-info .rp-price {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--gold);
+  line-height: 1;
+  margin-top: 2px;
+  display: inline-block;
+}
+.rp-add-btn {
+  padding: 0.34rem 0.68rem;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  background: rgba(232, 185, 65, 0.14);
+  color: var(--gold);
+  border: 1px solid var(--line-gold);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.16s ease;
+}
+.rp-add-btn:hover {
+  background: var(--gold-gradient);
+  color: #171104;
+}
+body.light .rp-add-btn {
+  background: #181510;
+  color: #ffffff;
+  border-color: #181510;
+}
+body.light .rp-add-btn:hover {
+  background: #c89416;
+  border-color: #c89416;
+}
+
+.rp-summary-bar {
+  margin-top: 0.85rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: var(--title);
+}
+body.light .rp-summary-bar {
+  background: #ecfdf5;
+  border-color: rgba(5, 150, 105, 0.32);
+}
+
+
+/* ==================== ESTILOS DE IMPRESIÓN (BOLETA EN 1 SOLA HOJA) ==================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #111111 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ocultar por completo todas las secciones y componentes de la web */
+  .site-header,
+  .site-footer,
+  main,
+  #contenido,
+  #inicio,
+  #servicios,
+  #tienda,
+  #barberos,
+  #galeria,
+  #reservar,
+  #mis-citas,
+  .whatsapp-float,
+  .toast-container,
+  .skip-link,
+  #mobileNav,
+  #authModal,
+  .rcp-actions,
+  .cd-header,
+  .cd-footer,
+  .btn,
+  button {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Desbloquear y limpiar los contenedores modales para la impresión */
+  .cart-drawer-overlay,
+  .cart-drawer-overlay.open,
+  .cart-drawer,
+  #receiptModal,
+  #receiptModal.open,
+  .modal-overlay,
+  .modal-overlay.open {
+    display: block !important;
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  .cd-body {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    display: block !important;
+  }
+
+  /* El ticket centrado, nítido y forzado a UNA SOLA PÁGINA */
+  .voucher-ticket {
+    display: block !important;
+    width: 100% !important;
+    max-width: 440px !important;
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    border: 1.5px solid #222222 !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
+    overflow: hidden !important;
+  }
+
+  .voucher-ticket * {
+    visibility: visible !important;
+  }
+
+  .rcp-header {
+    background: #fdfbf7 !important;
+    border-bottom: 1.5px dashed #222222 !important;
+    padding: 0.9rem 1.1rem !important;
+  }
+
+  .rcp-title {
+    color: #000000 !important;
+  }
+
+  .rcp-check {
+    border-color: #16a34a !important;
+    color: #16a34a !important;
+  }
+
+  .rcp-check svg {
+    stroke: #16a34a !important;
+  }
+
+  .rcp-badge-official {
+    background: #f0fdf4 !important;
+    color: #15803d !important;
+    border: 1px solid #86efac !important;
+  }
+
+  .rcp-code {
+    border: 1px solid #222222 !important;
+    background: #f5f5f5 !important;
+    color: #000000 !important;
+  }
+
+  .status-pill.pagado {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+    border: 1px solid #86efac !important;
+  }
+
+  .rcp-schedule {
+    background: #fafaf9 !important;
+    border-bottom: 1px solid #e5e5e5 !important;
+  }
+
+  .rcp-total {
+    background: #faf8f5 !important;
+    border-top: 1.5px dashed #222222 !important;
+    border-bottom: 1.5px dashed #222222 !important;
+    padding: 0.75rem 1.1rem !important;
+  }
+
+  .rcp-total-amount {
+    color: #b45309 !important;
+    font-size: 1.75rem !important;
+  }
+
+  .rcp-barcode {
+    padding: 0.5rem 1rem !important;
+  }
+
+  .barcode-lines {
+    filter: invert(1) contrast(200%);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2098,10 +4818,6 @@ body.light .header-reg-btn:hover {
       <div class="hero-backdrop" aria-hidden="true"></div>
       <div class="container hero-content">
         <div>
-          <div class="hero-badge-pill">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M12 2l3 6.5 7 .9-5 4.8 1.3 7L12 18l-6.3 3.2L7 14.2l-5-4.8 7-.9z"/></svg>
-            Barbería #1 en Lima Centro · +1,200 Clientes Felices
-          </div>
           <div id="quickRebookSlot"></div>
           <h1 class="hero-title">
             TU MEJOR CORTE,
@@ -2983,182 +5699,182 @@ let PRODUCTOS = [
   {
     id: 'prod_01',
     cat: 'cabello',
-    marca: 'Chino Barber Reserve',
-    nombre: 'Cera Matte Clay Fijación Fuerte',
-    presentacion: '100 g',
+    marca: 'American Crew · Reserve',
+    nombre: 'Cera Matte Clay Fijación Flexible',
+    presentacion: '85 g',
     badge: 'Más Vendido',
-    precio: 35,
-    precioAntes: 42,
+    precio: 38,
+    precioAntes: 45,
     desc: 'Arcilla moldeadora de acabado 100% mate sin residuos grasos. Aporta textura, volumen y control durante todo el día.',
-    foto: '/productos/prod-01.svg'
+    foto: '/productos/prod-01.jpg'
   },
   {
     id: 'prod_02',
     cat: 'cabello',
-    marca: 'Chino Barber Reserve',
-    nombre: 'Pomada Clásica Brillo Medio',
-    presentacion: '100 g',
+    marca: 'American Crew · Reserve',
+    nombre: 'Pomada Clásica Brillo & Fijación Media',
+    presentacion: '85 g',
     badge: 'Estilo Clásico',
-    precio: 34,
+    precio: 36,
     precioAntes: null,
     desc: 'Pomada a base de agua ideal para peinados clásicos, slick back y pompadour. Se retira fácilmente con un solo lavado.',
-    foto: '/productos/prod-02.svg'
+    foto: '/productos/prod-02.jpg'
   },
   {
     id: 'prod_03',
     cat: 'cabello',
-    marca: 'The Grooming Line',
-    nombre: 'Polvo Texturizador Voluminizador',
+    marca: 'Marmara Barber Pro',
+    nombre: 'Polvo Voluminizador Powder Wax',
     presentacion: '20 g',
     badge: 'Efecto Gravedad',
-    precio: 30,
-    precioAntes: 36,
-    desc: 'Polvo ultraligero que levanta la raíz al instante y crea un efecto texturizado natural sin apelmazar el cabello.',
-    foto: '/productos/prod-03.svg'
+    precio: 32,
+    precioAntes: 38,
+    desc: 'Polvo ultraligero que levanta la raíz al instante y crea un efecto texturizado mate sin apelmazar el cabello.',
+    foto: '/productos/prod-03.png'
   },
   {
     id: 'prod_04',
     cat: 'cabello',
-    marca: 'The Grooming Line',
-    nombre: 'Spray Texturizante Sea Salt',
+    marca: 'American Crew · Reserve',
+    nombre: 'Spray Texturizante Matte Clay Spray',
     presentacion: '150 ml',
-    badge: 'Volumen Natural',
-    precio: 32,
+    badge: 'Volumen & Textura',
+    precio: 39,
     precioAntes: null,
-    desc: 'Spray con minerales de sal marina para lograr ondas naturales, cuerpo y fijación flexible antes del secado.',
-    foto: '/productos/prod-04.svg'
+    desc: 'Spray de arcilla caolín que absorbe el exceso de grasa y aporta densidad, textura mate y fijación duradera.',
+    foto: '/productos/prod-05.png'
   },
   {
     id: 'prod_05',
     cat: 'cabello',
-    marca: 'Chino Barber Reserve',
-    nombre: 'Cera Efecto Húmedo Ultra Hold',
-    presentacion: '100 g',
+    marca: 'American Crew · Reserve',
+    nombre: 'Pomada Heavy Hold Fijación Extrema',
+    presentacion: '85 g',
     badge: 'Fijación Extrema',
-    precio: 33,
-    precioAntes: null,
-    desc: 'Máxima fijación durante 24 horas con acabado brillante controlado y fragancia fresca masculina.',
-    foto: '/productos/prod-05.svg'
+    precio: 40,
+    precioAntes: 46,
+    desc: 'Máxima fijación durante 24 horas con acabado brillante intenso para dominar hasta el cabello más rebelde.',
+    foto: '/productos/prod-04.jpg'
   },
   {
     id: 'prod_06',
-    cat: 'barba',
-    marca: 'Chino Barber Reserve',
-    nombre: 'Aceite Real de Barba Argán & Cedro',
-    presentacion: '30 ml',
-    badge: 'Hidratación VIP',
+    cat: 'cabello',
+    marca: 'American Crew · Reserve',
+    nombre: 'Cera Fiber Alta Fijación & Bajo Brillo',
+    presentacion: '85 g',
+    badge: 'Top Barbería',
     precio: 38,
-    precioAntes: 45,
-    desc: 'Mezcla orgánica de aceites de argán y jojoba. Suaviza la barba desde la raíz, elimina la picazón y aporta aroma amaderado.',
-    foto: '/productos/prod-06.svg'
+    precioAntes: null,
+    desc: 'Resina fibrosa que engrosa, texturiza y aumenta la plenitud del cabello con acabado natural y bajo brillo.',
+    foto: '/productos/prod-06.jpg'
   },
   {
     id: 'prod_07',
     cat: 'barba',
-    marca: 'Chino Barber Reserve',
-    nombre: 'Bálsamo Modelador de Barba & Karité',
-    presentacion: '80 g',
-    badge: 'Control & Nutrición',
-    precio: 36,
-    precioAntes: null,
-    desc: 'Nutre profundamente con manteca de karité y cera de abejas, domando los vellos rebeldes para una barba prolija.',
-    foto: '/productos/prod-07.svg'
+    marca: 'American Crew · Beard',
+    nombre: 'Sérum & Aceite Nutritivo para Barba',
+    presentacion: '50 ml',
+    badge: 'Hidratación VIP',
+    precio: 42,
+    precioAntes: 50,
+    desc: 'Fórmula regeneradora con aceites orgánicos de argán y ciprés que mantiene la barba suave, brillante y bien cuidada.',
+    foto: '/productos/prod-07.jpg'
   },
   {
     id: 'prod_08',
     cat: 'barba',
-    marca: 'The Grooming Line',
-    nombre: 'Tónico Activador de Crecimiento Barba',
-    presentacion: '60 ml',
-    badge: 'Fórmula Activa',
-    precio: 45,
-    precioAntes: 52,
-    desc: 'Loción capilar con biotina y cafeína que estimula los folículos para poblar zonas abiertas y fortalecer la barba.',
-    foto: '/productos/prod-08.svg'
+    marca: 'American Crew · Beard',
+    nombre: 'Bálsamo Acondicionador Beard Balm',
+    presentacion: '60 g',
+    badge: 'Control & Nutrición',
+    precio: 39,
+    precioAntes: null,
+    desc: 'Bálsamo suave con manteca de karité y aceite de almendras dulces que hidrata y moldea la barba con fijación flexible.',
+    foto: '/productos/prod-08.png'
   },
   {
     id: 'prod_09',
     cat: 'barba',
-    marca: 'The Grooming Line',
-    nombre: 'Shampoo Especial de Barba Mentol',
-    presentacion: '200 ml',
-    badge: 'Frescura Total',
-    precio: 35,
-    precioAntes: null,
-    desc: 'Limpieza purificante con eucalipto y mentol que elimina impurezas sin resecar la piel debajo de la barba.',
-    foto: '/productos/prod-09.svg'
+    marca: 'Vikingo Grooming',
+    nombre: 'Bálsamo Activador Crecimiento (Minoxidil)',
+    presentacion: '60 g',
+    badge: 'Fórmula Activa',
+    precio: 48,
+    precioAntes: 56,
+    desc: 'Tratamiento fortificante enriquecido con activos estimulantes que reactivan los folículos y pueblan zonas abiertas.',
+    foto: '/productos/prod-10.png'
   },
   {
     id: 'prod_10',
     cat: 'barba',
-    marca: 'Chino Barber Reserve',
-    nombre: 'Gel de Afeitado Transparente Precisión',
-    presentacion: '150 ml',
-    badge: 'Perfilado Navaja',
-    precio: 28,
+    marca: 'Mr. Muk Barber Exclusive',
+    nombre: 'Shampoo Cabello, Barba & Body Wash',
+    presentacion: '250 ml',
+    badge: '3 en 1 Premium',
+    precio: 38,
     precioAntes: null,
-    desc: 'Fórmula cristalina sin espuma que permite ver con exactitud las líneas de diseño en barba, cuello y patillas.',
-    foto: '/productos/prod-10.svg'
+    desc: 'Gel limpiador ultra acondicionador que deja la barba y el cabello suaves, hidratados y libres de impurezas.',
+    foto: '/productos/prod-09.png'
   },
   {
     id: 'prod_11',
     cat: 'cuidado',
-    marca: 'Chino Barber Reserve',
-    nombre: 'Loción Aftershave Refrescante Clásica',
-    presentacion: '120 ml',
+    marca: 'American Crew · Shave',
+    nombre: 'Bálsamo After Shave Calmante SPF 15',
+    presentacion: '170 ml',
     badge: 'Post-Afeitado',
-    precio: 34,
+    precio: 42,
     precioAntes: null,
-    desc: 'Cierra los poros, previene la irritación tras la navaja y deja una fragancia clásica de barbería de lujo.',
-    foto: '/productos/prod-11.svg'
+    desc: 'Bálsamo facial todo en uno que calma al instante la irritación del afeitado, hidrata la piel e incluye protección solar.',
+    foto: '/productos/prod-12.jpg'
   },
   {
     id: 'prod_12',
     cat: 'cuidado',
-    marca: 'The Grooming Line',
-    nombre: 'Mascarilla Facial Carbón Activado',
-    presentacion: '120 g',
-    badge: 'Detox Facial',
-    precio: 29,
-    precioAntes: 35,
-    desc: 'Mascarilla negra peel-off que extrae puntos negros, controla el exceso de grasa y revitaliza el rostro.',
-    foto: '/productos/prod-12.svg'
+    marca: 'American Crew · Shave',
+    nombre: 'Gel de Afeitado Transparente Precisión',
+    presentacion: '150 ml',
+    badge: 'Perfilado Navaja',
+    precio: 34,
+    precioAntes: 40,
+    desc: 'Gel transparente que no reseca la piel y permite deslizar la navaja con total visibilidad en cuello, mejillas y patillas.',
+    foto: '/productos/prod-13.jpg'
   },
   {
     id: 'prod_13',
     cat: 'cuidado',
-    marca: 'The Grooming Line',
-    nombre: 'Shampoo & Body Wash 3 en 1',
-    presentacion: '300 ml',
-    badge: 'Todo en Uno',
-    precio: 42,
-    precioAntes: 48,
-    desc: 'Fórmula energizante con té verde y jengibre diseñada para limpiar cabello, barba y cuerpo en un solo paso.',
-    foto: '/productos/prod-13.svg'
+    marca: 'Muk Spa Argan Therapy',
+    nombre: 'Mascarilla Reparadora Aceite de Argán',
+    presentacion: '250 ml',
+    badge: 'Reparación Total',
+    precio: 45,
+    precioAntes: 52,
+    desc: 'Tratamiento intensivo con aceite puro de argán marroquí libre de sulfatos para restaurar fuerza, suavidad y brillo.',
+    foto: '/productos/prod-14.jpg'
   },
   {
     id: 'prod_14',
     cat: 'packs',
-    marca: 'Accesorios Pro',
+    marca: 'The Barber Accesorios',
     nombre: 'Cepillo de Barba Madera & Cerda Jabalí',
     presentacion: '1 unid.',
     badge: '100% Natural',
-    precio: 25,
+    precio: 28,
     precioAntes: null,
-    desc: 'Mango anatómico de madera de nogal con cerdas naturales que distribuyen el aceite uniformemente en toda la barba.',
-    foto: '/productos/prod-14.svg'
+    desc: 'Cuerpo ovalado de madera noble con cerdas firmes de jabalí que desenredan y distribuyen el aceite uniformemente.',
+    foto: '/productos/prod-11.png'
   },
   {
     id: 'prod_15',
     cat: 'packs',
-    marca: 'Pack Exclusivo',
-    nombre: 'Pack VIP: Matte Clay + Aceite + Cepillo',
-    presentacion: 'Kit 3 pzs',
-    badge: 'Ahorra S/ 13',
-    precio: 85,
-    precioAntes: 98,
-    desc: 'El set completo de cuidado masculino en caja de presentación: Cera Matte Clay + Aceite Real de Barba + Cepillo.',
-    foto: '/productos/prod-15.svg'
+    marca: 'Pack Exclusivo VIP',
+    nombre: 'Pack Cuidado de Barba + Cepillo + Neceser',
+    presentacion: 'Kit 4 pzs',
+    badge: 'Ahorra S/ 25',
+    precio: 115,
+    precioAntes: 140,
+    desc: 'Set completo de regalo: Beard Serum + Espuma Limpiadora + Bálsamo de Barba + Cepillo de Madera y Neceser de cuero.',
+    foto: '/productos/prod-15.png'
   }
 ];
 
@@ -3286,13 +6002,6 @@ const API = {
       state.currentUser = null;
       updateHeaderAuth();
   updateQuickRebookBanner();
-  CBS_SYNC.emit('cita_created', {
-    id: res.cita?.id,
-    cliente: r.name,
-    servicio: svc.nombre,
-    barbero: barberName,
-    hora: r.time
-  });
       showToast('Tu sesión expiró por inactividad (30 min). Inicia sesión de nuevo.', 'err');
     }
     return j;
@@ -3554,6 +6263,8 @@ async function handleLoginSubmit(e) {
   setCurrentUser(res.user);
   closeAuthModal();
   showToast(`¡Bienvenido de vuelta, ${res.user.nombre}! 👋`, 'ok');
+  go('inicio');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   if (pendingLoginAction) { const a = pendingLoginAction; pendingLoginAction = null; a(); }
 }
 
@@ -3581,10 +6292,23 @@ async function handleRegisterSubmit(e) {
 }
 
 /* Llena el formulario de login con las credenciales de prueba (clic en el bloque del modal) */
-function fillDemoCreds(email, pwd) {
-  $('#loginEmail').value = email;
-  $('#loginPwd').value = pwd;
-  showToast('Credenciales colocadas. Presiona Iniciar Sesión.', 'ok');
+async function fillDemoCreds(email, pwd) {
+  const emailInput = $('#loginEmail');
+  const pwdInput = $('#loginPwd');
+  if (emailInput) emailInput.value = email;
+  if (pwdInput) pwdInput.value = pwd;
+
+  showToast('Iniciando sesión...', 'ok');
+  const res = await API.post('/api/auth/login', { identifier: email, password: pwd });
+  if (res.error) {
+    showToast(res.error, 'err');
+    return;
+  }
+  setCurrentUser(res.user);
+  closeAuthModal();
+  showToast(`¡Bienvenido de vuelta, ${res.user.nombre}! 👋`, 'ok');
+  go('inicio');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function loginWithSocial(provider) {
@@ -3621,21 +6345,7 @@ function setCurrentUser(user) {
 
   updateHeaderAuth();
   updateQuickRebookBanner();
-  CBS_SYNC.emit('cita_created', {
-    id: res.cita?.id,
-    cliente: r.name,
-    servicio: svc.nombre,
-    barbero: barberName,
-    hora: r.time
-  });
   updateQuickRebookBanner();
-  CBS_SYNC.emit('cita_created', {
-    id: res.cita?.id,
-    cliente: r.name,
-    servicio: svc.nombre,
-    barbero: barberName,
-    hora: r.time
-  });
   if (state.step === 4) renderStep4Data();
   if (state.view === 'miscitas') renderAppointmentsView();
   if ($('#cartDrawerOverlay')?.classList.contains('open')) renderCartDrawer();
@@ -3658,13 +6368,6 @@ async function logoutUser() {
 
   updateHeaderAuth();
   updateQuickRebookBanner();
-  CBS_SYNC.emit('cita_created', {
-    id: res.cita?.id,
-    cliente: r.name,
-    servicio: svc.nombre,
-    barbero: barberName,
-    hora: r.time
-  });
   showToast('Sesión cerrada. ¡Hasta pronto!', 'ok');
   if (state.view === 'miscitas') go('inicio');
   if ($('#cartDrawerOverlay')?.classList.contains('open')) renderCartDrawer();
@@ -3815,13 +6518,6 @@ function go(viewName, opts = {}) {
   }
   if (viewName === 'inicio' || viewName === 'reservar') {
     updateQuickRebookBanner();
-  CBS_SYNC.emit('cita_created', {
-    id: res.cita?.id,
-    cliente: r.name,
-    servicio: svc.nombre,
-    barbero: barberName,
-    hora: r.time
-  });
   }
   if (viewName === 'miscitas') {
     renderAppointmentsView();
@@ -5392,13 +8088,6 @@ async function renderAppointmentsView() {
       time: latest.hora
     });
     updateQuickRebookBanner();
-  CBS_SYNC.emit('cita_created', {
-    id: res.cita?.id,
-    cliente: r.name,
-    servicio: svc.nombre,
-    barbero: barberName,
-    hora: r.time
-  });
   }
 
   if (!state.currentUser && !userAppts.length) {
@@ -5469,40 +8158,58 @@ async function renderAppointmentsView() {
         };
         return `
           <div class="cita-card estado-${a.estado}">
-            <div style="display:flex; align-items:center; gap:1.2rem;">
+            <!-- Cabecera de la Cita: Fecha + Estado + Precio -->
+            <div class="cita-card-top">
               <div class="cita-date-badge">
                 <b>${d}</b>
                 <span>${months[Number(m) - 1]}</span>
               </div>
-              <div class="cita-info">
-                <h4>${svc ? svc.nombre : a.servicio}</h4>
-                <p>${a.hora} hrs · Barbero: <b style="color:var(--title)">${barberName}</b> · Total: <b style="color:var(--gold)">${fmtPrice(total)}</b></p>
-                <div style="display:flex; align-items:center; gap:0.6rem; margin-top:0.4rem;">
-                  <span class="status-pill ${a.estado}">${nombresEstado[a.estado] ?? a.estado}</span>
-                  <span style="font-size:0.75rem; color:var(--text-mut);">Pago: ${a.metodo_pago}</span>
-                </div>
-                <p style="font-size:0.74rem; color:var(--text-dim); margin-top:0.3rem;">${avisos[a.estado] ?? ''}</p>
-                ${a.notas ? `<p style="font-size:0.82rem; color:var(--text-dim); margin-top:0.4rem;">📝 ${escapeHTML(a.notas)}</p>` : ''}
+              <div class="cita-top-meta">
+                <span class="status-pill ${a.estado}">${nombresEstado[a.estado] ?? a.estado}</span>
+                <b class="cita-price-badge">${fmtPrice(total)}</b>
               </div>
             </div>
+
+            <!-- Cuerpo: Servicio y Datos -->
+            <div class="cita-card-body">
+              <h4 class="cita-svc-title">${svc ? svc.nombre : a.servicio}</h4>
+              <div class="cita-chips-row">
+                <span class="cita-chip" title="Hora de atención">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  ${a.hora} hrs
+                </span>
+                <span class="cita-chip" title="Barbero asignado">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+                  ${escapeHTML(barberName)}
+                </span>
+                <span class="cita-chip" title="Método de pago">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  Pago: ${escapeHTML(a.metodo_pago)}
+                </span>
+              </div>
+              ${avisos[a.estado] ? `<p class="cita-advice-text">${avisos[a.estado]}</p>` : ''}
+              ${a.notas ? `<p class="cita-notes-text">📝 ${escapeHTML(a.notas)}</p>` : ''}
+            </div>
+
+            <!-- Acciones de la Cita -->
             <div class="cita-actions">
               ${!cerrada ? `
-                <button class="btn btn-gold-outline btn-sm" onclick="openRescheduleModal('${a.id}');">
-                  Reagendar
+                <button type="button" class="btn btn-gold-outline btn-sm" onclick="openRescheduleModal('${a.id}');">
+                  🔄 Reagendar
                 </button>
                 ${puedeCancelar
-                  ? `<button class="btn btn-dark btn-sm" onclick="cancelAppointmentPrompt('${a.id}', '${a.servicio}', ${total}, '${a.estado}');" style="color:var(--err); border-color:rgba(239,68,68,0.3);">
+                  ? `<button type="button" class="btn btn-dark btn-sm cita-btn-cancel" onclick="cancelAppointmentPrompt('${a.id}', '${a.servicio}', ${total}, '${a.estado}');">
                       Cancelar Cita
                     </button>`
-                  : `<span style="color:var(--text-mut); font-size:0.78rem;">ⓘ Cancelación permitida hasta 2h antes</span>`}
-                <button class="btn btn-gold-outline btn-sm" onclick="clientWhatsApp('${a.id}');" title="Consultar o recordar tu cita por WhatsApp" style="color:#25d366; border-color:rgba(37,211,102,0.35);">
+                  : `<span class="cita-cancel-hint">ⓘ Cancelable hasta 2h antes</span>`}
+                <button type="button" class="btn btn-gold-outline btn-sm cita-btn-ws" onclick="clientWhatsApp('${a.id}');" title="Consultar por WhatsApp">
                   💬 WhatsApp
                 </button>
               ` : `
-                <div style="display:flex; flex-direction:column; gap:0.4rem; align-items:flex-end;">
-                  <span style="color:var(--text-mut); font-size:0.85rem;">Cita cerrada (${nombresEstado[a.estado] ?? a.estado})</span>
+                <div class="cita-closed-bar">
+                  <span class="cita-closed-label">Cita cerrada (${nombresEstado[a.estado] ?? a.estado})</span>
                   ${a.estado === 'completada' ? `
-                    <button class="btn btn-gold-outline btn-sm" onclick="openReviewModal('${a.id}', '${a.barbero}', '${a.servicio}');" style="font-size:0.8rem;">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="openReviewModal('${a.id}', '${a.barbero}', '${a.servicio}');">
                       ⭐ Calificar Experiencia
                     </button>
                   ` : ''}
@@ -5749,13 +8456,6 @@ async function saveProfileData() {
   Object.assign(state.currentUser, res.user);
   updateHeaderAuth();
   updateQuickRebookBanner();
-  CBS_SYNC.emit('cita_created', {
-    id: res.cita?.id,
-    cliente: r.name,
-    servicio: svc.nombre,
-    barbero: barberName,
-    hora: r.time
-  });
   closeProfileModal();
   showToast('Tus datos fueron actualizados correctamente. ✅', 'ok');
 }
@@ -6073,38 +8773,65 @@ function renderCartDrawer() {
       titleEl.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Boleta Electrónica de Venta`;
     }
     body.innerHTML = `
-      <div class="voucher-ticket" style="margin: 0.35rem 0 1.2rem;">
-        <!-- Cabecera Oficial -->
-        <div class="rcp-header">
+      <div class="voucher-ticket" style="margin: 0.2rem 0 1rem;">
+        <!-- Cabecera Oficial Compacta -->
+        <div class="rcp-header" style="padding: 1.1rem 1.25rem 0.95rem;">
           <div class="rcp-badge-official">
             <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
             Comprobante Electrónico Válido
           </div>
-          <div class="rcp-check">
-            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg>
+          <div class="rcp-check" style="width:40px; height:40px; margin:0.4rem auto 0.45rem;">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <h3 class="rcp-title">¡Compra Confirmada!</h3>
-          <p class="rcp-shop">CHINO BARBER SHOP · R.U.C. 10458923011<br>Av. Universitaria 1234, Lima · Atención Lun-Sáb 10-20h</p>
-          <div class="rcp-code-wrap">
-            <span class="rcp-code">ORDEN ${escapeHTML(r.codigo)}</span>
-            <span class="status-pill pagado">${escapeHTML(r.estadoPago)}</span>
-          </div>
-        </div>
-
-        <!-- Bloque de Emisión y Entrega -->
-        <div class="rcp-schedule">
-          <div class="rcp-sch-col">
-            <span class="rcp-sch-label">Fecha de Emisión</span>
-            <b class="rcp-sch-val">${escapeHTML(r.fecha)}</b>
-          </div>
-          <div class="rcp-sch-col">
-            <span class="rcp-sch-label">Modalidad</span>
-            <b class="rcp-sch-val">${r.entregaModo === 'delivery' ? '🛵 Delivery Lima' : '🏪 Recojo en Local'}</b>
+          <h3 class="rcp-title" style="font-size:1.25rem; margin-bottom:0.15rem;">¡Compra Confirmada!</h3>
+          <p class="rcp-shop" style="font-size:0.75rem; margin-bottom:0.55rem;">CHINO BARBER SHOP · R.U.C. 10458923011</p>
+          <div class="rcp-code-wrap" style="gap:0.45rem;">
+            <span class="rcp-code" style="font-size:0.86rem; padding:0.25rem 0.65rem;">ORDEN ${escapeHTML(r.codigo)}</span>
+            <span class="status-pill pagado" style="font-size:0.74rem;">${escapeHTML(r.estadoPago)}</span>
           </div>
         </div>
 
-        <!-- Datos del Cliente y Envío -->
-        <div class="rcp-rows">
+        <!-- SECCIÓN DESTACADA: PRODUCTOS VENDIDOS (BIEN VISIBLE) -->
+        <div style="padding: 0.9rem 1.15rem; background: var(--bg-surface); border-bottom: 1.5px solid var(--line-strong);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.65rem;">
+            <span style="font-size:0.78rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--gold);">
+              🛍️ Productos Vendidos (${(r.items || []).reduce((a, i) => a + i.qty, 0)})
+            </span>
+            <span style="font-size:0.72rem; color:var(--text-dim); font-weight:700; text-transform:uppercase;">Subtotal</span>
+          </div>
+          <div style="display:grid; gap:0.55rem;">
+            ${(r.items || []).map(it => {
+              const prodObj = PRODUCTOS.find(p => p.id === it.id);
+              const foto = it.foto || (prodObj ? prodObj.foto : '/productos/prod-01.jpg');
+              const marca = it.marca || (prodObj ? prodObj.marca : '');
+              return `
+                <div style="display:flex; align-items:center; gap:0.75rem; padding:0.65rem 0.75rem; background:var(--bg-card); border:1px solid var(--line-strong); border-radius:11px;">
+                  <img src="${foto}" alt="${escapeHTML(it.nombre)}" style="width:44px; height:44px; border-radius:8px; object-fit:contain; background:#ffffff; padding:2px; flex-shrink:0; border:1px solid var(--line-strong);" />
+                  <div style="flex:1; min-width:0;">
+                    <b style="display:block; font-size:0.86rem; color:var(--title); line-height:1.25; margin-bottom:0.18rem;">${escapeHTML(it.nombre)}</b>
+                    <span style="display:inline-block; font-size:0.75rem; color:var(--text-dim);">
+                      ${marca ? `<span style="color:var(--text-mut);">${escapeHTML(marca)} · </span>` : ''}
+                      <b style="color:var(--title);">${it.qty} unid.</b> × ${fmtPrice(it.precio)}
+                    </span>
+                  </div>
+                  <b style="font-size:0.92rem; color:var(--gold); white-space:nowrap; font-family:var(--font-mono, monospace);">${fmtPrice(it.precio * it.qty)}</b>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- Fila de Total de la Compra -->
+        <div class="rcp-total" style="padding: 0.85rem 1.25rem;">
+          <div>
+            <span style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-dim); font-weight:700;">Envío: ${r.shipping > 0 ? fmtPrice(r.shipping) : 'GRATIS'}</span>
+            <b style="font-size:0.88rem; text-transform:uppercase; color:var(--title);">Total a Cancelar</b>
+          </div>
+          <b class="rcp-total-amount" style="font-size:1.9rem;">${fmtPrice(r.total)}</b>
+        </div>
+
+        <!-- Datos del Cliente y Modalidad de Entrega -->
+        <div class="rcp-rows" style="padding: 0.75rem 1.25rem;">
           <div class="rcp-row">
             <span>Cliente</span>
             <b>${escapeHTML(r.cliente)}</b>
@@ -6114,48 +8841,34 @@ function renderCartDrawer() {
             <b>+51 ${escapeHTML(r.celular)}</b>
           </div>
           <div class="rcp-row">
-            <span>${r.entregaModo === 'delivery' ? 'Dirección de Entrega' : 'Lugar de Recojo'}</span>
-            <b style="max-width: 220px;">${escapeHTML(r.destino)}</b>
+            <span>Fecha Emisión</span>
+            <b>${escapeHTML(r.fecha)}</b>
           </div>
+          <div class="rcp-row">
+            <span>Modalidad</span>
+            <b>${r.entregaModo === 'delivery' ? '🛵 Delivery Lima' : '🏪 Recojo en Local (Av. Larco 840)'}</b>
+          </div>
+          ${r.entregaModo === 'delivery' ? `
+            <div class="rcp-row">
+              <span>Dirección</span>
+              <b>${escapeHTML(r.destino)}</b>
+            </div>
+          ` : ''}
           <div class="rcp-row">
             <span>Medio de Pago</span>
             <b>${escapeHTML(r.metodoDetalle)}</b>
           </div>
         </div>
 
-        <!-- Detalle de Productos -->
-        <div style="padding: 0.85rem 1.4rem 0.4rem; border-top: 1px dashed var(--line-strong);">
-          <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-dim); margin-bottom:0.5rem;">
-            <span>Productos (${r.items.reduce((a, i) => a + i.qty, 0)})</span>
-            <span>Importe</span>
-          </div>
-          <div style="display:grid; gap:0.45rem; font-size:0.84rem;">
-            ${r.items.map(it => `
-              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.6rem;">
-                <span style="color:var(--text); line-height:1.35;"><b style="color:var(--title);">${it.qty}×</b> ${escapeHTML(it.nombre)}</span>
-                <b style="color:var(--title); white-space:nowrap; font-family:var(--font-mono, monospace);">${fmtPrice(it.precio * it.qty)}</b>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-
-        <!-- Fila de Importe Total -->
-        <div class="rcp-total">
-          <div>
-            <span style="display:block; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-dim); font-weight:700;">Envío: ${r.shipping > 0 ? fmtPrice(r.shipping) : 'GRATIS'}</span>
-            <b style="font-size:0.88rem; text-transform:uppercase; color:var(--title);">Total Cancelado</b>
-          </div>
-          <b class="rcp-total-amount">${fmtPrice(r.total)}</b>
-        </div>
-
         <!-- Código de Barras y Certificación SUNAT -->
-        <div class="rcp-barcode">
+        <div class="rcp-barcode" style="padding: 0.65rem 1rem 0.85rem;">
           <div class="barcode-lines"></div>
           <span class="barcode-text">*B001-${escapeHTML(r.codigo || '').replace(/\D/g, '').padStart(6, '0')}*</span>
         </div>
         <p class="rcp-legend">Representación impresa de la Boleta Electrónica de Venta.<br>Consulte la validez de este comprobante en nuestro portal oficial.</p>
       </div>
     `;
+    setTimeout(() => { if (body) body.scrollTop = 0; }, 50);
     footer.innerHTML = `
       <div class="rcp-actions" style="margin-top:0;">
         <button type="button" class="btn rcp-btn-ws btn-block" onclick="shareShopReceiptWhatsApp(lastShopReceipt);">
@@ -6540,7 +9253,7 @@ function processCartCheckout() {
 
   const items = shopCart.map(item => {
     const p = PRODUCTOS.find(prod => prod.id === item.id);
-    return p ? { id: p.id, nombre: p.nombre, precio: p.precio, qty: item.qty } : null;
+    return p ? { id: p.id, nombre: p.nombre, marca: p.marca || '', foto: p.foto || '', precio: p.precio, qty: item.qty } : null;
   }).filter(Boolean);
 
   const subtotal = items.reduce((acc, it) => acc + it.precio * it.qty, 0);
@@ -6828,6 +9541,7 @@ function renderStep1ProductsBox() {
     </div>
   `;
 }
+
 
 /* Venta Cruzada (Upsell) dentro del Paso 5 de Reserva */
 function renderBookingUpsell() {
