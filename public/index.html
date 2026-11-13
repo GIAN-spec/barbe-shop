@@ -4709,6 +4709,243 @@ body.light .rp-summary-bar {
   }
 }
 
+/* ==========================================================================
+   OPTIMIZACIONES MÓVILES GLOBALES: RESPONSIVIDAD TOTAL & MENÚ HAMBURGUESA
+   ========================================================================== */
+html, body {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  position: relative !important;
+}
+
+/* Contenedores principales protegidos de desbordes horizontales */
+.container,
+.reservar-layout,
+.reservar-card,
+.resumen-sidebar,
+.step-panel,
+.step-panel.active {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Header móvil y menú hamburguesa (< 900px) */
+@media (max-width: 900px) {
+  .site-header {
+    height: 64px !important;
+  }
+  .header-inner {
+    padding: 0 0.85rem !important;
+    gap: 0.5rem !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+  .brand {
+    gap: 0.55rem !important;
+    flex-shrink: 0 !important;
+  }
+  .brand-badge {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
+  }
+  .brand-title {
+    font-size: 1.05rem !important;
+    letter-spacing: 1px !important;
+  }
+  .brand-sub {
+    display: none !important;
+  }
+  .header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+  }
+  /* Ocultar botones de texto de login/registro en el header superior en móvil */
+  #authHeaderSlot .header-login-btn,
+  #authHeaderSlot .header-reg-btn {
+    display: none !important;
+  }
+  /* Si el usuario tiene sesión activa, avatar compacto y limpio */
+  #authHeaderSlot .user-menu-btn {
+    padding: 2px !important;
+    background: transparent !important;
+    border: none !important;
+  }
+  #authHeaderSlot .user-avatar {
+    width: 36px !important;
+    height: 36px !important;
+    box-shadow: 0 0 0 2px var(--gold) !important;
+  }
+  #authHeaderSlot .user-name-short,
+  #authHeaderSlot .user-menu-btn svg {
+    display: none !important;
+  }
+  .cart-header-btn,
+  .theme-toggle-btn {
+    width: 38px !important;
+    height: 38px !important;
+    flex-shrink: 0 !important;
+  }
+  /* Botón hamburguesa SIEMPRE visible, centrado y con estilo prémium */
+  .menu-toggle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 10px !important;
+    background: var(--bg-card) !important;
+    border: 1.5px solid var(--line-gold) !important;
+    color: var(--gold) !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+  }
+  body.light .menu-toggle {
+    background: #ffffff !important;
+    border-color: rgba(200, 148, 22, 0.5) !important;
+    color: #c89416 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+  }
+  .menu-toggle:active {
+    transform: scale(0.95);
+  }
+  /* Cajón de navegación desplegable en móvil */
+  .main-nav {
+    position: fixed !important;
+    top: 64px !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: rgba(14, 14, 18, 0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 2px solid var(--line-gold) !important;
+    flex-direction: column !important;
+    padding: 1rem 1.2rem 1.5rem !important;
+    gap: 0.4rem !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+    max-height: calc(100dvh - 64px) !important;
+    overflow-y: auto !important;
+    z-index: 1200 !important;
+    display: none !important;
+  }
+  body.light .main-nav {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-bottom: 2px solid rgba(200, 148, 22, 0.5) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+  }
+  .main-nav a {
+    padding: 0.75rem 1rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border-radius: 10px !important;
+  }
+  .main-nav.open {
+    display: flex !important;
+  }
+}
+
+/* Corrección de ancho y desborde en el flujo de reserva y productos */
+.upsell-box {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+.upsell-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.6rem !important;
+  flex-wrap: wrap !important;
+}
+.upsell-head b {
+  flex: 1 1 200px !important;
+  min-width: 0 !important;
+  font-size: 0.88rem !important;
+  line-height: 1.35 !important;
+}
+.rp-toggle-btn {
+  flex-shrink: 0 !important;
+}
+.rp-grid {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.rp-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+.rp-info {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+.rp-info b,
+.rp-info small {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+}
+.rp-add-btn,
+.qty-control {
+  flex-shrink: 0 !important;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 0 0.85rem !important;
+  }
+  .reservar-card {
+    padding: 1.15rem 0.85rem !important;
+    border-radius: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .upsell-box {
+    padding: 0.85rem 0.75rem !important;
+    margin-bottom: 1rem !important;
+  }
+  .rp-card {
+    padding: 0.55rem 0.65rem !important;
+    gap: 0.55rem !important;
+  }
+  .rp-media {
+    width: 42px !important;
+    height: 42px !important;
+  }
+  .rp-info b {
+    font-size: 0.82rem !important;
+  }
+  .rp-info small {
+    font-size: 0.7rem !important;
+  }
+  .rp-info .rp-price {
+    font-size: 1.05rem !important;
+  }
+  .rp-add-btn {
+    padding: 0.32rem 0.58rem !important;
+    font-size: 0.74rem !important;
+  }
+  .whatsapp-float {
+    bottom: 18px !important;
+    right: 18px !important;
+    width: 48px !important;
+    height: 48px !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -6383,6 +6620,10 @@ function closeUserDropdown() {
 document.addEventListener('click', e => {
   if (!e.target.closest('#userMenuBtn') && !e.target.closest('#userDropdown')) {
     closeUserDropdown();
+  }
+  if (!e.target.closest('#menuToggle') && !e.target.closest('#mainNav')) {
+    const mn = $('#mainNav');
+    if (mn && mn.classList.contains('open')) mn.classList.remove('open');
   }
 });
 
