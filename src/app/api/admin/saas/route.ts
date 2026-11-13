@@ -1,0 +1,404 @@
+/**
+ * /api/admin/saas — Endpoint centralizado de recursos SaaS del Panel Admin:
+ * - clientes (con sellos VIP e historial de citas)
+ * - resenas (aprobar, ocultar, responder)
+ * - productos (stock, precio, activo)
+ * - pedidos (órdenes de tienda + verificación de pago)
+ * - galeria (lookbook fotos)
+ * - ajustes (configuración general del negocio)
+ */
+import { NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { requireAdmin } from '@/lib/auth'
+
+export const dynamic = 'force-dynamic'
+
+export async function GET(request: Request) {
+  const auth = await requireAdmin()
+  if (auth.denied) {
+    return NextResponse.json({ error: auth.denied.message }, { status: auth.denied.status })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const mod = searchParams.get('mod') ?? 'all'
+
+  if (mod === 'clientes') {
+    return NextResponse.json({ clientes: getClientesConHistorial() })
+  }
+  if (mod === 'resenas') {
+    const resenas = db.prepare(`
+      SELECT r.*, COALESCE(r.estado, 'aprobada') AS estado, COALESCE(r.respuesta, '') AS respuesta
+      FROM resenas r ORDER BY r.created_at DESC
+    `).all()
+    return NextResponse.json({ resenas })
+  }
+  if (mod === 'productos') {
+    const productos = db.prepare('SELECT * FROM productos ORDER BY id ASC').all()
+    return NextResponse.json({ productos })
+  }
+  if (mod === 'pedidos') {
+    const pedidos = db.prepare('SELECT * FROM pedidos ORDER BY created_at DESC').all()
+    return NextResponse.json({ pedidos })
+  }
+  if (mod === 'galeria') {
+    const galeria = db.prepare('SELECT * FROM galeria ORDER BY orden ASC, id DESC').all()
+    return NextResponse.json({ galeria })
+  }
+  if (mod === 'ajustes') {
+    const row = db.prepare('SELECT valor FROM ajustes WHERE clave = ?').get('negocio') as { valor: string } | undefined
+    return NextResponse.json({ ajustes: row ? JSON.parse(row.valor) : {} })
+  }
+
+  // mod === 'all'
+  const resenas = db.prepare(`
+    SELECT r.*, COALESCE(r.estado, 'aprobada') AS estado, COALESCE(r.respuesta, '') AS respuesta
+    FROM resenas r ORDER BY r.created_at DESC
+  `).all()
+  const productos = db.prepare('SELECT * FROM productos ORDER BY id ASC').all()
+  const pedidos = db.prepare('SELECT * FROM pedidos ORDER BY created_at DESC').all()
+  const galeria = db.prepare('SELECT * FROM galeria ORDER BY orden ASC, id DESC').all()
+  const rowAj = db.prepare('SELECT valor FROM ajustes WHERE clave = ?').get('negocio') as { valor: string } | undefined
+
+  return NextResponse.json({
+    clientes: getClientesConHistorial(),
+    resenas,
+    productos,
+    pedidos,
+    galeria,
+    ajustes: rowAj ? JSON.parse(rowAj.valor) : {},
+  })
+}
+
+function getClientesConHistorial() {
+  // Combina usuarios registrados + clientes que agendaron citas sin cuenta previa
+  const usuarios = db.prepare(`
+    SELECT id, nombre, email, celular, COALESCE(sellos_vip, 0) AS sellos_vip, COALESCE(notas, '') AS notas, created_at
+    FROM usuarios
+    WHERE COALESCE(rol, 'cliente') != 'admin'
+    ORDER BY created_at DESC
+  `).all() as Array<{
+    id: string
+    nombre: string
+    email: string | null
+    celular: string
+    sellos_vip: number
+    notas: string
+    created_at: string
+  }>
+
+  const citas = db.prepare(`
+    SELECT c.id, c.usuario_id, c.nombre, c.celular, c.fecha, c.hora, c.estado, c.barbero, c.metodo_pago,
+           COALESCE(s.nombre, c.servicio) AS servicioNombre,
+           COALESCE(s.precio, 15) AS precio
+    FROM citas c
+    LEFT JOIN servicios s ON s.id = c.servicio
+    ORDER BY c.fecha DESC, c.hora DESC
+  `).all() as Array<{
+    id: string
+    usuario_id: string | null
+    nombre: string
+    celular: string
+    fecha: string
+    hora: string
+    estado: string
+    barbero: string
+    metodo_pago: string
+    servicioNombre: string
+    precio: number
+  }>
+
+  const mapByPhone = new Map<string, {
+    id: string
+    nombre: string
+    email: string
+    celular: string
+    sellos_vip: number
+    notas: string
+    visitas: number
+    totalGastado: number
+    ultimaCita: string
+    historial: typeof citas
+  }>()
+
+  for (const u of usuarios) {
+    const key = u.celular.trim() || u.id
+    mapByPhone.set(key, {
+      id: u.id,
+      nombre: u.nombre,
+      email: u.email ?? '',
+      celular: u.celular,
+      sellos_vip: u.sellos_vip ?? 0,
+      notas: u.notas ?? '',
+      visitas: 0,
+      totalGastado: 0,
+      ultimaCita: '',
+      historial: [],
+    })
+  }
+
+  for (const c of citas) {
+    const key = (c.celular || '').trim() || c.nombre.toLowerCase()
+    if (!mapByPhone.has(key)) {
+      mapByPhone.set(key, {
+        id: c.usuario_id || `cli_${key.replace(/\s+/g, '_')}`,
+        nombre: c.nombre,
+        email: '',
+        celular: c.celular,
+        sellos_vip: 0,
+        notas: '',
+        visitas: 0,
+        totalGastado: 0,
+        ultimaCita: c.fecha,
+        historial: [],
+      })
+    }
+    const entry = mapByPhone.get(key)!
+    entry.historial.push(c)
+    if (!entry.ultimaCita || c.fecha > entry.ultimaCita) {
+      entry.ultimaCita = c.fecha
+    }
+    if (c.estado === 'completada' || c.estado === 'pagado') {
+      entry.visitas++
+      entry.totalGastado += Number(c.precio) || 0
+    }
+  }
+
+  return Array.from(mapByPhone.values()).sort((a, b) => (b.ultimaCita || '').localeCompare(a.ultimaCita || ''))
+}
+
+export async function POST(request: Request) {
+  const auth = await requireAdmin()
+  if (auth.denied) {
+    return NextResponse.json({ error: auth.denied.message }, { status: auth.denied.status })
+  }
+
+  const body = await request.json()
+  const { mod } = body
+
+  if (mod === 'cliente') {
+    const { nombre, celular, email, sellos_vip, notas } = body
+    if (!nombre || !celular) {
+      return NextResponse.json({ error: 'Nombre y teléfono son obligatorios.' }, { status: 400 })
+    }
+    const id = `usr_cli_${Date.now()}`
+    db.prepare(`
+      INSERT INTO usuarios (id, nombre, email, celular, password_hash, rol, sellos_vip, notas)
+      VALUES (?, ?, ?, ?, 'walkin', 'cliente', ?, ?)
+    `).run(id, String(nombre).trim(), email ? String(email).trim() : null, String(celular).trim(), Number(sellos_vip) || 0, String(notas ?? ''))
+    return NextResponse.json({ ok: true, clientes: getClientesConHistorial() })
+  }
+
+  if (mod === 'producto') {
+    const { nombre, cat, marca, presentacion, desc, precio, stock, img, badge } = body
+    if (!nombre) return NextResponse.json({ error: 'Nombre requerido.' }, { status: 400 })
+    const id = `prod_${Date.now()}`
+    db.prepare(`
+      INSERT INTO productos (id, nombre, cat, marca, presentacion, desc, precio, stock, img, badge, activo)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+    `).run(
+      id,
+      String(nombre).trim(),
+      String(cat ?? 'Cabello & Styling').trim(),
+      String(marca ?? 'American Crew · Reserve').trim(),
+      String(presentacion ?? '85 g').trim(),
+      String(desc ?? '').trim(),
+      Number(precio) || 35,
+      Number(stock ?? 10),
+      String(img ?? '/productos/prod-01.jpg').trim(),
+      String(badge ?? 'Nuevo').trim(),
+    )
+    const creado = db.prepare('SELECT * FROM productos WHERE id = ?').get(id)
+    return NextResponse.json({ ok: true, producto: creado })
+  }
+
+  if (mod === 'pedido') {
+    const { id: customId, cliente, telefono, entrega, direccion, items, subtotal, envio, total, metodo_pago, ref_pago, estado } = body
+    const id = customId || `ORD-${String(Date.now()).slice(-6)}`
+    const exists = db.prepare('SELECT id FROM pedidos WHERE id = ?').get(id)
+    if (!exists) {
+      db.prepare(`
+        INSERT INTO pedidos (id, cliente, telefono, entrega, direccion, items_json, subtotal, envio, total, metodo_pago, ref_pago, estado)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        id,
+        String(cliente ?? 'Cliente Tienda').trim(),
+        String(telefono ?? '999999999').trim(),
+        String(entrega ?? 'recojo'),
+        String(direccion ?? ''),
+        JSON.stringify(items ?? []),
+        Number(subtotal) || Number(total) || 0,
+        Number(envio) || 0,
+        Number(total) || 0,
+        String(metodo_pago ?? 'yape'),
+        String(ref_pago ?? ''),
+        String(estado ?? 'pendiente'),
+      )
+    }
+    const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(id)
+    return NextResponse.json({ ok: true, pedido })
+  }
+
+  if (mod === 'galeria') {
+    const { titulo, cat, url } = body
+    if (!titulo || !url) return NextResponse.json({ error: 'Título y foto requeridos.' }, { status: 400 })
+    const id = `gal_${Date.now()}`
+    db.prepare(`
+      INSERT INTO galeria (id, titulo, cat, url, orden, activo)
+      VALUES (?, ?, ?, ?, 1, 1)
+    `).run(id, String(titulo).trim(), String(cat ?? 'Fade').trim(), String(url).trim())
+    const foto = db.prepare('SELECT * FROM galeria WHERE id = ?').get(id)
+    return NextResponse.json({ ok: true, foto })
+  }
+
+  return NextResponse.json({ error: 'Módulo no soportado.' }, { status: 400 })
+}
+
+export async function PATCH(request: Request) {
+  const auth = await requireAdmin()
+  if (auth.denied) {
+    return NextResponse.json({ error: auth.denied.message }, { status: auth.denied.status })
+  }
+
+  const body = await request.json()
+  const { mod, id } = body
+
+  if (mod === 'cliente') {
+    const { nombre, celular, email, sellos_vip, notas } = body
+    const exists = db.prepare('SELECT id FROM usuarios WHERE id = ?').get(id)
+    if (exists) {
+      db.prepare(`
+        UPDATE usuarios
+        SET nombre = COALESCE(?, nombre),
+            celular = COALESCE(?, celular),
+            email = COALESCE(?, email),
+            sellos_vip = COALESCE(?, sellos_vip),
+            notas = COALESCE(?, notas)
+        WHERE id = ?
+      `).run(
+        nombre !== undefined ? String(nombre).trim() : null,
+        celular !== undefined ? String(celular).trim() : null,
+        email !== undefined ? (String(email).trim() || null) : null,
+        sellos_vip !== undefined ? Math.max(0, Math.min(5, Number(sellos_vip))) : null,
+        notas !== undefined ? String(notas) : null,
+        id,
+      )
+    } else if (celular) {
+      const newId = `usr_cli_${Date.now()}`
+      db.prepare(`
+        INSERT INTO usuarios (id, nombre, email, celular, password_hash, rol, sellos_vip, notas)
+        VALUES (?, ?, ?, ?, 'walkin', 'cliente', ?, ?)
+      `).run(
+        newId,
+        String(nombre ?? 'Cliente').trim(),
+        email ? String(email).trim() : null,
+        String(celular).trim(),
+        Math.max(0, Math.min(5, Number(sellos_vip) || 0)),
+        String(notas ?? ''),
+      )
+    }
+    return NextResponse.json({ ok: true, clientes: getClientesConHistorial() })
+  }
+
+  if (mod === 'resena') {
+    const { estado, respuesta } = body
+    if (estado !== undefined) {
+      db.prepare('UPDATE resenas SET estado = ? WHERE id = ?').run(String(estado), id)
+    }
+    if (respuesta !== undefined) {
+      db.prepare('UPDATE resenas SET respuesta = ? WHERE id = ?').run(String(respuesta), id)
+    }
+    const updated = db.prepare('SELECT * FROM resenas WHERE id = ?').get(id)
+    return NextResponse.json({ ok: true, resena: updated })
+  }
+
+  if (mod === 'producto') {
+    const { nombre, cat, marca, presentacion, desc, precio, stock, img, badge, activo } = body
+    db.prepare(`
+      UPDATE productos
+      SET nombre = COALESCE(?, nombre),
+          cat = COALESCE(?, cat),
+          marca = COALESCE(?, marca),
+          presentacion = COALESCE(?, presentacion),
+          desc = COALESCE(?, desc),
+          precio = COALESCE(?, precio),
+          stock = COALESCE(?, stock),
+          img = COALESCE(?, img),
+          badge = COALESCE(?, badge),
+          activo = COALESCE(?, activo)
+      WHERE id = ?
+    `).run(
+      nombre !== undefined ? String(nombre).trim() : null,
+      cat !== undefined ? String(cat).trim() : null,
+      marca !== undefined ? String(marca).trim() : null,
+      presentacion !== undefined ? String(presentacion).trim() : null,
+      desc !== undefined ? String(desc).trim() : null,
+      precio !== undefined ? Number(precio) : null,
+      stock !== undefined ? Math.max(0, Number(stock)) : null,
+      img !== undefined ? String(img).trim() : null,
+      badge !== undefined ? String(badge).trim() : null,
+      activo !== undefined ? (activo ? 1 : 0) : null,
+      id,
+    )
+    const updated = db.prepare('SELECT * FROM productos WHERE id = ?').get(id)
+    return NextResponse.json({ ok: true, producto: updated })
+  }
+
+  if (mod === 'pedido') {
+    const { estado, ref_pago } = body
+    if (estado !== undefined) {
+      db.prepare('UPDATE pedidos SET estado = ? WHERE id = ?').run(String(estado), id)
+    }
+    if (ref_pago !== undefined) {
+      db.prepare('UPDATE pedidos SET ref_pago = ? WHERE id = ?').run(String(ref_pago), id)
+    }
+    const updated = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(id)
+    return NextResponse.json({ ok: true, pedido: updated })
+  }
+
+  if (mod === 'galeria') {
+    const { titulo, cat, url, activo } = body
+    db.prepare(`
+      UPDATE galeria
+      SET titulo = COALESCE(?, titulo),
+          cat = COALESCE(?, cat),
+          url = COALESCE(?, url),
+          activo = COALESCE(?, activo)
+      WHERE id = ?
+    `).run(
+      titulo !== undefined ? String(titulo).trim() : null,
+      cat !== undefined ? String(cat).trim() : null,
+      url !== undefined ? String(url).trim() : null,
+      activo !== undefined ? (activo ? 1 : 0) : null,
+      id,
+    )
+    const updated = db.prepare('SELECT * FROM galeria WHERE id = ?').get(id)
+    return NextResponse.json({ ok: true, foto: updated })
+  }
+
+  if (mod === 'ajustes') {
+    const { ajustes } = body
+    db.prepare('INSERT OR REPLACE INTO ajustes (clave, valor) VALUES (?, ?)').run('negocio', JSON.stringify(ajustes ?? {}))
+    return NextResponse.json({ ok: true, ajustes })
+  }
+
+  return NextResponse.json({ error: 'Módulo inválido.' }, { status: 400 })
+}
+
+export async function DELETE(request: Request) {
+  const auth = await requireAdmin()
+  if (auth.denied) {
+    return NextResponse.json({ error: auth.denied.message }, { status: auth.denied.status })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const mod = searchParams.get('mod')
+  const id = searchParams.get('id')
+  if (!mod || !id) return NextResponse.json({ error: 'Parámetros requeridos.' }, { status: 400 })
+
+  if (mod === 'producto') db.prepare('DELETE FROM productos WHERE id = ?').run(id)
+  else if (mod === 'galeria') db.prepare('DELETE FROM galeria WHERE id = ?').run(id)
+  else if (mod === 'resena') db.prepare('DELETE FROM resenas WHERE id = ?').run(id)
+  else if (mod === 'pedido') db.prepare('DELETE FROM pedidos WHERE id = ?').run(id)
+
+  return NextResponse.json({ ok: true, deleted: id })
+}

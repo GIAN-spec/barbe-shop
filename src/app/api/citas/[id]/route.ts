@@ -1,0 +1,97 @@
+/**
+ * PATCH /api/citas/[id]   — Acciones del CLIENTE sobre su cita (BLOQUE 5)
+ *   - Solo puede cambiar el estado a 'cancelada' (política: ≥2h de antelación)
+ *   - Puede reagendar fecha/hora/barbero (respetando bloqueos y disponibilidad)
+ *   - No toca citas completadas / rechazadas / ya canceladas
+ * DELETE /api/citas/[id]  — Elimina una cita (solo admin, vía /api/admin)
+ */
+import { NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { requireSession } from '@/lib/auth'
+
+type RouteContext = { params: Promise<{ id: string }> }
+
+/** ¿Fecha/hora bloqueada por el admin? Bloqueo hora exacta o día completo */
+function horaBloqueada(fecha: string, hora: string): string | null {
+  const bloqueos = db.prepare('SELECT hora, motivo FROM bloqueos WHERE fecha = ?').all(fecha) as { hora: string | null; motivo: string }[]
+  const completo = bloqueos.find(b => b.hora === null)
+  if (completo) return `Cerrado ese día (${completo.motivo}).`
+  const punctual = bloqueos.find(b => b.hora === hora)
+  if (punctual) return `Horario ${hora} bloqueado (${punctual.motivo}).`
+  return null
+}
+
+export async function PATCH(request: Request, ctx: RouteContext) {
+  const session = await requireSession()
+  if (!session) {
+    return NextResponse.json({ error: 'No autenticado.' }, { status: 401 })
+  }
+
+  const { id } = await ctx.params
+  const body = await request.json()
+  const { estado, fecha, hora, barbero, notas } = body
+
+  const cita = db.prepare('SELECT * FROM citas WHERE id = ?').get(id) as {
+    id: string; usuario_id: string; estado: string; fecha: string; hora: string; barbero: string
+  } | undefined
+
+  if (!cita) {
+    return NextResponse.json({ error: 'Cita no encontrada.' }, { status: 404 })
+  }
+  if (cita.usuario_id !== session.userId) {
+    return NextResponse.json({ error: 'No autorizado.' }, { status: 403 })
+  }
+
+  // Estados finales: no editable por el cliente
+  if (['completada', 'cancelada', 'rechazada'].includes(cita.estado)) {
+    return NextResponse.json({ error: 'Esta cita ya fue cerrada por la barbería.' }, { status: 400 })
+  }
+
+  // El cliente SOLO puede cancelar; confirmar/pagar/completar lo hace el admin
+  if (estado && estado !== 'cancelada') {
+    return NextResponse.json({ error: 'Solo puedes cancelar tu cita. La confirmación la hace la barbería.' }, { status: 403 })
+  }
+
+  // Política de cancelación: al menos 2 horas de antelación
+  if (estado === 'cancelada') {
+    const ts = new Date(`${cita.fecha}T${cita.hora}:00`).getTime()
+    if (ts - Date.now() < 2 * 3600 * 1000) {
+      return NextResponse.json({ error: 'No puedes cancelar con menos de 2 horas de antelación. Llámanos si es urgente.' }, { status: 400 })
+    }
+  }
+
+  // Reagenda: validar bloqueos y slot
+  if (fecha && hora && barbero) {
+    const bloqueo = horaBloqueada(fecha, hora)
+    if (bloqueo) {
+      return NextResponse.json({ error: bloqueo }, { status: 409 })
+    }
+    const slotOcupado = db.prepare(`
+      SELECT id FROM citas
+      WHERE fecha = ? AND hora = ? AND barbero = ? AND estado != 'cancelada' AND id != ?
+    `).get(fecha, hora, barbero, id)
+    if (slotOcupado) {
+      return NextResponse.json({ error: 'Ese horario ya está ocupado. Elige otro.' }, { status: 409 })
+    }
+  }
+
+  const updates: string[] = []
+  const values: unknown[] = []
+
+  if (estado)  { updates.push('estado = ?'); values.push(estado) }
+  if (fecha)   { updates.push('fecha = ?');  values.push(fecha)  }
+  if (hora)    { updates.push('hora = ?');   values.push(hora)   }
+  if (barbero) { updates.push('barbero = ?');values.push(barbero)}
+  if (notas !== undefined) { updates.push('notas = ?'); values.push(notas) }
+
+  if (updates.length === 0) {
+    return NextResponse.json({ error: 'Nada que actualizar.' }, { status: 400 })
+  }
+
+  values.push(id)
+  db.prepare(`UPDATE citas SET ${updates.join(', ')} WHERE id = ?`).run(...values)
+
+  const rawUpdated = db.prepare('SELECT * FROM citas WHERE id = ?').get(id) as Record<string, unknown>
+  const updated = rawUpdated ? { ...rawUpdated, date: rawUpdated.fecha, time: rawUpdated.hora } : null
+  return NextResponse.json({ ok: true, cita: updated })
+}

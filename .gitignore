@@ -50,5 +50,20 @@ test
 prompt
 
 server.log
+# SQLite locks
+*.db-shm
+*.db-wal
+*.backup*.db
+
 # Skills directory
 /skills/
+.vercel
+
+# Temporary & backup files
+*.bak
+*.download
+*.recovered
+*.reconstructed
+.vscode/
+.zscripts/*.txt
+.zscripts/*.json

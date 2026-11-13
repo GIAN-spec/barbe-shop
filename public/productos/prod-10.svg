@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#2a241b"/>
+      <stop offset="55%" stop-color="#151310"/>
+      <stop offset="100%" stop-color="#0b0a09"/>
+    </radialGradient>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0d0c0a"/>
+      <stop offset="28%" stop-color="#121e28"/>
+      <stop offset="70%" stop-color="#121e28"/>
+      <stop offset="100%" stop-color="#090807"/>
+    </linearGradient>
+    <linearGradient id="lidGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1c1915"/>
+      <stop offset="35%" stop-color="#3a332a"/>
+      <stop offset="70%" stop-color="#221e18"/>
+      <stop offset="100%" stop-color="#12100d"/>
+    </linearGradient>
+    <linearGradient id="goldMetal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9a7018"/>
+      <stop offset="45%" stop-color="#ffe082"/>
+      <stop offset="100%" stop-color="#8a6212"/>
+    </linearGradient>
+    <linearGradient id="specGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0)"/>
+      <stop offset="50%" stop-color="rgba(255,255,255,0.65)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo de estudio fotográfico -->
+  <rect width="600" height="450" fill="url(#bgGlow)"/>
+  <circle cx="300" cy="210" r="175" fill="#38bdf8" opacity="0.06"/>
+  <line x1="0" y1="378" x2="600" y2="378" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+        <ellipse cx="300" cy="402" rx="102" ry="16" fill="rgba(0,0,0,0.65)" />
+      <!-- Dispensador Pump -->
+      <path d="M292 78 L345 78 L352 92 L308 92 L308 122 L292 122 Z" fill="#18181b" stroke="rgba(255,255,255,0.22)" stroke-width="1.2"/>
+      <rect x="272" y="120" width="56" height="26" rx="5" fill="url(#goldMetal)" stroke="#38bdf8" stroke-width="1"/>
+      <!-- Cuerpo botella pump -->
+      <rect x="222" y="146" width="156" height="250" rx="24" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.16)" stroke-width="1.4"/>
+      <rect x="236" y="158" width="20" height="226" rx="9" fill="url(#specGrad)" opacity="0.35"/>
+      <!-- Etiqueta -->
+      <rect x="236" y="188" width="128" height="176" rx="10" fill="#0d0c0a" stroke="#38bdf8" stroke-width="1.4"/>
+      <text x="300" y="216" text-anchor="middle" fill="#38bdf8" font-family="Cinzel, Georgia, serif" font-size="9" font-weight="700" letter-spacing="2.2">CHINO BARBER</text>
+      <line x1="258" y1="224" x2="342" y2="224" stroke="#38bdf8" stroke-width="0.8" opacity="0.5"/>
+      <text x="300" y="260" text-anchor="middle" fill="#ffffff" font-family="Cinzel, Georgia, serif" font-size="15.5" font-weight="800" letter-spacing="1">SHAVE GEL</text>
+      <text x="300" y="284" text-anchor="middle" fill="#d6d1c7" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="8" font-weight="600" letter-spacing="0.6">GEL TRANSPARENTE PRECISIÓN</text>
+      <rect x="254" y="318" width="92" height="22" rx="11" fill="rgba(255,255,255,0.06)" stroke="#38bdf8" stroke-width="0.8"/>
+      <text x="300" y="333" text-anchor="middle" fill="#38bdf8" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="9.5" font-weight="700">150 ml / 5.0 fl.oz</text>
+</svg>

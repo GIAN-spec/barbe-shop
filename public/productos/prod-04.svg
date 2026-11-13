@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" width="600" height="450">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="42%" r="60%">
+      <stop offset="0%" stop-color="#2a241b"/>
+      <stop offset="55%" stop-color="#151310"/>
+      <stop offset="100%" stop-color="#0b0a09"/>
+    </radialGradient>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0d0c0a"/>
+      <stop offset="28%" stop-color="#111822"/>
+      <stop offset="70%" stop-color="#111822"/>
+      <stop offset="100%" stop-color="#090807"/>
+    </linearGradient>
+    <linearGradient id="lidGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1c1915"/>
+      <stop offset="35%" stop-color="#3a332a"/>
+      <stop offset="70%" stop-color="#221e18"/>
+      <stop offset="100%" stop-color="#12100d"/>
+    </linearGradient>
+    <linearGradient id="goldMetal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9a7018"/>
+      <stop offset="45%" stop-color="#ffe082"/>
+      <stop offset="100%" stop-color="#8a6212"/>
+    </linearGradient>
+    <linearGradient id="specGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0)"/>
+      <stop offset="50%" stop-color="rgba(255,255,255,0.65)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo de estudio fotográfico -->
+  <rect width="600" height="450" fill="url(#bgGlow)"/>
+  <circle cx="300" cy="210" r="175" fill="#38bdf8" opacity="0.06"/>
+  <line x1="0" y1="378" x2="600" y2="378" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+        <ellipse cx="300" cy="402" rx="92" ry="15" fill="rgba(0,0,0,0.65)" />
+      <!-- Cabezal atomizador / tapa shaker -->
+      <rect x="278" y="82" width="44" height="38" rx="8" fill="#18181b" stroke="rgba(255,255,255,0.22)" stroke-width="1.2"/>
+      <circle cx="300" cy="100" r="5" fill="#38bdf8"/>
+      <rect x="268" y="118" width="64" height="26" rx="5" fill="url(#goldMetal)" stroke="#38bdf8" stroke-width="1"/>
+      <!-- Hombro cilíndrico -->
+      <path d="M236 180 C236 150, 364 150, 364 180 Z" fill="url(#bodyGrad)"/>
+      <!-- Cuerpo botella alta -->
+      <rect x="234" y="172" width="132" height="225" rx="18" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.4"/>
+      <rect x="246" y="180" width="18" height="208" rx="8" fill="url(#specGrad)" opacity="0.35"/>
+      <!-- Etiqueta -->
+      <rect x="244" y="206" width="112" height="162" rx="8" fill="#0d0c0a" stroke="#38bdf8" stroke-width="1.4"/>
+      <text x="300" y="232" text-anchor="middle" fill="#38bdf8" font-family="Cinzel, Georgia, serif" font-size="8.5" font-weight="700" letter-spacing="2">CHINO BARBER</text>
+      <line x1="262" y1="240" x2="338" y2="240" stroke="#38bdf8" stroke-width="0.8" opacity="0.5"/>
+      <text x="300" y="272" text-anchor="middle" fill="#ffffff" font-family="Cinzel, Georgia, serif" font-size="13.5" font-weight="800" letter-spacing="0.8">SEA SALT SPRAY</text>
+      <text x="300" y="294" text-anchor="middle" fill="#d6d1c7" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="7.5" font-weight="600" letter-spacing="0.6">TEXTURA & VOLUMEN NATURAL</text>
+      <text x="300" y="346" text-anchor="middle" fill="#38bdf8" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="9.5" font-weight="700">150 ml / 5.0 fl.oz</text>
+</svg>

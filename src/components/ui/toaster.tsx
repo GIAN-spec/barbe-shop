@@ -1,5 +1,7 @@
 "use client"
 
+import { useSyncExternalStore } from "react"
+
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
@@ -10,8 +12,17 @@ import {
   ToastViewport,
 } from "@/components/ui/toast"
 
+/** Solo-cliente: evita mismatch de aria-label cuando el navegador (p. ej.
+ * traducción automática/extensiones) muta el HTML antes del hydrate. */
+const emptySubscribe = () => () => {}
+function useMounted() {
+  return useSyncExternalStore(emptySubscribe, () => true, () => false)
+}
+
 export function Toaster() {
+  const mounted = useMounted()
   const { toasts } = useToast()
+  if (!mounted) return null
 
   return (
     <ToastProvider>
