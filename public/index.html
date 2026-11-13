@@ -1525,6 +1525,470 @@ body.light .loyalty-msg {
 body.light .loyalty-msg.free {
   color: #047857;
 }
+
+
+/* ---------- TIENDA OFICIAL & HEADER BUTTONS ---------- */
+/* ---------- O. TIENDA OFICIAL DE PRODUCTOS, CARRITO & VENTA CRUZADA ---------- */
+.cart-header-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--bg-card);
+  display: grid;
+  place-items: center;
+  color: var(--title);
+  transition: all 0.2s ease;
+}
+.cart-header-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+body.light .cart-header-btn {
+  background: #ffffff;
+  border-color: rgba(40, 30, 10, 0.22);
+  color: #181510;
+}
+.cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--gold-gradient);
+  color: #171104;
+  font-size: 0.7rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Grid de Productos */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 1.4rem;
+}
+.product-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1.5px solid var(--line-strong);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.product-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--line-gold);
+  box-shadow: 0 20px 38px -18px rgba(0, 0, 0, 0.65);
+}
+body.light .product-card {
+  background: #ffffff;
+  border-color: rgba(40, 30, 10, 0.16);
+  box-shadow: 0 10px 24px -14px rgba(35, 25, 10, 0.15), 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+body.light .product-card:hover {
+  border-color: rgba(160, 120, 30, 0.45);
+  box-shadow: 0 18px 34px -14px rgba(35, 25, 10, 0.22);
+}
+
+.product-media {
+  position: relative;
+  height: 220px;
+  background: var(--bg-surface);
+  overflow: hidden;
+  cursor: pointer;
+}
+.product-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.product-card:hover .product-media img {
+  transform: scale(1.05);
+}
+.product-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  background: var(--gold-gradient);
+  color: #171104;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+.product-size-pill {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 0.22rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(14, 13, 11, 0.82);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.product-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1.15rem 1.25rem 1.25rem;
+}
+.product-brand {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--bronze);
+  margin-bottom: 0.25rem;
+}
+.product-title {
+  font-family: var(--font-serif);
+  font-size: 1.06rem;
+  font-weight: 700;
+  color: var(--title);
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+}
+.product-desc {
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+.product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+.product-price-box {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+.product-price {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  color: var(--gold);
+  line-height: 1;
+}
+.product-price-old {
+  font-size: 0.84rem;
+  color: var(--text-mut);
+  text-decoration: line-through;
+}
+
+.qty-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--line-gold);
+  border-radius: 10px;
+  padding: 0.2rem 0.35rem;
+}
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--bg-card);
+  border: 1px solid var(--line-strong);
+  color: var(--title);
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+}
+.qty-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.qty-val {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--title);
+}
+
+/* Cajón Lateral del Carrito (Cart Drawer) */
+.cart-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  z-index: 4500;
+  display: none;
+  justify-content: flex-end;
+}
+.cart-drawer-overlay.open {
+  display: flex;
+}
+.cart-drawer {
+  width: 100%;
+  max-width: 430px;
+  height: 100%;
+  background: var(--bg-surface);
+  border-left: 1px solid var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.6);
+  animation: slideLeft 0.25s ease;
+}
+body.light .cart-drawer {
+  background: #ffffff;
+}
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.cd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 1.4rem;
+  border-bottom: 1px solid var(--line-strong);
+}
+.cd-header h3 {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--title);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.cd-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.15rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.cd-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--line-strong);
+}
+body.light .cd-item {
+  background: #f9f7f2;
+}
+.cd-item img {
+  width: 56px;
+  height: 56px;
+  border-radius: 9px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.cd-item-info {
+  flex: 1;
+  min-width: 0;
+}
+.cd-item-info b {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--title);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cd-item-info span {
+  font-size: 0.84rem;
+  color: var(--gold);
+  font-weight: 700;
+}
+.cd-footer {
+  padding: 1.15rem 1.4rem 1.35rem;
+  border-top: 1px solid var(--line-strong);
+  background: var(--bg-card);
+}
+body.light .cd-footer {
+  background: #faf7f0;
+}
+
+/* Venta Cruzada (Upsell) dentro del Paso 5 de Reserva */
+.upsell-box {
+  margin-bottom: 1.35rem;
+  padding: 1rem 1.15rem;
+  border-radius: 14px;
+  border: 1.5px dashed var(--line-gold);
+  background: linear-gradient(90deg, rgba(232, 185, 65, 0.08), transparent 85%), var(--bg-card);
+}
+.upsell-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+.upsell-head b {
+  font-size: 0.9rem;
+  color: var(--title);
+}
+.upsell-head small {
+  font-size: 0.76rem;
+  color: var(--gold);
+  font-weight: 700;
+}
+.upsell-chips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+.upsell-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-surface);
+  text-align: left;
+  transition: all 0.18s ease;
+}
+body.light .upsell-chip {
+  background: #ffffff;
+}
+.upsell-chip:hover {
+  border-color: var(--gold);
+}
+.upsell-chip[aria-pressed="true"] {
+  border-color: var(--gold);
+  background: rgba(232, 185, 65, 0.14);
+  box-shadow: 0 0 0 2px rgba(232, 185, 65, 0.18);
+}
+.upsell-chip img {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.upsell-chip-txt {
+  min-width: 0;
+  flex: 1;
+}
+.upsell-chip-txt b {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--title);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.upsell-chip-txt span {
+  font-size: 0.75rem;
+  color: var(--gold);
+  font-weight: 700;
+}
+@media (max-width: 680px) {
+  .upsell-chips {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- P. BOTONES DEL HEADER EN HORIZONTAL Y RESALTADOS (MODO OSCURO Y CLARO) ---------- */
+.header-inner {
+  gap: 0.75rem;
+}
+.main-nav {
+  gap: 0.15rem;
+  flex-wrap: nowrap;
+}
+.main-nav a {
+  white-space: nowrap;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.88rem;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+#authHeaderSlot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+.header-login-btn,
+.header-reg-btn {
+  white-space: nowrap;
+  font-weight: 700 !important;
+  padding: 0.48rem 0.95rem !important;
+  border-radius: 10px !important;
+  font-size: 0.84rem !important;
+}
+
+/* Botón Iniciar Sesión: Resaltado nítido */
+.header-login-btn {
+  background: rgba(232, 185, 65, 0.14) !important;
+  color: #ffe082 !important;
+  border: 1.5px solid var(--gold) !important;
+}
+.header-login-btn:hover {
+  background: rgba(232, 185, 65, 0.26) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+body.light .header-login-btn {
+  background: #181510 !important;
+  color: #ffffff !important;
+  border: 1.5px solid #181510 !important;
+  box-shadow: 0 4px 12px -4px rgba(24, 21, 16, 0.35);
+}
+body.light .header-login-btn:hover {
+  background: #2c261d !important;
+  border-color: #2c261d !important;
+  color: #ffe082 !important;
+}
+
+/* Botón Registrarse: Dorado Primario Brillante en ambos modos */
+.header-reg-btn {
+  background: var(--gold-gradient) !important;
+  color: #171104 !important;
+  border: none !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 6px 16px -6px rgba(232, 185, 65, 0.65) !important;
+}
+.header-reg-btn:hover {
+  filter: brightness(1.07);
+  color: #000000 !important;
+  transform: translateY(-1px);
+}
+body.light .header-reg-btn {
+  background: linear-gradient(135deg, #f3c64f 0%, #c89416 55%, #9a6d08 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 16px -6px rgba(160, 115, 15, 0.5) !important;
+}
+body.light .header-reg-btn:hover {
+  color: #ffffff !important;
+  filter: brightness(1.08);
+}
+
 </style>
 </head>
 <body>
@@ -2519,182 +2983,182 @@ let PRODUCTOS = [
   {
     id: 'prod_01',
     cat: 'cabello',
-    marca: 'American Crew · Reserve',
-    nombre: 'Cera Matte Clay Fijación Flexible',
-    presentacion: '85 g',
+    marca: 'Chino Barber Reserve',
+    nombre: 'Cera Matte Clay Fijación Fuerte',
+    presentacion: '100 g',
     badge: 'Más Vendido',
-    precio: 38,
-    precioAntes: 45,
+    precio: 35,
+    precioAntes: 42,
     desc: 'Arcilla moldeadora de acabado 100% mate sin residuos grasos. Aporta textura, volumen y control durante todo el día.',
-    foto: '/productos/prod-01.jpg'
+    foto: '/productos/prod-01.svg'
   },
   {
     id: 'prod_02',
     cat: 'cabello',
-    marca: 'American Crew · Reserve',
-    nombre: 'Pomada Clásica Brillo & Fijación Media',
-    presentacion: '85 g',
+    marca: 'Chino Barber Reserve',
+    nombre: 'Pomada Clásica Brillo Medio',
+    presentacion: '100 g',
     badge: 'Estilo Clásico',
-    precio: 36,
+    precio: 34,
     precioAntes: null,
     desc: 'Pomada a base de agua ideal para peinados clásicos, slick back y pompadour. Se retira fácilmente con un solo lavado.',
-    foto: '/productos/prod-02.jpg'
+    foto: '/productos/prod-02.svg'
   },
   {
     id: 'prod_03',
     cat: 'cabello',
-    marca: 'Marmara Barber Pro',
-    nombre: 'Polvo Voluminizador Powder Wax',
+    marca: 'The Grooming Line',
+    nombre: 'Polvo Texturizador Voluminizador',
     presentacion: '20 g',
     badge: 'Efecto Gravedad',
-    precio: 32,
-    precioAntes: 38,
-    desc: 'Polvo ultraligero que levanta la raíz al instante y crea un efecto texturizado mate sin apelmazar el cabello.',
-    foto: '/productos/prod-03.png'
+    precio: 30,
+    precioAntes: 36,
+    desc: 'Polvo ultraligero que levanta la raíz al instante y crea un efecto texturizado natural sin apelmazar el cabello.',
+    foto: '/productos/prod-03.svg'
   },
   {
     id: 'prod_04',
     cat: 'cabello',
-    marca: 'American Crew · Reserve',
-    nombre: 'Spray Texturizante Matte Clay Spray',
+    marca: 'The Grooming Line',
+    nombre: 'Spray Texturizante Sea Salt',
     presentacion: '150 ml',
-    badge: 'Volumen & Textura',
-    precio: 39,
+    badge: 'Volumen Natural',
+    precio: 32,
     precioAntes: null,
-    desc: 'Spray de arcilla caolín que absorbe el exceso de grasa y aporta densidad, textura mate y fijación duradera.',
-    foto: '/productos/prod-05.png'
+    desc: 'Spray con minerales de sal marina para lograr ondas naturales, cuerpo y fijación flexible antes del secado.',
+    foto: '/productos/prod-04.svg'
   },
   {
     id: 'prod_05',
     cat: 'cabello',
-    marca: 'American Crew · Reserve',
-    nombre: 'Pomada Heavy Hold Fijación Extrema',
-    presentacion: '85 g',
+    marca: 'Chino Barber Reserve',
+    nombre: 'Cera Efecto Húmedo Ultra Hold',
+    presentacion: '100 g',
     badge: 'Fijación Extrema',
-    precio: 40,
-    precioAntes: 46,
-    desc: 'Máxima fijación durante 24 horas con acabado brillante intenso para dominar hasta el cabello más rebelde.',
-    foto: '/productos/prod-04.jpg'
+    precio: 33,
+    precioAntes: null,
+    desc: 'Máxima fijación durante 24 horas con acabado brillante controlado y fragancia fresca masculina.',
+    foto: '/productos/prod-05.svg'
   },
   {
     id: 'prod_06',
-    cat: 'cabello',
-    marca: 'American Crew · Reserve',
-    nombre: 'Cera Fiber Alta Fijación & Bajo Brillo',
-    presentacion: '85 g',
-    badge: 'Top Barbería',
+    cat: 'barba',
+    marca: 'Chino Barber Reserve',
+    nombre: 'Aceite Real de Barba Argán & Cedro',
+    presentacion: '30 ml',
+    badge: 'Hidratación VIP',
     precio: 38,
-    precioAntes: null,
-    desc: 'Resina fibrosa que engrosa, texturiza y aumenta la plenitud del cabello con acabado natural y bajo brillo.',
-    foto: '/productos/prod-06.jpg'
+    precioAntes: 45,
+    desc: 'Mezcla orgánica de aceites de argán y jojoba. Suaviza la barba desde la raíz, elimina la picazón y aporta aroma amaderado.',
+    foto: '/productos/prod-06.svg'
   },
   {
     id: 'prod_07',
     cat: 'barba',
-    marca: 'American Crew · Beard',
-    nombre: 'Sérum & Aceite Nutritivo para Barba',
-    presentacion: '50 ml',
-    badge: 'Hidratación VIP',
-    precio: 42,
-    precioAntes: 50,
-    desc: 'Fórmula regeneradora con aceites orgánicos de argán y ciprés que mantiene la barba suave, brillante y bien cuidada.',
-    foto: '/productos/prod-07.jpg'
+    marca: 'Chino Barber Reserve',
+    nombre: 'Bálsamo Modelador de Barba & Karité',
+    presentacion: '80 g',
+    badge: 'Control & Nutrición',
+    precio: 36,
+    precioAntes: null,
+    desc: 'Nutre profundamente con manteca de karité y cera de abejas, domando los vellos rebeldes para una barba prolija.',
+    foto: '/productos/prod-07.svg'
   },
   {
     id: 'prod_08',
     cat: 'barba',
-    marca: 'American Crew · Beard',
-    nombre: 'Bálsamo Acondicionador Beard Balm',
-    presentacion: '60 g',
-    badge: 'Control & Nutrición',
-    precio: 39,
-    precioAntes: null,
-    desc: 'Bálsamo suave con manteca de karité y aceite de almendras dulces que hidrata y moldea la barba con fijación flexible.',
-    foto: '/productos/prod-08.png'
+    marca: 'The Grooming Line',
+    nombre: 'Tónico Activador de Crecimiento Barba',
+    presentacion: '60 ml',
+    badge: 'Fórmula Activa',
+    precio: 45,
+    precioAntes: 52,
+    desc: 'Loción capilar con biotina y cafeína que estimula los folículos para poblar zonas abiertas y fortalecer la barba.',
+    foto: '/productos/prod-08.svg'
   },
   {
     id: 'prod_09',
     cat: 'barba',
-    marca: 'Vikingo Grooming',
-    nombre: 'Bálsamo Activador Crecimiento (Minoxidil)',
-    presentacion: '60 g',
-    badge: 'Fórmula Activa',
-    precio: 48,
-    precioAntes: 56,
-    desc: 'Tratamiento fortificante enriquecido con activos estimulantes que reactivan los folículos y pueblan zonas abiertas.',
-    foto: '/productos/prod-10.png'
+    marca: 'The Grooming Line',
+    nombre: 'Shampoo Especial de Barba Mentol',
+    presentacion: '200 ml',
+    badge: 'Frescura Total',
+    precio: 35,
+    precioAntes: null,
+    desc: 'Limpieza purificante con eucalipto y mentol que elimina impurezas sin resecar la piel debajo de la barba.',
+    foto: '/productos/prod-09.svg'
   },
   {
     id: 'prod_10',
     cat: 'barba',
-    marca: 'Mr. Muk Barber Exclusive',
-    nombre: 'Shampoo Cabello, Barba & Body Wash',
-    presentacion: '250 ml',
-    badge: '3 en 1 Premium',
-    precio: 38,
+    marca: 'Chino Barber Reserve',
+    nombre: 'Gel de Afeitado Transparente Precisión',
+    presentacion: '150 ml',
+    badge: 'Perfilado Navaja',
+    precio: 28,
     precioAntes: null,
-    desc: 'Gel limpiador ultra acondicionador que deja la barba y el cabello suaves, hidratados y libres de impurezas.',
-    foto: '/productos/prod-09.png'
+    desc: 'Fórmula cristalina sin espuma que permite ver con exactitud las líneas de diseño en barba, cuello y patillas.',
+    foto: '/productos/prod-10.svg'
   },
   {
     id: 'prod_11',
     cat: 'cuidado',
-    marca: 'American Crew · Shave',
-    nombre: 'Bálsamo After Shave Calmante SPF 15',
-    presentacion: '170 ml',
+    marca: 'Chino Barber Reserve',
+    nombre: 'Loción Aftershave Refrescante Clásica',
+    presentacion: '120 ml',
     badge: 'Post-Afeitado',
-    precio: 42,
+    precio: 34,
     precioAntes: null,
-    desc: 'Bálsamo facial todo en uno que calma al instante la irritación del afeitado, hidrata la piel e incluye protección solar.',
-    foto: '/productos/prod-12.jpg'
+    desc: 'Cierra los poros, previene la irritación tras la navaja y deja una fragancia clásica de barbería de lujo.',
+    foto: '/productos/prod-11.svg'
   },
   {
     id: 'prod_12',
     cat: 'cuidado',
-    marca: 'American Crew · Shave',
-    nombre: 'Gel de Afeitado Transparente Precisión',
-    presentacion: '150 ml',
-    badge: 'Perfilado Navaja',
-    precio: 34,
-    precioAntes: 40,
-    desc: 'Gel transparente que no reseca la piel y permite deslizar la navaja con total visibilidad en cuello, mejillas y patillas.',
-    foto: '/productos/prod-13.jpg'
+    marca: 'The Grooming Line',
+    nombre: 'Mascarilla Facial Carbón Activado',
+    presentacion: '120 g',
+    badge: 'Detox Facial',
+    precio: 29,
+    precioAntes: 35,
+    desc: 'Mascarilla negra peel-off que extrae puntos negros, controla el exceso de grasa y revitaliza el rostro.',
+    foto: '/productos/prod-12.svg'
   },
   {
     id: 'prod_13',
     cat: 'cuidado',
-    marca: 'Muk Spa Argan Therapy',
-    nombre: 'Mascarilla Reparadora Aceite de Argán',
-    presentacion: '250 ml',
-    badge: 'Reparación Total',
-    precio: 45,
-    precioAntes: 52,
-    desc: 'Tratamiento intensivo con aceite puro de argán marroquí libre de sulfatos para restaurar fuerza, suavidad y brillo.',
-    foto: '/productos/prod-14.jpg'
+    marca: 'The Grooming Line',
+    nombre: 'Shampoo & Body Wash 3 en 1',
+    presentacion: '300 ml',
+    badge: 'Todo en Uno',
+    precio: 42,
+    precioAntes: 48,
+    desc: 'Fórmula energizante con té verde y jengibre diseñada para limpiar cabello, barba y cuerpo en un solo paso.',
+    foto: '/productos/prod-13.svg'
   },
   {
     id: 'prod_14',
     cat: 'packs',
-    marca: 'The Barber Accesorios',
+    marca: 'Accesorios Pro',
     nombre: 'Cepillo de Barba Madera & Cerda Jabalí',
     presentacion: '1 unid.',
     badge: '100% Natural',
-    precio: 28,
+    precio: 25,
     precioAntes: null,
-    desc: 'Cuerpo ovalado de madera noble con cerdas firmes de jabalí que desenredan y distribuyen el aceite uniformemente.',
-    foto: '/productos/prod-11.png'
+    desc: 'Mango anatómico de madera de nogal con cerdas naturales que distribuyen el aceite uniformemente en toda la barba.',
+    foto: '/productos/prod-14.svg'
   },
   {
     id: 'prod_15',
     cat: 'packs',
-    marca: 'Pack Exclusivo VIP',
-    nombre: 'Pack Cuidado de Barba + Cepillo + Neceser',
-    presentacion: 'Kit 4 pzs',
-    badge: 'Ahorra S/ 25',
-    precio: 115,
-    precioAntes: 140,
-    desc: 'Set completo de regalo: Beard Serum + Espuma Limpiadora + Bálsamo de Barba + Cepillo de Madera y Neceser de cuero.',
-    foto: '/productos/prod-15.png'
+    marca: 'Pack Exclusivo',
+    nombre: 'Pack VIP: Matte Clay + Aceite + Cepillo',
+    presentacion: 'Kit 3 pzs',
+    badge: 'Ahorra S/ 13',
+    precio: 85,
+    precioAntes: 98,
+    desc: 'El set completo de cuidado masculino en caja de presentación: Cera Matte Clay + Aceite Real de Barba + Cepillo.',
+    foto: '/productos/prod-15.svg'
   }
 ];
 
