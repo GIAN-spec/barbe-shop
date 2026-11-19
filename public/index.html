@@ -4718,15 +4718,26 @@ html, body {
   position: relative !important;
 }
 
-/* Contenedores principales protegidos de desbordes horizontales */
-.container,
-.reservar-layout,
-.reservar-card,
-.resumen-sidebar,
-.step-panel,
-.step-panel.active {
-  max-width: 100% !important;
+/* El contenedor principal SIEMPRE centrado y con su ancho máximo prémium en escritorio */
+.container {
+  width: 100% !important;
+  max-width: var(--maxw) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
   box-sizing: border-box !important;
+}
+
+/* En pantallas móviles y tablets (< 900px), evitar desbordes en el flujo de reserva */
+@media (max-width: 900px) {
+  .reservar-layout,
+  .reservar-card,
+  .resumen-sidebar,
+  .step-panel,
+  .step-panel.active {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
 }
 
 /* Header móvil y menú hamburguesa (< 900px) */
