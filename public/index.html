@@ -4957,6 +4957,51 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   RESALTADO CLARO DEL MÓDULO ACTIVO EN EL MENÚ (MODO OSCURO Y MODO CLARO)
+   ========================================================================== */
+.main-nav a {
+  position: relative;
+  transition: all 0.2s ease;
+}
+.main-nav a[aria-current="page"] {
+  color: #ffe082 !important;
+  background: rgba(232, 185, 65, 0.16) !important;
+  border: 1px solid rgba(232, 185, 65, 0.45) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px -6px rgba(232, 185, 65, 0.45) !important;
+}
+.main-nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 2px;
+  height: 2.5px;
+  border-radius: 99px;
+  background: var(--gold);
+}
+body.light .main-nav a[aria-current="page"] {
+  color: #8a5e00 !important;
+  background: rgba(200, 148, 22, 0.16) !important;
+  border: 1.5px solid rgba(200, 148, 22, 0.55) !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 12px -6px rgba(180, 130, 15, 0.35) !important;
+}
+body.light .main-nav a[aria-current="page"]::after {
+  background: #b88412;
+}
+@media (max-width: 900px) {
+  .main-nav a[aria-current="page"]::after {
+    left: 0;
+    right: auto;
+    top: 20%;
+    bottom: 20%;
+    width: 4px;
+    height: auto;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -7223,7 +7268,14 @@ function formatHoraLegible(hora) {
   if (typeof raw !== 'string') raw = String(raw || '');
   raw = raw.trim();
   if (!raw || raw === 'undefined' || raw === 'null') return 'Hora por confirmar';
-  return `${raw} hrs`;
+  if (/\b(am|pm)\b/i.test(raw)) return raw;
+  const m = raw.match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return raw;
+  const h24 = Number(m[1]);
+  const mins = m[2];
+  const period = h24 >= 12 ? 'PM' : 'AM';
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+  return `${h12}:${mins} ${period}`;
 }
 
 function formatFechaCorta(isoDate) {
@@ -7456,7 +7508,7 @@ async function renderSlots() {
   const slotBtn = t => {
     const isTaken = !libres.includes(t);
     const isSel = state.reservation.time === t;
-    return `<button class="slot-btn" aria-pressed="${isSel}" ${isTaken ? 'disabled' : ''} onclick="selectReserveSlot('${t}');">${t}</button>`;
+    return `<button class="slot-btn" aria-pressed="${isSel}" ${isTaken ? 'disabled' : ''} onclick="selectReserveSlot('${t}');">${formatHoraLegible(t)}</button>`;
   };
 
   slotsBox.innerHTML = warnHtml + `<div class="slots-clean-grid">${allTimes.map(slotBtn).join('')}</div>`;
@@ -7466,7 +7518,7 @@ async function renderSlots() {
     const t = state.reservation.time;
     noteBox.innerHTML = `
       <div class="slot-note">
-        <span>🕒 Tu cita será de <b class="sn-from">${t}</b> a <b class="sn-to">${addMinutesToTime(t, dur)}</b> <span class="sn-dur">(duración aprox. ${dur} min)</span></span>
+        <span>🕒 Tu cita será de <b class="sn-from">${formatHoraLegible(t)}</b> a <b class="sn-to">${formatHoraLegible(addMinutesToTime(t, dur))}</b> <span class="sn-dur">(duración aprox. ${dur} min)</span></span>
       </div>`;
   }
 }
@@ -7774,7 +7826,7 @@ function renderSidebarSummary() {
   if (svc) rows.push(['Servicio', `${svc.nombre} (${fmtPrice(svc.precio)})`]);
   if (barber) rows.push(['Barbero', barber]);
   if (r.date) rows.push(['Fecha', formatFechaLegible(r.date)]);
-  if (r.time) rows.push(['Hora', r.time]);
+  if (r.time) rows.push(['Hora', formatHoraLegible(r.time)]);
   if (r.name) rows.push(['Cliente', r.name]);
   if (r.notas && r.notas.trim()) {
     rows.push(['📝 Notas', r.notas.trim().length > 22 ? r.notas.trim().slice(0, 22) + '…' : r.notas.trim()]);
@@ -8122,7 +8174,7 @@ function renderConfirmationView(cita) {
           </div>
           <div class="rcp-sch-col">
             <span class="rcp-sch-label">Horario Reservado</span>
-            <b class="rcp-sch-val">${horaRaw} – ${horaFin} hrs</b>
+            <b class="rcp-sch-val">${formatHoraLegible(horaRaw)} – ${formatHoraLegible(horaFin)}</b>
           </div>
         </div>
 
@@ -8283,46 +8335,85 @@ if (repeatBtn) {
    VISTA: MIS CITAS (CON GESTIÓN Y CANCELACIÓN)
    ========================================================= */
 
-async function renderAppointmentsView() {
+let _lastApptsSignature = '';
+let _apptsFetching = false;
+
+async function renderAppointmentsView(opts = {}) {
+  const silent = Boolean(opts && opts.silent);
   const container = $('#miscitasContent');
   if (!container) return;
-  state.appointments = [];
-  container.innerHTML = `
-    <div style="padding:2.5rem 0; text-align:center;">
-      <div class="skeleton-box" style="height:80px; max-width:680px; margin:0 auto 1.2rem;"></div>
-      <div class="skeleton-box" style="height:80px; max-width:680px; margin:0 auto;"></div>
-    </div>
-  `;
+  if (silent && _apptsFetching) return;
+  _apptsFetching = true;
 
-  let userAppts = [];
+  const prevStatusMap = new Map((state.appointments || []).map(c => [c.id, c.estado]));
 
-  if (state.currentUser) {
-    // 1. Usuario con sesión activa: devuelve solo sus citas
-    const res = await API.get('/api/citas');
-    if (res.error) {
-      container.innerHTML = `<p style="color:var(--err); padding:2rem; text-align:center;">${res.error}</p>`;
-      return;
-    }
-    userAppts = res.citas || [];
-  } else {
-    // 2. Modo invitado: consultar ÚNICAMENTE las citas creadas por este invitado
-    let guestIds = [];
-    try {
-      guestIds = JSON.parse(localStorage.getItem('cbs_guest_cita_ids') || '[]');
-    } catch {}
-
-    const guestPhone = localStorage.getItem('cbs_guest_phone');
-
-    if (guestIds.length > 0) {
-      const res = await API.get(`/api/citas?ids=${encodeURIComponent(guestIds.join(','))}`);
-      userAppts = res.citas || [];
-    } else if (guestPhone) {
-      const res = await API.get(`/api/citas?celular=${encodeURIComponent(guestPhone)}`);
-      userAppts = res.citas || [];
-    }
+  if (!silent) {
+    state.appointments = [];
+    _lastApptsSignature = '';
+    container.innerHTML = `
+      <div style="padding:2.5rem 0; text-align:center;">
+        <div class="skeleton-box" style="height:80px; max-width:680px; margin:0 auto 1.2rem;"></div>
+        <div class="skeleton-box" style="height:80px; max-width:680px; margin:0 auto;"></div>
+      </div>
+    `;
   }
 
-  state.appointments = userAppts;
+  let userAppts = [];
+  const guestPhone = localStorage.getItem('cbs_guest_phone') || '';
+
+  try {
+    if (state.currentUser) {
+      // 1. Usuario con sesión activa: devuelve solo sus citas
+      const res = await API.get('/api/citas');
+      if (res.error) {
+        if (!silent) container.innerHTML = `<p style="color:var(--err); padding:2rem; text-align:center;">${res.error}</p>`;
+        return;
+      }
+      userAppts = res.citas || [];
+    } else {
+      // 2. Modo invitado: consultar ÚNICAMENTE las citas creadas por este invitado
+      let guestIds = [];
+      try {
+        guestIds = JSON.parse(localStorage.getItem('cbs_guest_cita_ids') || '[]');
+      } catch {}
+
+      if (guestIds.length > 0) {
+        const res = await API.get(`/api/citas?ids=${encodeURIComponent(guestIds.join(','))}`);
+        userAppts = res.citas || [];
+      } else if (guestPhone) {
+        const res = await API.get(`/api/citas?celular=${encodeURIComponent(guestPhone)}`);
+        userAppts = res.citas || [];
+      }
+    }
+
+    const newSig = JSON.stringify(userAppts.map(a => [a.id, a.estado, a.fecha, a.hora, a.barbero, a.notas]));
+    if (silent && newSig === _lastApptsSignature) {
+      return;
+    }
+
+    // Detectar cambios de estado en tiempo real para avisar al cliente al instante
+    if (silent && prevStatusMap.size > 0) {
+      for (const a of userAppts) {
+        const prev = prevStatusMap.get(a.id);
+        if (prev && prev !== a.estado) {
+          if (a.estado === 'confirmada') {
+            showToast(`✅ ¡Tu cita de las ${formatHoraLegible(a.hora)} fue confirmada por la barbería!`, 'ok');
+          } else if (a.estado === 'pagado') {
+            showToast(`💳 Pago verificado para tu cita de las ${formatHoraLegible(a.hora)}.`, 'ok');
+          } else if (a.estado === 'completada') {
+            showToast(`✂️ ¡Tu cita fue marcada como atendida! Gracias por tu visita.`, 'ok');
+          } else if (a.estado === 'cancelada' || a.estado === 'rechazada') {
+            showToast(`⚠️ Tu cita de las ${formatHoraLegible(a.hora)} cambió a: ${a.estado}.`, 'err');
+          }
+        }
+      }
+    }
+
+    _lastApptsSignature = newSig;
+    state.appointments = userAppts;
+  } finally {
+    _apptsFetching = false;
+  }
 
   if (userAppts.length > 0) {
     const latest = userAppts[0];
@@ -8428,7 +8519,7 @@ async function renderAppointmentsView() {
               <div class="cita-chips-row">
                 <span class="cita-chip" title="Hora de atención">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  ${a.hora} hrs
+                  ${formatHoraLegible(a.hora)}
                 </span>
                 <span class="cita-chip" title="Barbero asignado">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
@@ -8627,7 +8718,7 @@ async function renderReschSlots() {
     const isSel = RESCH.time === t;
     return `
       <button class="slot-btn" aria-pressed="${isSel}" ${isTaken ? 'disabled' : ''} onclick="selectReschSlot('${t}');">
-        ${t}
+        ${formatHoraLegible(t)}
       </button>
     `;
   }).join('');
@@ -9859,20 +9950,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateQuickRebookBanner();
 
   /* Sincronización en Tiempo Real: escuchar cambios del admin y actualizar Mis Citas sin recargar */
+  const refreshMisCitasSilent = () => {
+    if (state.view !== 'miscitas') return;
+    const hasGuest = Boolean(localStorage.getItem('cbs_guest_phone') || (localStorage.getItem('cbs_guest_cita_ids') && localStorage.getItem('cbs_guest_cita_ids') !== '[]'));
+    if (state.currentUser || hasGuest) {
+      renderAppointmentsView({ silent: true });
+    }
+  };
+
   CBS_SYNC.subscribe((event, payload) => {
     if (['cita_updated', 'cita_created', 'pago_updated', 'pedido_updated'].includes(event)) {
-      if (state.view === 'miscitas') {
-        renderAppointmentsView();
-      }
+      refreshMisCitasSilent();
     }
   });
 
-  /* Polling automático de apoyo en Mis Citas (cada 4 segundos cuando la pestaña está visible) */
+  /* Polling automático de apoyo en Mis Citas (cada 3 segundos sin parpadeo, para usuarios e invitados) */
   setInterval(() => {
-    if (document.visibilityState === 'visible' && state.view === 'miscitas' && state.currentUser) {
-      renderAppointmentsView();
+    if (document.visibilityState === 'visible') {
+      refreshMisCitasSilent();
     }
-  }, 4000);
+  }, 3000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshMisCitasSilent();
+  });
+  window.addEventListener('focus', refreshMisCitasSilent);
 
   renderHomePage();
   renderAllServicesPage();

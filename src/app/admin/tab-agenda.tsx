@@ -23,6 +23,7 @@ import {
   money,
   parseCitaExtras,
   formatPaymentInfo,
+  formatHora12,
   syncBus,
   type Cita,
   type Barbero,
@@ -320,7 +321,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                 <tbody>
                   {citasFiltradas.map(c => (
                     <tr key={c.id} onClick={() => abrirDetalle(c)} className="cursor-pointer">
-                      <td className="font-mono font-semibold">{c.hora}</td>
+                      <td className="font-mono font-semibold">{formatHora12(c.hora)}</td>
                       <td className="font-medium">{c.nombre}</td>
                       <td className="a-txt-2">{c.servicioNombre ?? c.servicio}</td>
                       <td className="a-txt-2">{nombreBarbero(c.barbero)}</td>
@@ -426,7 +427,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                         style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}
                       >
                         <div className="flex items-center justify-between font-mono font-bold a-txt">
-                          <span>{c.hora}</span>
+                          <span>{formatHora12(c.hora)}</span>
                           <span>{nombreBarbero(c.barbero)}</span>
                         </div>
                         <p className="font-semibold a-txt truncate mt-0.5">{c.nombre}</p>
@@ -446,7 +447,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
         open={!!selectedCita}
         onClose={() => setSelectedCita(null)}
         title={selectedCita ? `Cita · ${selectedCita.nombre}` : 'Detalle'}
-        sub={selectedCita ? `${fechaLarga(selectedCita.fecha)} · ${selectedCita.hora}` : ''}
+        sub={selectedCita ? `${fechaLarga(selectedCita.fecha)} · ${formatHora12(selectedCita.hora)}` : ''}
         footer={
           selectedCita && (
             <div className="flex flex-col gap-2">

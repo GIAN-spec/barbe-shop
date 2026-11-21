@@ -798,3 +798,16 @@ export const syncBus = {
     }
   }
 }
+
+export function formatHora12(hora?: string | null): string {
+  if (!hora) return '—'
+  const raw = String(hora).trim()
+  if (/\b(am|pm)\b/i.test(raw)) return raw
+  const m = raw.match(/^(\d{1,2}):(\d{2})/)
+  if (!m) return raw
+  const h24 = Number(m[1])
+  const mins = m[2]
+  const period = h24 >= 12 ? 'PM' : 'AM'
+  const h12 = h24 % 12 === 0 ? 12 : h24 % 12
+  return `${h12}:${mins} ${period}`
+}

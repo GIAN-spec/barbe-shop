@@ -23,6 +23,7 @@ import {
   money,
   parseCitaExtras,
   formatPaymentInfo,
+  formatHora12,
   syncBus,
   type Cita,
   type Barbero,
@@ -168,6 +169,7 @@ export default function TabDashboard({
             : 'Cita marcada como atendida'
           : `Estado actualizado a ${estado}`
       )
+      syncBus.emit('cita_updated', { id, estado })
       setSelectedCita(null)
       syncBus.emit('cita_updated', { id, estado })
       await cargarDatos()
@@ -290,7 +292,7 @@ export default function TabDashboard({
                         Pago {c.metodo_pago.toUpperCase()} por verificar · {c.nombre}
                       </p>
                       <p className="a-muted mt-0.5">
-                        {fechaLarga(c.fecha)} {c.hora} · {formatPaymentInfo(c.metodo_pago, c.ref_pago)}
+                        {fechaLarga(c.fecha)} {formatHora12(c.hora)} · {formatPaymentInfo(c.metodo_pago, c.ref_pago)}
                       </p>
                     </div>
                     <button
@@ -402,7 +404,7 @@ export default function TabDashboard({
                     onClick={() => setSelectedCita(c)}
                     className="cursor-pointer"
                   >
-                    <td className="font-mono font-semibold">{c.hora}</td>
+                    <td className="font-mono font-semibold">{formatHora12(c.hora)}</td>
                     <td className="font-medium">{c.nombre}</td>
                     <td className="a-txt-2">{c.servicioNombre ?? c.servicio}</td>
                     <td className="a-txt-2">{nombreBarbero(c.barbero)}</td>
@@ -443,7 +445,7 @@ export default function TabDashboard({
         open={!!selectedCita}
         onClose={() => setSelectedCita(null)}
         title={selectedCita ? `Cita · ${selectedCita.nombre}` : 'Detalle de cita'}
-        sub={selectedCita ? `${fechaLarga(selectedCita.fecha)} a las ${selectedCita.hora}` : ''}
+        sub={selectedCita ? `${fechaLarga(selectedCita.fecha)} a las ${formatHora12(selectedCita.hora)}` : ''}
         footer={
           selectedCita && (
             <div className="flex flex-col gap-2">

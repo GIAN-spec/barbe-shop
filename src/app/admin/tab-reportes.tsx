@@ -21,6 +21,7 @@ import {
   money,
   parseCitaExtras,
   formatPaymentInfo,
+  formatHora12,
   syncBus,
   type Cita,
   type Pedido,
@@ -155,7 +156,7 @@ export default function TabPagos() {
             uid: `cita_${c.id}`,
             origen: 'cita',
             rawId: c.id,
-            fecha: `${c.fecha} ${c.hora}`,
+            fecha: `${c.fecha} ${formatHora12(c.hora)}`,
             cliente: c.nombre,
             telefono: c.celular,
             concepto: `Cita: ${c.servicioNombre ?? c.servicio}`,
@@ -781,7 +782,7 @@ export default function TabPagos() {
                         </div>
                         <div className="flex items-center justify-between a-muted text-[11px]">
                           <span>Cliente: <b className="a-txt">{c.nombre}</b></span>
-                          <span>{fechaLarga(c.fecha)} · {c.hora}</span>
+                          <span>{fechaLarga(c.fecha)} · {formatHora12(c.hora)}</span>
                         </div>
                         <div className="flex items-center justify-between text-[11px] pt-1 border-t" style={{ borderColor: 'var(--line)' }}>
                           <span>Cobro: {money(c.servicioPrecio)}</span>
