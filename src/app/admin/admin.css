@@ -274,24 +274,43 @@
 }
 .a-sidebar .a-sb-line { border-color: var(--sb-line) !important; }
 
+/* Scrollbar oscuro y elegante para el sidebar sin franjas blancas en Windows Chrome */
+.a-sidebar nav {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+.a-sidebar nav::-webkit-scrollbar {
+  width: 4px;
+}
+.a-sidebar nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.a-sidebar nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+}
+.a-sidebar nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
 .a-nav-group-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.08em;
   color: var(--sb-mut);
-  padding: 18px 12px 6px;
+  padding: 10px 10px 4px;
 }
 
 .a-nav-item {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 10px;
   width: 100%;
-  min-height: 40px;
-  padding: 9px 12px;
-  border-radius: 9px;
-  font-size: 14px;
+  min-height: 36px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 13.5px;
   font-weight: 500;
   color: var(--sb-txt);
   transition: background-color .12s ease, color .12s ease;
