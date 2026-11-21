@@ -8,6 +8,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireSession } from '@/lib/auth'
+import { getFechaLima } from '@/lib/dates'
 
 type RouteContext = { params: Promise<{ id: string }> }
 
@@ -60,11 +61,17 @@ export async function PATCH(request: Request, ctx: RouteContext) {
     }
   }
 
-  // Reagenda: validar bloqueos y slot (incluso si solo cambia fecha u hora)
+  // Reagenda: validar formato, fecha no pasada, bloqueos y slot
   if (fecha || hora || barbero) {
-    const targetFecha = fecha ?? cita.fecha
-    const targetHora = hora ?? cita.hora
-    const targetBarbero = barbero ?? cita.barbero
+    const targetFecha = String(fecha ?? cita.fecha).trim()
+    const targetHora = String(hora ?? cita.hora).trim()
+    const targetBarbero = String(barbero ?? cita.barbero).trim()
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(targetFecha) || !/^\d{2}:\d{2}$/.test(targetHora)) {
+      return NextResponse.json({ error: 'Formato de fecha u hora inválido.' }, { status: 400 })
+    }
+    if (targetFecha < getFechaLima(0)) {
+      return NextResponse.json({ error: 'No puedes reagendar a una fecha pasada.' }, { status: 400 })
+    }
     const bloqueo = await horaBloqueada(targetFecha, targetHora)
     if (bloqueo) {
       return NextResponse.json({ error: bloqueo }, { status: 409 })

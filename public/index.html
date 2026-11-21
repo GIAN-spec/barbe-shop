@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="description" content="Chino Barber Shop — Barbería de lujo y sistema de reservas en línea. Tu mejor corte, sin esperas." />
 <meta name="theme-color" content="#09090b" />
+<link rel="manifest" href="/manifest.json" />
 <meta name="version" content="2.4" />
 <!-- cache-bust: 2.5 premium -->
 <title>Chino Barber Shop | Barbería de Lujo & Reservas en Línea</title>
@@ -5131,6 +5132,104 @@ body.light .status-pill.cancelado {
   .mc-tab-btn { flex: 1; justify-content: center; padding: 0.6rem 0.75rem; font-size: 0.85rem; }
 }
 
+/* ==========================================================================
+   ACCESIBILIDAD WCAG 2.1 AA, CONTRASTE Y BARRA INFERIOR MÓVIL TIPO APP
+   ========================================================================== */
+:root {
+  --text-dim: rgba(245, 240, 230, 0.88);
+  --text-mut: rgba(235, 228, 216, 0.78);
+}
+body.light {
+  --text-dim: #3d3527;
+  --text-mut: #5c513d;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2.5px solid var(--gold) !important;
+  outline-offset: 2px !important;
+}
+
+.product-stock-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+  color: var(--ok);
+}
+.product-stock-tag.low { color: #f59e0b; }
+.product-stock-tag.out { color: var(--err); }
+
+/* Barra inferior fija tipo App en celulares */
+.mobile-bottom-nav {
+  display: none;
+}
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 68px !important;
+  }
+  .whatsapp-float {
+    bottom: 78px !important;
+  }
+  /* Evita auto-zoom en iOS al tocar inputs y asegura área táctil >= 44px */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  .slot-btn, .qty-btn {
+    min-height: 42px;
+  }
+  .mobile-bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(14, 14, 18, 0.96);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-top: 1.5px solid var(--line-gold);
+    z-index: 1150;
+    padding: 0.25rem 0.35rem;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.45);
+  }
+  body.light .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.97);
+    border-top: 1.5px solid rgba(200, 148, 22, 0.45);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+  }
+  .mbn-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.18rem;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    transition: all 0.18s ease;
+  }
+  .mbn-item svg {
+    width: 20px;
+    height: 20px;
+  }
+  .mbn-item.active {
+    color: #ffe082;
+    background: rgba(232, 185, 65, 0.16);
+  }
+  body.light .mbn-item.active {
+    color: #8a5e00;
+    background: rgba(200, 148, 22, 0.16);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -5971,6 +6070,26 @@ body.light .status-pill.cancelado {
 <!-- ==================== TOAST NOTIFICATIONS ==================== -->
 <div class="toast-container" id="toastWrap" aria-live="polite" aria-atomic="true"></div>
 
+<!-- ==================== BARRA INFERIOR MÓVIL TIPO APP ==================== -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Navegación rápida móvil">
+  <button type="button" class="mbn-item active" data-mbn="inicio" onclick="go('inicio');">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button type="button" class="mbn-item" data-mbn="reservar" onclick="go('reservar');">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <span>Reservar</span>
+  </button>
+  <button type="button" class="mbn-item" data-mbn="tienda" onclick="go('tienda');">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    <span>Tienda</span>
+  </button>
+  <button type="button" class="mbn-item" data-mbn="miscitas" onclick="go('miscitas');">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <span>Mis Citas</span>
+  </button>
+</nav>
+
 <!-- ==================== WHATSAPP DIRECT ==================== -->
 <a class="whatsapp-float" href="https://wa.me/51987654321?text=Hola%20Chino%20Barber%20Shop,%20deseo%20consultar%20sobre%20una%20reserva" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
   <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3.2-.5 0-.2 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5a1 1 0 0 0-.7.3c-.6.6-.9 1.4-.9 2.3.1 1.5.8 2.9 1.8 4 1.9 2.3 4.4 3.3 5.4 3 .4-.1 1.1-.5 1.3-1 .1-.4.1-.7.1-.8-.1-.1-.2-.1-.4-.2z"/></svg>
@@ -6393,15 +6512,39 @@ const GALERIA = [
   { titulo: 'Herramientas Master Barber', url: 'https://images.unsplash.com/photo-1647140655214-e4a2d914971f?auto=format&fit=crop&w=800&q=80' }
 ];
 
-/* Carga el catálogo desde la BD (BLOQUE 3: el admin edita precios, duración y estado) */
+/* Carga el catálogo desde la BD (BLOQUE 3: el admin edita precios, duración, stock y estado) */
 async function loadCatalog() {
   try {
-    const [resS, resB] = await Promise.all([API.get('/api/servicios'), API.get('/api/barberos')]);
+    const [resS, resB, resP] = await Promise.all([
+      API.get('/api/servicios'),
+      API.get('/api/barberos'),
+      API.get('/api/productos'),
+    ]);
     if (Array.isArray(resS.servicios) && resS.servicios.length) {
       SERVICIOS = resS.servicios.map(s => ({ id: s.id, cat: s.cat, nombre: s.nombre, desc: s.desc, dur: s.dur, precio: s.precio, foto: s.foto, activo: s.activo }));
     }
     if (Array.isArray(resB.barberos) && resB.barberos.length) {
       BARBEROS = resB.barberos.map(b => ({ id: b.id, nombre: b.nombre, rol: b.rol, esp: b.esp, exp: b.exp, tags: Array.isArray(b.tags) ? b.tags : [], foto: b.foto, activo: b.activo }));
+    }
+    if (Array.isArray(resP.productos) && resP.productos.length) {
+      const catMap = {
+        'Cabello & Styling': 'styling',
+        'Cuidado de Barba': 'barba',
+        'Afeitado & Cuidado': 'cuidado',
+        'Packs & Accesorios': 'accesorios',
+      };
+      PRODUCTOS.splice(0, PRODUCTOS.length, ...resP.productos.map(p => ({
+        id: p.id,
+        cat: catMap[p.cat] || p.cat || 'styling',
+        marca: p.marca || 'Chino Barber Shop',
+        nombre: p.nombre,
+        presentacion: p.presentacion || 'Unidad',
+        desc: p.desc || '',
+        precio: Number(p.precio) || 35,
+        stock: p.stock !== undefined ? Number(p.stock) : 15,
+        badge: p.badge || '',
+        foto: p.img || '/productos/prod-01.jpg',
+      })));
     }
   } catch { /* fallback a constantes */ }
 }
@@ -6946,6 +7089,9 @@ function go(viewName, opts = {}) {
     a.removeAttribute('aria-current');
     if (a.dataset.nav === viewName) a.setAttribute('aria-current', 'page');
   });
+  $$('#mobileBottomNav .mbn-item').forEach(b => {
+    b.classList.toggle('active', b.dataset.mbn === viewName);
+  });
 
   $('#mainNav').classList.remove('open');
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -6966,7 +7112,7 @@ function go(viewName, opts = {}) {
     renderOrdersView();
   }
   if (viewName === 'tienda') {
-    renderAllProductsPage();
+    loadCatalog().then(() => renderAllProductsPage());
   }
 
   history.replaceState(null, '', '#' + viewName);
@@ -9106,9 +9252,16 @@ function getCartQty(prodId) {
 
 function renderProductCard(p) {
   const qty = getCartQty(p.id);
+  const stock = p.stock !== undefined ? Number(p.stock) : 15;
+  const agotado = stock <= 0;
+  const stockHtml = agotado
+    ? `<span class="product-stock-tag out">● Agotado temporalmente</span>`
+    : stock <= 5
+      ? `<span class="product-stock-tag low">● ¡Últimas ${stock} unidades!</span>`
+      : `<span class="product-stock-tag">● En stock (${stock} disp.)</span>`;
   return `
     <article class="product-card">
-      <div class="product-media" onclick="openLightbox('${p.foto}');" title="Ver imagen del producto">
+      <div class="product-media" role="button" tabindex="0" onclick="openLightbox('${p.foto}');" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox('${p.foto}');}" title="Ver imagen del producto">
         <img src="${p.foto}" alt="${escapeHTML(p.nombre)}" loading="lazy" />
         ${p.badge ? `<span class="product-badge">${escapeHTML(p.badge)}</span>` : ''}
         <span class="product-size-pill">${escapeHTML(p.presentacion)}</span>
@@ -9116,13 +9269,18 @@ function renderProductCard(p) {
       <div class="product-body">
         <span class="product-brand">${escapeHTML(p.marca)}</span>
         <h3 class="product-title">${escapeHTML(p.nombre)}</h3>
+        ${stockHtml}
         <p class="product-desc">${escapeHTML(p.desc)}</p>
         <div class="product-footer">
           <div class="product-price-box">
             <span class="product-price">${fmtPrice(p.precio)}</span>
             ${p.precioAntes ? `<span class="product-price-old">${fmtPrice(p.precioAntes)}</span>` : ''}
           </div>
-          ${qty > 0 ? `
+          ${agotado ? `
+            <button type="button" class="btn btn-dark btn-sm" disabled>
+              Agotado
+            </button>
+          ` : qty > 0 ? `
             <div class="qty-control">
               <button type="button" class="qty-btn" onclick="changeCartQty('${p.id}', -1);" aria-label="Quitar uno">−</button>
               <span class="qty-val">${qty}</span>
@@ -9643,9 +9801,9 @@ function renderCartDrawer() {
         <span>${fmtPrice(it.precio)} × ${it.qty} = ${fmtPrice(it.precio * it.qty)}</span>
       </div>
       <div class="qty-control">
-        <button type="button" class="qty-btn" onclick="changeCartQty('${it.id}', -1);">−</button>
+        <button type="button" class="qty-btn" aria-label="Quitar uno" onclick="changeCartQty('${it.id}', -1);">−</button>
         <span class="qty-val">${it.qty}</span>
-        <button type="button" class="qty-btn" onclick="changeCartQty('${it.id}', 1);">+</button>
+        <button type="button" class="qty-btn" aria-label="Agregar uno" onclick="changeCartQty('${it.id}', 1);">+</button>
       </div>
     </div>
   `).join('');
@@ -9678,7 +9836,10 @@ function renderCartDrawer() {
   `;
 }
 
-function processCartCheckout() {
+let _checkoutProcessing = false;
+
+async function processCartCheckout() {
+  if (_checkoutProcessing) return;
   syncCartDraftFromDOM();
   const nombre = (cartCheckoutDraft.nombre || '').trim();
   const celular = (cartCheckoutDraft.celular || '').replace(/\D/g, '');
@@ -9779,37 +9940,57 @@ function processCartCheckout() {
     total
   };
 
+  // ENVIAR DIRECTAMENTE A LA BASE DE DATOS CON BLOQUEO ANTI DOBLE-CLIC Y SPINNER
+  const confirmBtn = document.querySelector('.sc-btn-confirm');
+  const origBtnHtml = confirmBtn ? confirmBtn.innerHTML : '';
+  _checkoutProcessing = true;
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '⏳ Procesando pedido...';
+  }
+
+  try {
+    const r = await fetch('/api/pedidos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lastShopReceipt),
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok || data.error) {
+      showToast(data.error || 'No se pudo procesar el pedido. Verifica el stock.', 'err');
+      return;
+    }
+    if (data.pedido && data.pedido.id) {
+      lastShopReceipt.codigo = data.pedido.id;
+    }
+    await loadCatalog();
+  } catch (err) {
+    showToast('Error de conexión al registrar tu pedido. Intenta nuevamente.', 'err');
+    return;
+  } finally {
+    _checkoutProcessing = false;
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.innerHTML = origBtnHtml;
+    }
+  }
+
   try {
     const prevOrders = JSON.parse(localStorage.getItem('cbs_shop_orders') || '[]');
     prevOrders.unshift(lastShopReceipt);
     localStorage.setItem('cbs_shop_orders', JSON.stringify(prevOrders.slice(0, 30)));
     if (!state.currentUser) {
       const gOrders = JSON.parse(localStorage.getItem('cbs_guest_order_ids') || '[]');
-      if (!gOrders.includes(codigo)) {
-        gOrders.unshift(codigo);
+      if (!gOrders.includes(lastShopReceipt.codigo)) {
+        gOrders.unshift(lastShopReceipt.codigo);
         localStorage.setItem('cbs_guest_order_ids', JSON.stringify(gOrders.slice(0, 30)));
       }
-      if (cel) localStorage.setItem('cbs_guest_phone', cel);
+      if (celular) localStorage.setItem('cbs_guest_phone', celular);
     }
   } catch {}
 
-  // ENVIAR DIRECTAMENTE A LA BASE DE DATOS PARA QUE APAREZCA AL INSTANTE EN EL PANEL ADMIN
-  try {
-    fetch('/api/pedidos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(lastShopReceipt),
-    }).then(r => r.json()).then(data => {
-      CBS_SYNC.emit('pedido_created', {
-        id: codigo,
-        cliente: nombre,
-        total: total
-      });
-    }).catch(e => console.error('Error al sincronizar pedido con servidor:', e));
-  } catch (err) {}
-
   CBS_SYNC.emit('pedido_created', {
-    id: codigo,
+    id: lastShopReceipt.codigo,
     cliente: nombre,
     total: total
   });
@@ -10336,8 +10517,9 @@ function openOrderReceipt(orderId) {
     metodoDetalle: (p.metodo_pago || 'efectivo').toUpperCase() + (p.ref_pago ? ` · Op. #${p.ref_pago}` : ''),
     estadoPago: p.estado === 'pagado' ? 'PAGADO · VERIFICADO' : p.estado === 'entregado' ? 'ENTREGADO' : 'PENDIENTE',
   };
-  cartDrawerMode = 'receipt';
+  cartDrawerStep = 'receipt';
   toggleCartDrawer(true);
+  renderCartDrawer();
 }
 
 function clientOrderWhatsApp(orderId) {

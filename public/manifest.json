@@ -1,0 +1,18 @@
+{
+  "name": "Chino Barber Shop — Reservas & Tienda",
+  "short_name": "Chino Barber",
+  "description": "Barbería de lujo y sistema de reservas en línea en Lima. Tu mejor corte, sin esperas.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#d4af37",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

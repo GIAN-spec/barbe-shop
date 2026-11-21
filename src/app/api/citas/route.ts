@@ -5,6 +5,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireSession } from '@/lib/auth'
+import { getFechaLima } from '@/lib/dates'
 import { randomUUID } from 'crypto'
 
 export const dynamic = 'force-dynamic'
@@ -69,12 +70,19 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { nombre, celular, servicio, barbero, fecha, hora, metodoPago, refPago, notas, addonItems } = body
 
-    // Validaciones básicas
+    // Validaciones básicas y de formato/fecha
     if (!nombre || !celular || !servicio || !barbero || !fecha || !hora || !metodoPago) {
       return NextResponse.json({ error: 'Faltan campos requeridos.' }, { status: 400 })
     }
     if (!/^9\d{8}$/.test(celular)) {
-      return NextResponse.json({ error: 'Celular inválido.' }, { status: 400 })
+      return NextResponse.json({ error: 'Celular inválido (9 dígitos empezando con 9).' }, { status: 400 })
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fecha)) || !/^\d{2}:\d{2}$/.test(String(hora))) {
+      return NextResponse.json({ error: 'Formato de fecha u hora inválido.' }, { status: 400 })
+    }
+    const hoyLima = getFechaLima(0)
+    if (String(fecha) < hoyLima) {
+      return NextResponse.json({ error: 'No se pueden agendar citas en fechas pasadas.' }, { status: 400 })
     }
 
     // Verificar bloqueos (día completo u horario puntual del admin)
@@ -103,14 +111,21 @@ export async function POST(request: Request) {
 
     // Estado según método de pago
     // SEGURIDAD: el cliente nunca puede auto-asignarse estado 'pagado'.
-    // Solo efectivo = pendiente, promocion_fidelidad = confirmada, otros (transferencia/yape) = pendiente.
-    const estadosPermitidos: Record<string, string> = {
-      efectivo: 'pendiente',
-      yape: 'pendiente',
-      transferencia: 'pendiente',
-      promocion_fidelidad: 'confirmada',
+    // Si envía 'promocion_fidelidad', verificamos en BD que realmente tenga 5 sellos acumulados.
+    let estado = 'pendiente'
+    if (metodoPago === 'promocion_fidelidad') {
+      const rowCitas = await db.get<{ total: number }>(
+        `SELECT COUNT(*) AS total FROM citas WHERE celular LIKE ? AND estado IN ('completada', 'pagado')`,
+        `%${String(celular).slice(-9)}`
+      )
+      const sellosPorCitas = Number(rowCitas?.total ?? 0) % 6
+      const rowUser = usuarioId
+        ? await db.get<{ sellos_vip: number }>('SELECT COALESCE(sellos_vip, 0) AS sellos_vip FROM usuarios WHERE id = ?', usuarioId)
+        : await db.get<{ sellos_vip: number }>('SELECT COALESCE(sellos_vip, 0) AS sellos_vip FROM usuarios WHERE celular = ?', celular)
+      if (sellosPorCitas === 5 || Number(rowUser?.sellos_vip ?? 0) >= 5) {
+        estado = 'confirmada'
+      }
     }
-    const estado = estadosPermitidos[metodoPago] ?? 'pendiente'
 
     const id = 'cita_' + randomUUID().replace(/-/g, '').slice(0, 16)
 

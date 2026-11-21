@@ -1,6 +1,6 @@
 /**
  * GET  /api/pedidos — Historial de pedidos del cliente autenticado o de invitado (por ids o teléfono)
- * POST /api/pedidos — Registrar pedido público de tienda directamente en la base de datos
+ * POST /api/pedidos — Registrar pedido público de tienda validando precios y stock en el servidor
  */
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
@@ -79,22 +79,95 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { codigo, citaId, cliente, celular, entregaModo, destino, items, subtotal, shipping, total, metodoDetalle } = body
+    const { codigo, citaId, cliente, celular, entregaModo, destino, items, metodoDetalle } = body
 
     if (!cliente || !celular || !items || !Array.isArray(items) || items.length === 0) {
-      return NextResponse.json({ error: 'Datos de pedido incompletos.' }, { status: 400 })
+      return NextResponse.json({ error: 'Datos de pedido incompletos.' }, { status: 400, headers: NO_CACHE })
+    }
+
+    const tel = String(celular).replace(/\D/g, '').slice(-9)
+    if (!/^9\d{8}$/.test(tel)) {
+      return NextResponse.json({ error: 'Ingresa un número de celular válido de 9 dígitos.' }, { status: 400, headers: NO_CACHE })
     }
 
     const session = await requireSession()
     const usuarioId = session?.userId ?? null
 
-    const id = codigo || `ORD-${Math.floor(100000 + Math.random() * 900000)}`
-    const tel = String(celular).replace(/\D/g, '').slice(-9)
+    // Generar ID único garantizando que nunca sobrescriba un pedido existente
+    let id = typeof codigo === 'string' && /^ORD-[A-Z0-9-]+$/i.test(codigo.trim())
+      ? codigo.trim()
+      : `ORD-${Math.floor(100000 + Math.random() * 900000)}`
+    const existing = await db.get('SELECT id FROM pedidos WHERE id = ?', id)
+    if (existing) {
+      id = `ORD-${Math.floor(100000 + Math.random() * 900000)}`
+    }
+
     const entrega = entregaModo === 'delivery' ? 'delivery' : 'recojo'
-    const direccion = destino || ''
-    const sub = Number(subtotal) || Number(total) || 0
-    const env = Number(shipping) || 0
-    const tot = Number(total) || (sub + env)
+    const direccion = String(destino ?? '').trim().slice(0, 220)
+
+    // Validar precios y stock contra la tabla `productos` en el servidor
+    const verifiedItems: Array<{
+      id: string | null
+      name: string
+      qty: number
+      price: number
+      img: string | null
+      marca: string | null
+    }> = []
+
+    let calculatedSubtotal = 0
+
+    for (const rawIt of items) {
+      const qty = Math.max(1, Math.min(50, Math.floor(Number(rawIt.qty) || 1)))
+      const rawId = rawIt.id ? String(rawIt.id).trim() : ''
+      const rawName = String(rawIt.nombre || rawIt.name || '').trim()
+
+      const dbProd = rawId
+        ? await db.get<{ id: string; nombre: string; marca: string; precio: number; stock: number; img: string | null; activo: number }>(
+            'SELECT id, nombre, marca, precio, stock, img, activo FROM productos WHERE id = ?',
+            rawId
+          )
+        : await db.get<{ id: string; nombre: string; marca: string; precio: number; stock: number; img: string | null; activo: number }>(
+            'SELECT id, nombre, marca, precio, stock, img, activo FROM productos WHERE nombre = ?',
+            rawName
+          )
+
+      if (dbProd) {
+        if (dbProd.activo === 0) {
+          return NextResponse.json({ error: `El producto "${dbProd.nombre}" ya no está disponible.` }, { status: 400, headers: NO_CACHE })
+        }
+        if (Number(dbProd.stock) < qty) {
+          return NextResponse.json(
+            { error: `Stock insuficiente para "${dbProd.nombre}" (disponible: ${dbProd.stock} unid.).` },
+            { status: 409, headers: NO_CACHE }
+          )
+        }
+        const unitPrice = Number(dbProd.precio) || 0
+        calculatedSubtotal += unitPrice * qty
+        verifiedItems.push({
+          id: dbProd.id,
+          name: dbProd.nombre,
+          qty,
+          price: unitPrice,
+          img: dbProd.img || rawIt.img || rawIt.foto || null,
+          marca: dbProd.marca || null,
+        })
+      } else {
+        const fallbackPrice = Math.max(1, Number(rawIt.precio || rawIt.price) || 35)
+        calculatedSubtotal += fallbackPrice * qty
+        verifiedItems.push({
+          id: rawId || null,
+          name: rawName || 'Producto Chino Barber',
+          qty,
+          price: fallbackPrice,
+          img: rawIt.img || rawIt.foto || null,
+          marca: rawIt.marca || null,
+        })
+      }
+    }
+
+    const env = entrega === 'delivery' ? 8 : 0
+    const tot = calculatedSubtotal + env
 
     const mLower = String(metodoDetalle || '').toLowerCase()
     let metodoPago = 'efectivo'
@@ -104,30 +177,23 @@ export async function POST(request: Request) {
 
     let refPago = ''
     const opMatch = mLower.match(/op\.?\s*#?([0-9a-z]+)/i)
-    if (opMatch) refPago = opMatch[1]
+    if (opMatch) refPago = opMatch[1].slice(0, 32)
 
-    const estado = mLower.includes('tarjeta') ? 'pagado' : 'pendiente'
+    // Seguridad: todo pedido público inicia como 'pendiente' hasta verificación real en el Panel Admin
+    const estado = 'pendiente'
+    const itemsJson = JSON.stringify(verifiedItems)
 
-    const itemsJson = JSON.stringify(items.map((it: Record<string, unknown>) => ({
-      id: it.id || null,
-      name: it.nombre || it.name,
-      qty: Math.max(1, Math.floor(Number(it.qty) || 1)),
-      price: Number(it.precio || it.price) || 0,
-      img: it.img || it.foto || null,
-      marca: it.marca || null,
-    })))
-
-    for (const it of items) {
-      if (it.id) {
-        const qty = Math.max(1, Math.floor(Number(it.qty) || 1))
-        await db.run('UPDATE productos SET stock = MAX(0, stock - ?) WHERE id = ?', qty, it.id)
+    await db.transaction(async (tx) => {
+      for (const it of verifiedItems) {
+        if (it.id) {
+          await tx.run('UPDATE productos SET stock = MAX(0, stock - ?) WHERE id = ?', it.qty, it.id)
+        }
       }
-    }
-
-    await db.run(`
-      INSERT OR REPLACE INTO pedidos (id, usuario_id, cita_id, cliente, telefono, entrega, direccion, items_json, subtotal, envio, total, metodo_pago, ref_pago, estado)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, id, usuarioId, citaId ?? null, String(cliente).trim(), tel, entrega, direccion, itemsJson, sub, env, tot, metodoPago, refPago, estado)
+      await tx.run(`
+        INSERT INTO pedidos (id, usuario_id, cita_id, cliente, telefono, entrega, direccion, items_json, subtotal, envio, total, metodo_pago, ref_pago, estado)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `, id, usuarioId, citaId ?? null, String(cliente).trim().slice(0, 80), tel, entrega, direccion, itemsJson, calculatedSubtotal, env, tot, metodoPago, refPago, estado)
+    })
 
     const creado = await db.get('SELECT * FROM pedidos WHERE id = ?', id)
     return NextResponse.json({ ok: true, pedido: creado }, { status: 201, headers: NO_CACHE })
