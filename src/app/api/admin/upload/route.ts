@@ -31,9 +31,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'La foto debe pesar menos de 4 MB.' }, { status: 400 })
   }
 
-  const buf = Buffer.from(await file.arrayBuffer())
+  const buf = new Uint8Array(await file.arrayBuffer())
   const id = 'm' + randomUUID().replace(/-/g, '').slice(0, 12)
-  db.prepare('INSERT INTO media (id, mime, data) VALUES (?, ?, ?)').run(id, file.type, buf)
+  await db.run('INSERT INTO media (id, mime, data) VALUES (?, ?, ?)', id, file.type, buf)
 
   return NextResponse.json({ ok: true, url: `/api/media/${id}` }, { status: 201 })
 }

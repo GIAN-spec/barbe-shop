@@ -33,26 +33,26 @@ export async function GET(request: Request) {
 
   let citas
   if (fecha) {
-    citas = db.prepare(`
+    citas = await db.all(`
       SELECT c.*,
              s.nombre AS servicioNombre, s.dur AS servicioDur, s.precio AS servicioPrecio
       FROM citas c
       LEFT JOIN servicios s ON s.id = c.servicio
       WHERE c.fecha = ?
       ORDER BY c.hora ASC
-    `).all(fecha)
+    `, fecha)
   } else if (desde && hasta) {
-    citas = db.prepare(`
+    citas = await db.all(`
       SELECT c.*,
              s.nombre AS servicioNombre, s.dur AS servicioDur, s.precio AS servicioPrecio
       FROM citas c
       LEFT JOIN servicios s ON s.id = c.servicio
       WHERE c.fecha BETWEEN ? AND ?
       ORDER BY c.fecha ASC, c.hora ASC
-    `).all(desde, hasta)
+    `, desde, hasta)
   } else {
     const hoy = getFechaLima(0)
-    citas = db.prepare(`
+    citas = await db.all(`
       SELECT c.*,
              s.nombre AS servicioNombre, s.dur AS servicioDur, s.precio AS servicioPrecio
       FROM citas c
@@ -60,7 +60,7 @@ export async function GET(request: Request) {
       WHERE c.fecha >= ?
       ORDER BY c.fecha ASC, c.hora ASC
       LIMIT 200
-    `).all(hoy)
+    `, hoy)
   }
 
   return NextResponse.json({ citas }, { headers: NO_CACHE_HEADERS })
@@ -93,18 +93,18 @@ export async function POST(request: Request) {
     const payment = String(metodo_pago ?? 'efectivo')
     const note = String(notas ?? '').trim() || 'Atendido en local (Walk-in)'
 
-    db.prepare(`
+    await db.run(`
       INSERT INTO citas (id, usuario_id, nombre, celular, servicio, barbero, fecha, hora, metodo_pago, ref_pago, estado, notas, leida)
       VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, 1)
-    `).run(id, clientName, clientPhone, servicio, barbero, fecha, hora, payment, status, note)
+    `, id, clientName, clientPhone, servicio, barbero, fecha, hora, payment, status, note)
 
-    const creada = db.prepare(`
+    const creada = await db.get(`
       SELECT c.*,
              s.nombre AS servicioNombre, s.dur AS servicioDur, s.precio AS servicioPrecio
       FROM citas c
       LEFT JOIN servicios s ON s.id = c.servicio
       WHERE c.id = ?
-    `).get(id)
+    `, id)
 
     return NextResponse.json({ ok: true, cita: creada }, { status: 201 })
   } catch (err: unknown) {

@@ -20,25 +20,25 @@ export async function POST(request: Request) {
     }
 
     const tokenHash = createHash('sha256').update(String(token)).digest('hex')
-    const rec = db.prepare(`
+    const rec = await db.get<{
+      token_hash: string; usuario_id: string
+      expires_at: string; used_at: string | null
+    }>(`
       SELECT token_hash, usuario_id, expires_at, used_at
       FROM password_resets
       WHERE token_hash = ?
-    `).get(tokenHash) as {
-      token_hash: string; usuario_id: string
-      expires_at: string; used_at: string | null
-    } | undefined
+    `, tokenHash)
 
     if (!rec || rec.used_at) {
       return NextResponse.json({ error: 'El enlace no es válido o ya fue utilizado.' }, { status: 400 })
     }
 
-    const exp = db.prepare(`
+    const exp = await db.get<{ v: number }>(`
       SELECT (expires_at <= datetime('now')) AS v
       FROM password_resets WHERE token_hash = ?
-    `).get(tokenHash) as { v: number }
+    `, tokenHash)
 
-    if (exp.v) {
+    if (exp?.v) {
       return NextResponse.json({ error: 'El enlace expiró (30 min). Solicita uno nuevo.' }, { status: 400 })
     }
 
@@ -46,10 +46,10 @@ export async function POST(request: Request) {
 
     // Transacción: actualiza la clave + marca todos los tokens pendientes
     // de este usuario como usados (no pueden reutilizarse otros links viejos).
-    db.transaction(() => {
-      db.prepare('UPDATE usuarios SET password_hash = ? WHERE id = ?').run(hash, rec.usuario_id)
-      db.prepare('UPDATE password_resets SET used_at = datetime(\'now\') WHERE usuario_id = ? AND used_at IS NULL').run(rec.usuario_id)
-    })()
+    await db.transaction(async (tx) => {
+      await tx.run('UPDATE usuarios SET password_hash = ? WHERE id = ?', hash, rec.usuario_id)
+      await tx.run('UPDATE password_resets SET used_at = datetime(\'now\') WHERE usuario_id = ? AND used_at IS NULL', rec.usuario_id)
+    })
 
     return NextResponse.json({ ok: true })
 

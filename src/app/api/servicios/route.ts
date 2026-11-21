@@ -6,11 +6,11 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
 export async function GET() {
-  const servicios = db.prepare(`
+  const servicios = await db.all(`
     SELECT id, cat, nombre, desc, dur, precio, foto, activo
     FROM servicios
     WHERE activo = 1
     ORDER BY orden ASC, precio ASC
-  `).all()
+  `)
   return NextResponse.json({ servicios })
 }

@@ -28,9 +28,9 @@ export async function GET(request: Request) {
   }
 
   // Bloqueos para la fecha
-  const bloqueos = db.prepare(`
+  const bloqueos = await db.all<{ hora: string | null; motivo: string }>(`
     SELECT hora, motivo FROM bloqueos WHERE fecha = ?
-  `).all(fecha) as { hora: string | null; motivo: string }[]
+  `, fecha)
 
   const bloqueoCompleto = bloqueos.find(b => b.hora === null)
   if (bloqueoCompleto) {
@@ -45,19 +45,19 @@ export async function GET(request: Request) {
 
   let rawCitas: { hora: string; barbero: string; dur: number }[]
   if (barbero && barbero !== 'any') {
-    rawCitas = db.prepare(`
+    rawCitas = await db.all<{ hora: string; barbero: string; dur: number }>(`
       SELECT c.hora, c.barbero, COALESCE(s.dur, 30) as dur
       FROM citas c
       LEFT JOIN servicios s ON c.servicio = s.id
       WHERE c.fecha = ? AND c.barbero = ? AND c.estado != 'cancelada'
-    `).all(fecha, barbero) as { hora: string; barbero: string; dur: number }[]
+    `, fecha, barbero)
   } else {
-    rawCitas = db.prepare(`
+    rawCitas = await db.all<{ hora: string; barbero: string; dur: number }>(`
       SELECT c.hora, c.barbero, COALESCE(s.dur, 30) as dur
       FROM citas c
       LEFT JOIN servicios s ON c.servicio = s.id
       WHERE c.fecha = ? AND c.estado != 'cancelada'
-    `).all(fecha) as { hora: string; barbero: string; dur: number }[]
+    `, fecha)
   }
 
   // Expandir slots ocupados para servicios que duran más de 30 minutos (evita solapamientos)

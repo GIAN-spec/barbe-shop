@@ -15,10 +15,10 @@ export async function GET() {
   if (auth.denied) {
     return NextResponse.json({ error: auth.denied.message }, { status: auth.denied.status })
   }
-  const servicios = db.prepare(`
+  const servicios = await db.all(`
     SELECT id, cat, nombre, desc, dur, precio, foto, orden, activo
     FROM servicios ORDER BY orden ASC, precio ASC
-  `).all()
+  `)
   return NextResponse.json({ servicios })
 }
 
@@ -47,14 +47,14 @@ export async function POST(request: Request) {
   let id = slug(String(nombre))
   // Id único: si existe, se agrega sufijo numérico
   let n = 1
-  while (db.prepare('SELECT id FROM servicios WHERE id = ?').get(id)) {
+  while (await db.get('SELECT id FROM servicios WHERE id = ?', id)) {
     id = slug(String(nombre)) + '_' + (++n)
   }
 
-  const maxOrden = db.prepare('SELECT COALESCE(MAX(orden), 0) m FROM servicios').get() as { m: number }
+  const maxOrden = (await db.get<{ m: number }>('SELECT COALESCE(MAX(orden), 0) m FROM servicios')) ?? { m: 0 }
 
-  db.prepare(`INSERT INTO servicios (id, cat, nombre, desc, dur, precio, foto, orden, activo)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`).run(
+  await db.run(`INSERT INTO servicios (id, cat, nombre, desc, dur, precio, foto, orden, activo)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
     id,
     catLimpia,
     String(nombre).trim(),
@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     maxOrden.m + 1,
   )
 
-  const creado = db.prepare('SELECT id, cat, nombre, desc, dur, precio, foto, orden, activo FROM servicios WHERE id = ?').get(id)
+  const creado = await db.get('SELECT id, cat, nombre, desc, dur, precio, foto, orden, activo FROM servicios WHERE id = ?', id)
   return NextResponse.json({ ok: true, servicio: creado }, { status: 201 })
 }
 
@@ -81,7 +81,7 @@ export async function PATCH(request: Request) {
   if (!id) {
     return NextResponse.json({ error: 'Id de servicio requerido.' }, { status: 400 })
   }
-  const svc = db.prepare('SELECT id FROM servicios WHERE id = ?').get(id)
+  const svc = await db.get('SELECT id FROM servicios WHERE id = ?', id)
   if (!svc) {
     return NextResponse.json({ error: 'Servicio no encontrado.' }, { status: 404 })
   }
@@ -131,9 +131,9 @@ export async function PATCH(request: Request) {
   }
 
   values.push(id)
-  db.prepare(`UPDATE servicios SET ${updates.join(', ')} WHERE id = ?`).run(...values)
+  await db.run(`UPDATE servicios SET ${updates.join(', ')} WHERE id = ?`, ...values)
 
-  const updated = db.prepare('SELECT * FROM servicios WHERE id = ?').get(id)
+  const updated = await db.get('SELECT * FROM servicios WHERE id = ?', id)
   return NextResponse.json({ ok: true, servicio: updated })
 }
 
@@ -156,11 +156,11 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'Id de servicio requerido.' }, { status: 400 })
   }
 
-  const svc = db.prepare('SELECT id, nombre FROM servicios WHERE id = ?').get(id)
+  const svc = await db.get('SELECT id, nombre FROM servicios WHERE id = ?', id)
   if (!svc) {
     return NextResponse.json({ error: 'Servicio no encontrado.' }, { status: 404 })
   }
 
-  db.prepare('DELETE FROM servicios WHERE id = ?').run(id)
+  await db.run('DELETE FROM servicios WHERE id = ?', id)
   return NextResponse.json({ ok: true, deleted: id })
 }

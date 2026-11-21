@@ -5,12 +5,12 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
 export async function GET() {
-  const barberos = db.prepare(`
+  const barberos = await db.all<{ id: string; tags: string }>(`
     SELECT id, nombre, rol, esp, exp, tags, foto, activo
     FROM barberos
     WHERE activo = 1
     ORDER BY exp DESC
-  `).all() as { id: string; tags: string }[]
+  `)
 
   // tags viene como JSON string en SQLite
   const withTags = barberos.map(b => {

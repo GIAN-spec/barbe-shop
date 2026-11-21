@@ -23,11 +23,12 @@ export async function GET(request: Request) {
       const idList = ids.split(',').map(s => s.trim()).filter(Boolean)
       if (idList.length > 0) {
         const placeholders = idList.map(() => '?').join(',')
-        const citas = (db.prepare(`
+        const rows = await db.all<Record<string, unknown>>(`
           SELECT * FROM citas
           WHERE id IN (${placeholders}) AND usuario_id IS NULL
           ORDER BY fecha DESC, hora DESC
-        `).all(...idList) as Record<string, unknown>[]).map(c => ({ ...c, date: c.fecha, time: c.hora }))
+        `, ...idList)
+        const citas = rows.map(c => ({ ...c, date: c.fecha, time: c.hora }))
         return NextResponse.json({ citas })
       }
     }
@@ -35,12 +36,13 @@ export async function GET(request: Request) {
     if (celular) {
       // Estricta seguridad: solo devolver citas creadas como invitado (usuario_id IS NULL)
       // Nunca exponer citas privadas de usuarios registrados
-      const citas = (db.prepare(`
+      const rows = await db.all<Record<string, unknown>>(`
         SELECT * FROM citas
         WHERE celular = ? AND usuario_id IS NULL
         ORDER BY fecha DESC, hora DESC
         LIMIT 20
-      `).all(celular) as Record<string, unknown>[]).map(c => ({ ...c, date: c.fecha, time: c.hora }))
+      `, celular)
+      const citas = rows.map(c => ({ ...c, date: c.fecha, time: c.hora }))
       return NextResponse.json({ citas })
     }
 
@@ -49,11 +51,12 @@ export async function GET(request: Request) {
 
   // 2. Consulta de usuario autenticado
   if (session) {
-    const citas = (db.prepare(`
+    const rows = await db.all<Record<string, unknown>>(`
       SELECT * FROM citas
       WHERE usuario_id = ?
       ORDER BY fecha DESC, hora DESC
-    `).all(session.userId) as Record<string, unknown>[]).map(c => ({ ...c, date: c.fecha, time: c.hora }))
+    `, session.userId)
+    const citas = rows.map(c => ({ ...c, date: c.fecha, time: c.hora }))
     return NextResponse.json({ citas })
   }
 
@@ -75,8 +78,7 @@ export async function POST(request: Request) {
     }
 
     // Verificar bloqueos (día completo u horario puntual del admin)
-    const bloqueos = db.prepare('SELECT hora, motivo FROM bloqueos WHERE fecha = ?')
-      .all(fecha) as { hora: string | null; motivo: string }[]
+    const bloqueos = await db.all<{ hora: string | null; motivo: string }>('SELECT hora, motivo FROM bloqueos WHERE fecha = ?', fecha)
     const diaCompleto = bloqueos.find(b => b.hora === null)
     if (diaCompleto) {
       return NextResponse.json({ error: `La barbería está cerrada ese día (${diaCompleto.motivo}). Elige otra fecha.` }, { status: 409 })
@@ -86,10 +88,10 @@ export async function POST(request: Request) {
     }
 
     // Verificar slot disponible
-    const slotOcupado = db.prepare(`
+    const slotOcupado = await db.get(`
       SELECT id FROM citas
       WHERE fecha = ? AND hora = ? AND barbero = ? AND estado != 'cancelada'
-    `).get(fecha, hora, barbero)
+    `, fecha, hora, barbero)
 
     if (slotOcupado) {
       return NextResponse.json({ error: 'Este horario ya fue reservado. Elige otro.' }, { status: 409 })
@@ -113,32 +115,30 @@ export async function POST(request: Request) {
     const id = 'cita_' + randomUUID().replace(/-/g, '').slice(0, 16)
 
     // Transacción atómica: previene race condition de doble-booking
-    const insertCita = db.transaction(() => {
-      // Re-verificar dentro de la transacción (SERIALIZABLE)
-      const slotDoble = db.prepare(`
+    const result = await db.transaction(async (tx) => {
+      const slotDoble = await tx.get(`
         SELECT id FROM citas
         WHERE fecha = ? AND hora = ? AND barbero = ? AND estado != 'cancelada'
-      `).get(fecha, hora, barbero)
+      `, fecha, hora, barbero)
       if (slotDoble) return null
 
-      db.prepare(`
+      await tx.run(`
         INSERT INTO citas (id, usuario_id, nombre, celular, servicio, barbero, fecha, hora, metodo_pago, ref_pago, estado, notas, leida)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
-      `).run(id, usuarioId, nombre, celular, servicio, barbero, fecha, hora, metodoPago, refPago ?? null, estado, notas ?? null)
+      `, id, usuarioId, nombre, celular, servicio, barbero, fecha, hora, metodoPago, refPago ?? null, estado, notas ?? null)
       return id
     })
 
-    const result = insertCita()
     if (!result) {
       return NextResponse.json({ error: 'Este horario ya fue reservado. Elige otro.' }, { status: 409 })
     }
 
-    const rawCita = db.prepare('SELECT * FROM citas WHERE id = ?').get(result) as Record<string, unknown>
-    const cita = {
+    const rawCita = await db.get<Record<string, unknown>>('SELECT * FROM citas WHERE id = ?', result)
+    const cita = rawCita ? {
       ...rawCita,
       date: rawCita.fecha,
       time: rawCita.hora,
-    }
+    } : null
     return NextResponse.json({ ok: true, cita }, { status: 201 })
 
   } catch (err) {

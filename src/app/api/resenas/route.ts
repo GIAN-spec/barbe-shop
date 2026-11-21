@@ -30,14 +30,14 @@ export async function GET(request: Request) {
     `
 
     const resenas = barberoId && barberoId !== 'any'
-      ? db.prepare(`${base} AND r.barbero_id = ? ORDER BY r.created_at DESC LIMIT 50`).all(barberoId)
-      : db.prepare(`${base} ORDER BY r.created_at DESC LIMIT 50`).all()
+      ? await db.all(`${base} AND r.barbero_id = ? ORDER BY r.created_at DESC LIMIT 50`, barberoId)
+      : await db.all(`${base} ORDER BY r.created_at DESC LIMIT 50`)
 
-    const stats = db.prepare(`
+    const stats = (await db.get<{ total: number; promedio: number }>(`
       SELECT COUNT(*) AS total, COALESCE(AVG(calificacion), 5.0) AS promedio
       FROM resenas r
       WHERE ${VISIBLE}
-    `).get() as { total: number; promedio: number }
+    `)) ?? { total: 0, promedio: 5.0 }
 
     return NextResponse.json(
       { resenas, total: stats.total, promedio: Number(Number(stats.promedio).toFixed(1)) },
@@ -68,18 +68,18 @@ export async function POST(request: Request) {
     const usuarioId = session?.userId ?? null
 
     // Anti-spam básico: máximo 3 reseñas por usuario/nombre cada 24 h
-    const recientes = db.prepare(`
+    const recientes = (await db.get<{ n: number }>(`
       SELECT COUNT(*) AS n FROM resenas
       WHERE (usuario_id = ? OR cliente_nombre = ?) AND created_at >= datetime('now', '-1 day')
-    `).get(usuarioId, nombre) as { n: number }
+    `, usuarioId, nombre)) ?? { n: 0 }
     if (recientes.n >= 3) {
       return NextResponse.json({ error: 'Ya enviaste varias reseñas hoy. Intenta mañana.' }, { status: 429 })
     }
 
-    db.prepare(`
+    await db.run(`
       INSERT INTO resenas (id, cita_id, usuario_id, cliente_nombre, barbero_id, servicio_id, calificacion, comentario)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
+    `,
       id,
       citaId ? String(citaId).slice(0, 64) : null,
       usuarioId,
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
       texto,
     )
 
-    const nuevaResena = db.prepare('SELECT * FROM resenas WHERE id = ?').get(id)
+    const nuevaResena = await db.get('SELECT * FROM resenas WHERE id = ?', id)
     return NextResponse.json({ ok: true, resena: nuevaResena }, { status: 201 })
   } catch (err) {
     console.error('[resenas POST]', err)

@@ -48,17 +48,18 @@ export async function POST(request: Request) {
     // Descontar stock en base de datos si existe el producto
     for (const it of items) {
       if (it.id) {
-        db.prepare('UPDATE productos SET stock = MAX(0, stock - ?) WHERE id = ?').run(Number(it.qty) || 1, it.id)
+        const qty = Math.max(1, Math.floor(Number(it.qty) || 1))
+        await db.run('UPDATE productos SET stock = MAX(0, stock - ?) WHERE id = ?', qty, it.id)
       }
     }
 
     // Insertar o actualizar pedido
-    db.prepare(`
+    await db.run(`
       INSERT OR REPLACE INTO pedidos (id, cliente, telefono, entrega, direccion, items_json, subtotal, envio, total, metodo_pago, ref_pago, estado)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(id, String(cliente).trim(), tel, entrega, direccion, itemsJson, sub, env, tot, metodoPago, refPago, estado)
+    `, id, String(cliente).trim(), tel, entrega, direccion, itemsJson, sub, env, tot, metodoPago, refPago, estado)
 
-    const creado = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(id)
+    const creado = await db.get('SELECT * FROM pedidos WHERE id = ?', id)
     return NextResponse.json({ ok: true, pedido: creado }, { status: 201 })
   } catch (err: unknown) {
     console.error('[POST /api/pedidos]', err)

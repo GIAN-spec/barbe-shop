@@ -12,12 +12,12 @@ export async function GET() {
     return NextResponse.json({ error: 'No autenticado.' }, { status: 401 })
   }
 
-  const user = db.prepare(`
-    SELECT id, nombre, email, celular, avatar, created_at FROM usuarios WHERE id = ?
-  `).get(session.userId) as {
+  const user = await db.get<{
     id: string; nombre: string; email: string; celular: string
     avatar: string | null; created_at: string
-  } | undefined
+  }>(`
+    SELECT id, nombre, email, celular, avatar, created_at FROM usuarios WHERE id = ?
+  `, session.userId)
 
   if (!user) {
     return NextResponse.json({ error: 'Usuario no encontrado.' }, { status: 404 })
@@ -35,9 +35,9 @@ export async function PATCH(request: Request) {
   const body = await request.json()
   const { nombre, celular, currentPassword, newPassword } = body
 
-  const user = db.prepare(`
+  const user = await db.get<{ id: string; password_hash: string }>(`
     SELECT id, password_hash FROM usuarios WHERE id = ?
-  `).get(session.userId) as { id: string; password_hash: string } | undefined
+  `, session.userId)
 
   if (!user) {
     return NextResponse.json({ error: 'Usuario no encontrado.' }, { status: 404 })
@@ -76,11 +76,11 @@ export async function PATCH(request: Request) {
   }
 
   values.push(user.id)
-  db.prepare(`UPDATE usuarios SET ${updates.join(', ')} WHERE id = ?`).run(...values)
+  await db.run(`UPDATE usuarios SET ${updates.join(', ')} WHERE id = ?`, ...values)
 
-  const updated = db.prepare(`
+  const updated = await db.get(`
     SELECT id, nombre, email, celular, avatar FROM usuarios WHERE id = ?
-  `).get(user.id)
+  `, user.id)
 
   return NextResponse.json({ ok: true, user: updated })
 }

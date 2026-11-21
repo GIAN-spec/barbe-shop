@@ -18,13 +18,13 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
   const body = await request.json()
   const { estado, fecha, hora, barbero, metodo_pago, ref_pago, notas } = body
 
-  const cita = db.prepare('SELECT * FROM citas WHERE id = ?').get(id) as {
+  const cita = await db.get<{
     id: string
     usuario_id: string | null
     nombre: string
     celular: string
     estado: string
-  } | undefined
+  }>('SELECT * FROM citas WHERE id = ?', id)
 
   if (!cita) {
     return NextResponse.json({ error: 'Cita no encontrada.' }, { status: 404 })
@@ -70,47 +70,47 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
   }
 
   values.push(id)
-  db.prepare(`UPDATE citas SET ${updates.join(', ')} WHERE id = ?`).run(...values)
+  await db.run(`UPDATE citas SET ${updates.join(', ')} WHERE id = ?`, ...values)
 
   // Si la cita pasa a 'completada' (Atendida) y antes no lo estaba, sumar +1 sello VIP al cliente
   let selloSumado = false
   if (estado === 'completada' && cita.estado !== 'completada') {
     if (cita.usuario_id) {
-      db.prepare(`
+      await db.run(`
         UPDATE usuarios
         SET sellos_vip = CASE WHEN COALESCE(sellos_vip, 0) >= 5 THEN 1 ELSE COALESCE(sellos_vip, 0) + 1 END
         WHERE id = ?
-      `).run(cita.usuario_id)
+      `, cita.usuario_id)
       selloSumado = true
     } else if (cita.celular) {
-      const u = db.prepare('SELECT id FROM usuarios WHERE celular = ?').get(cita.celular) as { id: string } | undefined
+      const u = await db.get<{ id: string }>('SELECT id FROM usuarios WHERE celular = ?', cita.celular)
       if (u) {
-        db.prepare(`
+        await db.run(`
           UPDATE usuarios
           SET sellos_vip = CASE WHEN COALESCE(sellos_vip, 0) >= 5 THEN 1 ELSE COALESCE(sellos_vip, 0) + 1 END
           WHERE id = ?
-        `).run(u.id)
+        `, u.id)
         selloSumado = true
       } else {
         // Crear ficha de cliente si era un cliente sin cuenta registrada para guardar su sello VIP
         const newId = `usr_cli_${Date.now()}`
-        db.prepare(`
+        await db.run(`
           INSERT INTO usuarios (id, nombre, email, celular, password_hash, rol, sellos_vip)
           VALUES (?, ?, NULL, ?, 'walkin', 'cliente', 1)
-        `).run(newId, cita.nombre || 'Cliente', cita.celular)
-        db.prepare('UPDATE citas SET usuario_id = ? WHERE id = ?').run(newId, id)
+        `, newId, cita.nombre || 'Cliente', cita.celular)
+        await db.run('UPDATE citas SET usuario_id = ? WHERE id = ?', newId, id)
         selloSumado = true
       }
     }
   }
 
-  const updated = db.prepare(`
+  const updated = await db.get(`
     SELECT c.*,
            s.nombre AS servicioNombre, s.dur AS servicioDur, s.precio AS servicioPrecio
     FROM citas c
     LEFT JOIN servicios s ON s.id = c.servicio
     WHERE c.id = ?
-  `).get(id)
+  `, id)
 
   return NextResponse.json({ ok: true, cita: updated, selloSumado })
 }

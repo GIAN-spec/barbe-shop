@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
     // Verificar email duplicado
     if (emailNorm) {
-      const existing = db.prepare('SELECT id FROM usuarios WHERE email = ?').get(emailNorm)
+      const existing = await db.get('SELECT id FROM usuarios WHERE email = ?', emailNorm)
       if (existing) {
         return NextResponse.json({ error: 'Este correo ya está registrado.' }, { status: 409 })
       }
@@ -36,10 +36,10 @@ export async function POST(request: Request) {
     const passwordHash = await hashPassword(password)
     const id = 'usr_' + randomUUID().replace(/-/g, '').slice(0, 16)
 
-    db.prepare(`
+    await db.run(`
       INSERT INTO usuarios (id, nombre, email, celular, password_hash)
       VALUES (?, ?, ?, ?, ?)
-    `).run(id, nombre.trim(), emailNorm, celular, passwordHash)
+    `, id, nombre.trim(), emailNorm, celular, passwordHash)
 
     const token = await signJWT({ userId: id, nombre: nombre.trim(), email: emailNorm })
     await setSessionCookie(token)

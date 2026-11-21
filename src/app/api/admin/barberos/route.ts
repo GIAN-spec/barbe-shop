@@ -22,7 +22,7 @@ export async function GET() {
   if (auth.denied) {
     return NextResponse.json({ error: auth.denied.message }, { status: auth.denied.status })
   }
-  const barberos = db.prepare(`${SELECT_BARBERO} ORDER BY nombre ASC`).all()
+  const barberos = await db.all(`${SELECT_BARBERO} ORDER BY nombre ASC`)
   return NextResponse.json({ barberos })
 }
 
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   }
   let id = slug(String(nombre))
   let n = 1
-  while (db.prepare('SELECT id FROM barberos WHERE id = ?').get(id)) {
+  while (await db.get('SELECT id FROM barberos WHERE id = ?', id)) {
     id = slug(String(nombre)) + '_' + (++n)
   }
 
@@ -50,10 +50,10 @@ export async function POST(request: Request) {
 
   const comPct = Math.max(0, Math.min(100, Number(comision) || 50))
 
-  db.prepare(`
+  await db.run(`
     INSERT INTO barberos (id, nombre, rol, esp, exp, tags, foto, activo, comision, horario, dias_libres)
     VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
-  `).run(
+  `,
     id,
     String(nombre).trim(),
     String(rol ?? '').trim() || 'Barbero & Estilista',
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     String(dias_libres ?? '').trim() || 'Domingo',
   )
 
-  const creado = db.prepare(`${SELECT_BARBERO} WHERE id = ?`).get(id)
+  const creado = await db.get(`${SELECT_BARBERO} WHERE id = ?`, id)
   return NextResponse.json({ ok: true, barbero: creado }, { status: 201 })
 }
 
@@ -82,7 +82,7 @@ export async function PATCH(request: Request) {
   if (!id) {
     return NextResponse.json({ error: 'Id de barbero requerido.' }, { status: 400 })
   }
-  const bar = db.prepare('SELECT id FROM barberos WHERE id = ?').get(id)
+  const bar = await db.get('SELECT id FROM barberos WHERE id = ?', id)
   if (!bar) {
     return NextResponse.json({ error: 'Barbero no encontrado.' }, { status: 404 })
   }
@@ -135,9 +135,9 @@ export async function PATCH(request: Request) {
   }
 
   values.push(id)
-  db.prepare(`UPDATE barberos SET ${updates.join(', ')} WHERE id = ?`).run(...values)
+  await db.run(`UPDATE barberos SET ${updates.join(', ')} WHERE id = ?`, ...values)
 
-  const updated = db.prepare(`${SELECT_BARBERO} WHERE id = ?`).get(id)
+  const updated = await db.get(`${SELECT_BARBERO} WHERE id = ?`, id)
   return NextResponse.json({ ok: true, barbero: updated })
 }
 
@@ -160,6 +160,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'Id de barbero requerido.' }, { status: 400 })
   }
 
-  db.prepare('DELETE FROM barberos WHERE id = ?').run(id)
+  await db.run('DELETE FROM barberos WHERE id = ?', id)
   return NextResponse.json({ ok: true, deleted: id })
 }

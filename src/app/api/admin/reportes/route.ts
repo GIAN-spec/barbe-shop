@@ -72,7 +72,7 @@ export async function GET(request: Request) {
     barberoComision: number
   }
 
-  const citas = db.prepare(`
+  const citas = await db.all<CitaRow>(`
     SELECT c.*,
            COALESCE(s.nombre, c.servicio) AS servicioNombre,
            COALESCE(s.precio, 0) AS servicioPrecio,
@@ -84,7 +84,7 @@ export async function GET(request: Request) {
     LEFT JOIN barberos b ON b.id = c.barbero
     WHERE c.fecha BETWEEN ? AND ?
     ORDER BY c.fecha ASC, c.hora ASC
-  `).all(desde, hasta) as CitaRow[]
+  `, desde, hasta)
 
   // Resumen global y por barbero
   let totalRecaudado = 0

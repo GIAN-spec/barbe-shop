@@ -39,13 +39,12 @@ export async function POST(request: Request) {
 
     // Email o celular de Perú: se decide por formato
     const isEmail = identifier.includes('@')
-    const user = db.prepare(
+    const user = await db.get<{ id: string }>(
       isEmail
         ? 'SELECT id FROM usuarios WHERE email = ?'
-        : 'SELECT id FROM usuarios WHERE celular = ?'
-    ).get(
+        : 'SELECT id FROM usuarios WHERE celular = ?',
       isEmail ? identifier.toLowerCase() : identifier
-    ) as { id: string } | undefined
+    )
 
     if (!user) {
       recordFailure(key)
@@ -59,10 +58,10 @@ export async function POST(request: Request) {
     const token = randomBytes(24).toString('hex')
     const tokenHash = createHash('sha256').update(token).digest('hex')
 
-    db.prepare(`
+    await db.run(`
       INSERT INTO password_resets (token_hash, usuario_id, expires_at)
       VALUES (?, ?, datetime('now', '+30 minutes'))
-    `).run(tokenHash, user.id)
+    `, tokenHash, user.id)
 
     recordSuccess(key)
 

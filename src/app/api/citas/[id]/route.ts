@@ -12,8 +12,8 @@ import { requireSession } from '@/lib/auth'
 type RouteContext = { params: Promise<{ id: string }> }
 
 /** ¿Fecha/hora bloqueada por el admin? Bloqueo hora exacta o día completo */
-function horaBloqueada(fecha: string, hora: string): string | null {
-  const bloqueos = db.prepare('SELECT hora, motivo FROM bloqueos WHERE fecha = ?').all(fecha) as { hora: string | null; motivo: string }[]
+async function horaBloqueada(fecha: string, hora: string): Promise<string | null> {
+  const bloqueos = await db.all<{ hora: string | null; motivo: string }>('SELECT hora, motivo FROM bloqueos WHERE fecha = ?', fecha)
   const completo = bloqueos.find(b => b.hora === null)
   if (completo) return `Cerrado ese día (${completo.motivo}).`
   const punctual = bloqueos.find(b => b.hora === hora)
@@ -31,9 +31,9 @@ export async function PATCH(request: Request, ctx: RouteContext) {
   const body = await request.json()
   const { estado, fecha, hora, barbero, notas } = body
 
-  const cita = db.prepare('SELECT * FROM citas WHERE id = ?').get(id) as {
+  const cita = await db.get<{
     id: string; usuario_id: string; estado: string; fecha: string; hora: string; barbero: string
-  } | undefined
+  }>('SELECT * FROM citas WHERE id = ?', id)
 
   if (!cita) {
     return NextResponse.json({ error: 'Cita no encontrada.' }, { status: 404 })
@@ -60,16 +60,19 @@ export async function PATCH(request: Request, ctx: RouteContext) {
     }
   }
 
-  // Reagenda: validar bloqueos y slot
-  if (fecha && hora && barbero) {
-    const bloqueo = horaBloqueada(fecha, hora)
+  // Reagenda: validar bloqueos y slot (incluso si solo cambia fecha u hora)
+  if (fecha || hora || barbero) {
+    const targetFecha = fecha ?? cita.fecha
+    const targetHora = hora ?? cita.hora
+    const targetBarbero = barbero ?? cita.barbero
+    const bloqueo = await horaBloqueada(targetFecha, targetHora)
     if (bloqueo) {
       return NextResponse.json({ error: bloqueo }, { status: 409 })
     }
-    const slotOcupado = db.prepare(`
+    const slotOcupado = await db.get(`
       SELECT id FROM citas
       WHERE fecha = ? AND hora = ? AND barbero = ? AND estado != 'cancelada' AND id != ?
-    `).get(fecha, hora, barbero, id)
+    `, targetFecha, targetHora, targetBarbero, id)
     if (slotOcupado) {
       return NextResponse.json({ error: 'Ese horario ya está ocupado. Elige otro.' }, { status: 409 })
     }
@@ -89,9 +92,9 @@ export async function PATCH(request: Request, ctx: RouteContext) {
   }
 
   values.push(id)
-  db.prepare(`UPDATE citas SET ${updates.join(', ')} WHERE id = ?`).run(...values)
+  await db.run(`UPDATE citas SET ${updates.join(', ')} WHERE id = ?`, ...values)
 
-  const rawUpdated = db.prepare('SELECT * FROM citas WHERE id = ?').get(id) as Record<string, unknown>
+  const rawUpdated = await db.get<Record<string, unknown>>('SELECT * FROM citas WHERE id = ?', id)
   const updated = rawUpdated ? { ...rawUpdated, date: rawUpdated.fecha, time: rawUpdated.hora } : null
   return NextResponse.json({ ok: true, cita: updated })
 }

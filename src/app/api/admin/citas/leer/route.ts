@@ -11,6 +11,6 @@ export async function POST() {
   if (auth.denied) {
     return NextResponse.json({ error: auth.denied.message }, { status: auth.denied.status })
   }
-  const res = db.prepare('UPDATE citas SET leida = 1 WHERE leida = 0').run()
+  const res = await db.run('UPDATE citas SET leida = 1 WHERE leida = 0')
   return NextResponse.json({ ok: true, marcadas: res.changes })
 }

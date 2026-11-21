@@ -23,44 +23,47 @@ export async function GET(request: Request) {
   const mod = searchParams.get('mod') ?? 'all'
 
   if (mod === 'clientes') {
-    return NextResponse.json({ clientes: getClientesConHistorial() })
+    return NextResponse.json({ clientes: await getClientesConHistorial() })
   }
   if (mod === 'resenas') {
-    const resenas = db.prepare(`
+    const resenas = await db.all(`
       SELECT r.*, COALESCE(r.estado, 'aprobada') AS estado, COALESCE(r.respuesta, '') AS respuesta
       FROM resenas r ORDER BY r.created_at DESC
-    `).all()
+    `)
     return NextResponse.json({ resenas })
   }
   if (mod === 'productos') {
-    const productos = db.prepare('SELECT * FROM productos ORDER BY id ASC').all()
+    const productos = await db.all('SELECT * FROM productos ORDER BY id ASC')
     return NextResponse.json({ productos })
   }
   if (mod === 'pedidos') {
-    const pedidos = db.prepare('SELECT * FROM pedidos ORDER BY created_at DESC').all()
+    const pedidos = await db.all('SELECT * FROM pedidos ORDER BY created_at DESC')
     return NextResponse.json({ pedidos })
   }
   if (mod === 'galeria') {
-    const galeria = db.prepare('SELECT * FROM galeria ORDER BY orden ASC, id DESC').all()
+    const galeria = await db.all('SELECT * FROM galeria ORDER BY orden ASC, id DESC')
     return NextResponse.json({ galeria })
   }
   if (mod === 'ajustes') {
-    const row = db.prepare('SELECT valor FROM ajustes WHERE clave = ?').get('negocio') as { valor: string } | undefined
+    const row = await db.get<{ valor: string }>('SELECT valor FROM ajustes WHERE clave = ?', 'negocio')
     return NextResponse.json({ ajustes: row ? JSON.parse(row.valor) : {} })
   }
 
   // mod === 'all'
-  const resenas = db.prepare(`
-    SELECT r.*, COALESCE(r.estado, 'aprobada') AS estado, COALESCE(r.respuesta, '') AS respuesta
-    FROM resenas r ORDER BY r.created_at DESC
-  `).all()
-  const productos = db.prepare('SELECT * FROM productos ORDER BY id ASC').all()
-  const pedidos = db.prepare('SELECT * FROM pedidos ORDER BY created_at DESC').all()
-  const galeria = db.prepare('SELECT * FROM galeria ORDER BY orden ASC, id DESC').all()
-  const rowAj = db.prepare('SELECT valor FROM ajustes WHERE clave = ?').get('negocio') as { valor: string } | undefined
+  const [clientes, resenas, productos, pedidos, galeria, rowAj] = await Promise.all([
+    getClientesConHistorial(),
+    db.all(`
+      SELECT r.*, COALESCE(r.estado, 'aprobada') AS estado, COALESCE(r.respuesta, '') AS respuesta
+      FROM resenas r ORDER BY r.created_at DESC
+    `),
+    db.all('SELECT * FROM productos ORDER BY id ASC'),
+    db.all('SELECT * FROM pedidos ORDER BY created_at DESC'),
+    db.all('SELECT * FROM galeria ORDER BY orden ASC, id DESC'),
+    db.get<{ valor: string }>('SELECT valor FROM ajustes WHERE clave = ?', 'negocio'),
+  ])
 
   return NextResponse.json({
-    clientes: getClientesConHistorial(),
+    clientes,
     resenas,
     productos,
     pedidos,
@@ -69,43 +72,44 @@ export async function GET(request: Request) {
   })
 }
 
-function getClientesConHistorial() {
+async function getClientesConHistorial() {
   // Combina usuarios registrados + clientes que agendaron citas sin cuenta previa
-  const usuarios = db.prepare(`
-    SELECT id, nombre, email, celular, COALESCE(sellos_vip, 0) AS sellos_vip, COALESCE(notas, '') AS notas, created_at
-    FROM usuarios
-    WHERE COALESCE(rol, 'cliente') != 'admin'
-    ORDER BY created_at DESC
-  `).all() as Array<{
-    id: string
-    nombre: string
-    email: string | null
-    celular: string
-    sellos_vip: number
-    notas: string
-    created_at: string
-  }>
-
-  const citas = db.prepare(`
-    SELECT c.id, c.usuario_id, c.nombre, c.celular, c.fecha, c.hora, c.estado, c.barbero, c.metodo_pago,
-           COALESCE(s.nombre, c.servicio) AS servicioNombre,
-           COALESCE(s.precio, 15) AS precio
-    FROM citas c
-    LEFT JOIN servicios s ON s.id = c.servicio
-    ORDER BY c.fecha DESC, c.hora DESC
-  `).all() as Array<{
-    id: string
-    usuario_id: string | null
-    nombre: string
-    celular: string
-    fecha: string
-    hora: string
-    estado: string
-    barbero: string
-    metodo_pago: string
-    servicioNombre: string
-    precio: number
-  }>
+  const [usuarios, citas] = await Promise.all([
+    db.all<{
+      id: string
+      nombre: string
+      email: string | null
+      celular: string
+      sellos_vip: number
+      notas: string
+      created_at: string
+    }>(`
+      SELECT id, nombre, email, celular, COALESCE(sellos_vip, 0) AS sellos_vip, COALESCE(notas, '') AS notas, created_at
+      FROM usuarios
+      WHERE COALESCE(rol, 'cliente') != 'admin'
+      ORDER BY created_at DESC
+    `),
+    db.all<{
+      id: string
+      usuario_id: string | null
+      nombre: string
+      celular: string
+      fecha: string
+      hora: string
+      estado: string
+      barbero: string
+      metodo_pago: string
+      servicioNombre: string
+      precio: number
+    }>(`
+      SELECT c.id, c.usuario_id, c.nombre, c.celular, c.fecha, c.hora, c.estado, c.barbero, c.metodo_pago,
+             COALESCE(s.nombre, c.servicio) AS servicioNombre,
+             COALESCE(s.precio, 15) AS precio
+      FROM citas c
+      LEFT JOIN servicios s ON s.id = c.servicio
+      ORDER BY c.fecha DESC, c.hora DESC
+    `),
+  ])
 
   const mapByPhone = new Map<string, {
     id: string
@@ -181,21 +185,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Nombre y teléfono son obligatorios.' }, { status: 400 })
     }
     const id = `usr_cli_${Date.now()}`
-    db.prepare(`
+    await db.run(`
       INSERT INTO usuarios (id, nombre, email, celular, password_hash, rol, sellos_vip, notas)
       VALUES (?, ?, ?, ?, 'walkin', 'cliente', ?, ?)
-    `).run(id, String(nombre).trim(), email ? String(email).trim() : null, String(celular).trim(), Number(sellos_vip) || 0, String(notas ?? ''))
-    return NextResponse.json({ ok: true, clientes: getClientesConHistorial() })
+    `, id, String(nombre).trim(), email ? String(email).trim() : null, String(celular).trim(), Number(sellos_vip) || 0, String(notas ?? ''))
+    return NextResponse.json({ ok: true, clientes: await getClientesConHistorial() })
   }
 
   if (mod === 'producto') {
     const { nombre, cat, marca, presentacion, desc, precio, stock, img, badge } = body
     if (!nombre) return NextResponse.json({ error: 'Nombre requerido.' }, { status: 400 })
     const id = `prod_${Date.now()}`
-    db.prepare(`
+    await db.run(`
       INSERT INTO productos (id, nombre, cat, marca, presentacion, desc, precio, stock, img, badge, activo)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
-    `).run(
+    `,
       id,
       String(nombre).trim(),
       String(cat ?? 'Cabello & Styling').trim(),
@@ -207,19 +211,19 @@ export async function POST(request: Request) {
       String(img ?? '/productos/prod-01.jpg').trim(),
       String(badge ?? 'Nuevo').trim(),
     )
-    const creado = db.prepare('SELECT * FROM productos WHERE id = ?').get(id)
+    const creado = await db.get('SELECT * FROM productos WHERE id = ?', id)
     return NextResponse.json({ ok: true, producto: creado })
   }
 
   if (mod === 'pedido') {
     const { id: customId, cliente, telefono, entrega, direccion, items, subtotal, envio, total, metodo_pago, ref_pago, estado } = body
     const id = customId || `ORD-${String(Date.now()).slice(-6)}`
-    const exists = db.prepare('SELECT id FROM pedidos WHERE id = ?').get(id)
+    const exists = await db.get('SELECT id FROM pedidos WHERE id = ?', id)
     if (!exists) {
-      db.prepare(`
+      await db.run(`
         INSERT INTO pedidos (id, cliente, telefono, entrega, direccion, items_json, subtotal, envio, total, metodo_pago, ref_pago, estado)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(
+      `,
         id,
         String(cliente ?? 'Cliente Tienda').trim(),
         String(telefono ?? '999999999').trim(),
@@ -234,7 +238,7 @@ export async function POST(request: Request) {
         String(estado ?? 'pendiente'),
       )
     }
-    const pedido = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(id)
+    const pedido = await db.get('SELECT * FROM pedidos WHERE id = ?', id)
     return NextResponse.json({ ok: true, pedido })
   }
 
@@ -242,11 +246,11 @@ export async function POST(request: Request) {
     const { titulo, cat, url } = body
     if (!titulo || !url) return NextResponse.json({ error: 'Título y foto requeridos.' }, { status: 400 })
     const id = `gal_${Date.now()}`
-    db.prepare(`
+    await db.run(`
       INSERT INTO galeria (id, titulo, cat, url, orden, activo)
       VALUES (?, ?, ?, ?, 1, 1)
-    `).run(id, String(titulo).trim(), String(cat ?? 'Fade').trim(), String(url).trim())
-    const foto = db.prepare('SELECT * FROM galeria WHERE id = ?').get(id)
+    `, id, String(titulo).trim(), String(cat ?? 'Fade').trim(), String(url).trim())
+    const foto = await db.get('SELECT * FROM galeria WHERE id = ?', id)
     return NextResponse.json({ ok: true, foto })
   }
 
@@ -264,9 +268,9 @@ export async function PATCH(request: Request) {
 
   if (mod === 'cliente') {
     const { nombre, celular, email, sellos_vip, notas } = body
-    const exists = db.prepare('SELECT id FROM usuarios WHERE id = ?').get(id)
+    const exists = await db.get('SELECT id FROM usuarios WHERE id = ?', id)
     if (exists) {
-      db.prepare(`
+      await db.run(`
         UPDATE usuarios
         SET nombre = COALESCE(?, nombre),
             celular = COALESCE(?, celular),
@@ -274,7 +278,7 @@ export async function PATCH(request: Request) {
             sellos_vip = COALESCE(?, sellos_vip),
             notas = COALESCE(?, notas)
         WHERE id = ?
-      `).run(
+      `,
         nombre !== undefined ? String(nombre).trim() : null,
         celular !== undefined ? String(celular).trim() : null,
         email !== undefined ? (String(email).trim() || null) : null,
@@ -284,10 +288,10 @@ export async function PATCH(request: Request) {
       )
     } else if (celular) {
       const newId = `usr_cli_${Date.now()}`
-      db.prepare(`
+      await db.run(`
         INSERT INTO usuarios (id, nombre, email, celular, password_hash, rol, sellos_vip, notas)
         VALUES (?, ?, ?, ?, 'walkin', 'cliente', ?, ?)
-      `).run(
+      `,
         newId,
         String(nombre ?? 'Cliente').trim(),
         email ? String(email).trim() : null,
@@ -296,24 +300,24 @@ export async function PATCH(request: Request) {
         String(notas ?? ''),
       )
     }
-    return NextResponse.json({ ok: true, clientes: getClientesConHistorial() })
+    return NextResponse.json({ ok: true, clientes: await getClientesConHistorial() })
   }
 
   if (mod === 'resena') {
     const { estado, respuesta } = body
     if (estado !== undefined) {
-      db.prepare('UPDATE resenas SET estado = ? WHERE id = ?').run(String(estado), id)
+      await db.run('UPDATE resenas SET estado = ? WHERE id = ?', String(estado), id)
     }
     if (respuesta !== undefined) {
-      db.prepare('UPDATE resenas SET respuesta = ? WHERE id = ?').run(String(respuesta), id)
+      await db.run('UPDATE resenas SET respuesta = ? WHERE id = ?', String(respuesta), id)
     }
-    const updated = db.prepare('SELECT * FROM resenas WHERE id = ?').get(id)
+    const updated = await db.get('SELECT * FROM resenas WHERE id = ?', id)
     return NextResponse.json({ ok: true, resena: updated })
   }
 
   if (mod === 'producto') {
     const { nombre, cat, marca, presentacion, desc, precio, stock, img, badge, activo } = body
-    db.prepare(`
+    await db.run(`
       UPDATE productos
       SET nombre = COALESCE(?, nombre),
           cat = COALESCE(?, cat),
@@ -326,7 +330,7 @@ export async function PATCH(request: Request) {
           badge = COALESCE(?, badge),
           activo = COALESCE(?, activo)
       WHERE id = ?
-    `).run(
+    `,
       nombre !== undefined ? String(nombre).trim() : null,
       cat !== undefined ? String(cat).trim() : null,
       marca !== undefined ? String(marca).trim() : null,
@@ -339,45 +343,45 @@ export async function PATCH(request: Request) {
       activo !== undefined ? (activo ? 1 : 0) : null,
       id,
     )
-    const updated = db.prepare('SELECT * FROM productos WHERE id = ?').get(id)
+    const updated = await db.get('SELECT * FROM productos WHERE id = ?', id)
     return NextResponse.json({ ok: true, producto: updated })
   }
 
   if (mod === 'pedido') {
     const { estado, ref_pago } = body
     if (estado !== undefined) {
-      db.prepare('UPDATE pedidos SET estado = ? WHERE id = ?').run(String(estado), id)
+      await db.run('UPDATE pedidos SET estado = ? WHERE id = ?', String(estado), id)
     }
     if (ref_pago !== undefined) {
-      db.prepare('UPDATE pedidos SET ref_pago = ? WHERE id = ?').run(String(ref_pago), id)
+      await db.run('UPDATE pedidos SET ref_pago = ? WHERE id = ?', String(ref_pago), id)
     }
-    const updated = db.prepare('SELECT * FROM pedidos WHERE id = ?').get(id)
+    const updated = await db.get('SELECT * FROM pedidos WHERE id = ?', id)
     return NextResponse.json({ ok: true, pedido: updated })
   }
 
   if (mod === 'galeria') {
     const { titulo, cat, url, activo } = body
-    db.prepare(`
+    await db.run(`
       UPDATE galeria
       SET titulo = COALESCE(?, titulo),
           cat = COALESCE(?, cat),
           url = COALESCE(?, url),
           activo = COALESCE(?, activo)
       WHERE id = ?
-    `).run(
+    `,
       titulo !== undefined ? String(titulo).trim() : null,
       cat !== undefined ? String(cat).trim() : null,
       url !== undefined ? String(url).trim() : null,
       activo !== undefined ? (activo ? 1 : 0) : null,
       id,
     )
-    const updated = db.prepare('SELECT * FROM galeria WHERE id = ?').get(id)
+    const updated = await db.get('SELECT * FROM galeria WHERE id = ?', id)
     return NextResponse.json({ ok: true, foto: updated })
   }
 
   if (mod === 'ajustes') {
     const { ajustes } = body
-    db.prepare('INSERT OR REPLACE INTO ajustes (clave, valor) VALUES (?, ?)').run('negocio', JSON.stringify(ajustes ?? {}))
+    await db.run('INSERT OR REPLACE INTO ajustes (clave, valor) VALUES (?, ?)', 'negocio', JSON.stringify(ajustes ?? {}))
     return NextResponse.json({ ok: true, ajustes })
   }
 
@@ -395,10 +399,10 @@ export async function DELETE(request: Request) {
   const id = searchParams.get('id')
   if (!mod || !id) return NextResponse.json({ error: 'Parámetros requeridos.' }, { status: 400 })
 
-  if (mod === 'producto') db.prepare('DELETE FROM productos WHERE id = ?').run(id)
-  else if (mod === 'galeria') db.prepare('DELETE FROM galeria WHERE id = ?').run(id)
-  else if (mod === 'resena') db.prepare('DELETE FROM resenas WHERE id = ?').run(id)
-  else if (mod === 'pedido') db.prepare('DELETE FROM pedidos WHERE id = ?').run(id)
+  if (mod === 'producto') await db.run('DELETE FROM productos WHERE id = ?', id)
+  else if (mod === 'galeria') await db.run('DELETE FROM galeria WHERE id = ?', id)
+  else if (mod === 'resena') await db.run('DELETE FROM resenas WHERE id = ?', id)
+  else if (mod === 'pedido') await db.run('DELETE FROM pedidos WHERE id = ?', id)
 
   return NextResponse.json({ ok: true, deleted: id })
 }

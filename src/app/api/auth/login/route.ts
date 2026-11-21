@@ -22,8 +22,10 @@ export async function GET() {
   if (!session) {
     return NextResponse.json({ user: null }, { status: 200 })
   }
-  const user = db.prepare('SELECT id, nombre, email, celular, avatar, rol FROM usuarios WHERE id = ?')
-    .get(session.userId) as { id: string; nombre: string; email: string; celular: string; avatar: string | null; rol: string } | undefined
+  const user = await db.get<{ id: string; nombre: string; email: string; celular: string; avatar: string | null; rol: string }>(
+    'SELECT id, nombre, email, celular, avatar, rol FROM usuarios WHERE id = ?',
+    session.userId
+  )
 
   if (!user) {
     return NextResponse.json({ user: null }, { status: 200 })
@@ -59,14 +61,14 @@ export async function POST(request: Request) {
       )
     }
 
-    const user = db.prepare(`
+    const user = await db.get<{
+      id: string; nombre: string; email: string; celular: string
+      avatar: string | null; password_hash: string; rol: string
+    }>(`
       SELECT id, nombre, email, celular, avatar, password_hash, rol
       FROM usuarios
       WHERE email = ? OR celular = ?
-    `).get(identifier.trim().toLowerCase(), identifier.trim()) as {
-      id: string; nombre: string; email: string; celular: string
-      avatar: string | null; password_hash: string; rol: string
-    } | undefined
+    `, identifier.trim().toLowerCase(), identifier.trim())
 
     const ok = user ? await verifyPassword(password, user.password_hash) : false
     if (!ok || !user) {

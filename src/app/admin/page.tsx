@@ -18,7 +18,7 @@ export default async function AdminPage() {
 
   let rol = 'cliente'
   try {
-    const row = db.prepare('SELECT rol FROM usuarios WHERE id = ?').get(session.userId) as { rol: string } | undefined
+    const row = await db.get<{ rol: string }>('SELECT rol FROM usuarios WHERE id = ?', session.userId)
     rol = row?.rol ?? 'cliente'
   } catch {}
 

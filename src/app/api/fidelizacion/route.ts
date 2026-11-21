@@ -17,11 +17,11 @@ export async function GET(request: Request) {
   // En Perú los celulares tienen 9 dígitos; buscamos por los últimos 9 para evitar problemas con prefijo +51
   const ultimosDigitos = digits.slice(-9)
 
-  const row = db.prepare(`
+  const row = await db.get<{ total: number }>(`
     SELECT COUNT(*) AS total
     FROM citas
     WHERE celular LIKE ? AND estado IN ('completada', 'pagado')
-  `).get(`%${ultimosDigitos}`) as { total: number }
+  `, `%${ultimosDigitos}`)
 
   const total = Number(row?.total ?? 0)
   const sellos = total % 6 // 0 a 5
@@ -30,14 +30,14 @@ export async function GET(request: Request) {
   const premiosObtenidos = Math.floor(total / 6)
 
   // Últimas citas completadas para historial
-  const ultimasCitas = db.prepare(`
+  const ultimasCitas = await db.all(`
     SELECT c.fecha, c.hora, c.servicio, COALESCE(s.nombre, c.servicio) AS servicioNombre
     FROM citas c
     LEFT JOIN servicios s ON s.id = c.servicio
     WHERE c.celular LIKE ? AND c.estado IN ('completada', 'pagado')
     ORDER BY c.fecha DESC, c.hora DESC
     LIMIT 5
-  `).all(`%${ultimosDigitos}`)
+  `, `%${ultimosDigitos}`)
 
   return NextResponse.json({
     celular: ultimosDigitos,

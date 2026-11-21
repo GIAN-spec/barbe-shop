@@ -13,11 +13,11 @@ export async function GET() {
   if (auth.denied) {
     return NextResponse.json({ error: auth.denied.message }, { status: auth.denied.status })
   }
-  const bloqueos = db.prepare(`
+  const bloqueos = await db.all(`
     SELECT * FROM bloqueos
     WHERE fecha >= date('now')
     ORDER BY fecha ASC
-  `).all()
+  `)
   return NextResponse.json({ bloqueos })
 }
 
@@ -41,17 +41,19 @@ export async function POST(request: Request) {
   }
 
   // No duplicar el mismo bloqueo exacto
-  const dup = db.prepare('SELECT id FROM bloqueos WHERE fecha = ? AND (hora IS ? OR hora = ?)')
-    .get(fecha, hora ?? null, hora ?? '') as { id: string } | undefined
+  const dup = await db.get<{ id: string }>(
+    'SELECT id FROM bloqueos WHERE fecha = ? AND (hora IS ? OR hora = ?)',
+    fecha, hora ?? null, hora ?? ''
+  )
   if (dup) {
     return NextResponse.json({ error: 'Ese bloqueo ya existe para esa fecha/hora.' }, { status: 409 })
   }
 
   const id = 'blq_' + randomUUID().replace(/-/g, '').slice(0, 16)
-  db.prepare('INSERT INTO bloqueos (id, fecha, hora, motivo) VALUES (?, ?, ?, ?)')
-    .run(id, fecha, hora ?? null, String(motivo).trim())
+  await db.run('INSERT INTO bloqueos (id, fecha, hora, motivo) VALUES (?, ?, ?, ?)',
+    id, fecha, hora ?? null, String(motivo).trim())
 
-  return NextResponse.json({ ok: true, bloqueo: db.prepare('SELECT * FROM bloqueos WHERE id = ?').get(id) }, { status: 201 })
+  return NextResponse.json({ ok: true, bloqueo: await db.get('SELECT * FROM bloqueos WHERE id = ?', id) }, { status: 201 })
 }
 
 export async function DELETE(request: Request) {
@@ -64,7 +66,7 @@ export async function DELETE(request: Request) {
   if (!id) {
     return NextResponse.json({ error: 'id requerido.' }, { status: 400 })
   }
-  const res = db.prepare('DELETE FROM bloqueos WHERE id = ?').run(id)
+  const res = await db.run('DELETE FROM bloqueos WHERE id = ?', id)
   if (res.changes === 0) {
     return NextResponse.json({ error: 'Bloqueo no encontrado.' }, { status: 404 })
   }
