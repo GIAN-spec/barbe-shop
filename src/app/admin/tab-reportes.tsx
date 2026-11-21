@@ -225,13 +225,23 @@ export default function TabPagos() {
     }
   }, [periodoTipo, mesSeleccionado])
 
+  function esCitaFutura(item: PagoItem): boolean {
+    if (item.origen !== 'cita') return false
+    const fechaIso = item.fecha.slice(0, 10)
+    return /^\d{4}-\d{2}-\d{2}$/.test(fechaIso) && fechaIso > getFechaHoy()
+  }
+
   async function resolverPago(item: PagoItem, accion: 'verificar' | 'rechazar') {
+    if (accion === 'verificar' && esCitaFutura(item)) {
+      notify(`No se puede aprobar el pago de una cita futura (${item.fecha.slice(0, 10)}). Disponible solo el día de la cita.`, 'err')
+      return
+    }
     if (item.origen === 'cita') {
       const nuevoEstado = accion === 'verificar' ? 'confirmada' : 'rechazada'
       const r = await fetch(`/api/admin/citas/${item.rawId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estado: nuevoEstado, ref_pago: editRef || item.refPago }),
+        body: JSON.stringify({ estado: nuevoEstado, ref_pago: editRef || item.refPago, verificarPago: accion === 'verificar' }),
       })
       if (r.ok) {
         notify(accion === 'verificar' ? 'Pago verificado correctamente' : 'Pago rechazado')
@@ -239,6 +249,9 @@ export default function TabPagos() {
         syncBus.emit('pago_updated')
         syncBus.emit('cita_updated', { id: item.rawId, estado: nuevoEstado })
         await cargarPagos()
+      } else {
+        const j = await r.json().catch(() => ({}))
+        notify(j.error || 'No se pudo actualizar el pago', 'err')
       }
     } else {
       const nuevoEstado = accion === 'verificar' ? 'pagado' : 'cancelado'
@@ -673,7 +686,8 @@ export default function TabPagos() {
                             actions={[
                               { label: 'Revisar operación', onClick: () => { setSelectedPago(p); setEditRef(p.refPago) } },
                               {
-                                label: 'Verificar pago',
+                                label: esCitaFutura(p) ? 'Verificar pago (solo el día de la cita)' : 'Verificar pago',
+                                disabled: esCitaFutura(p),
                                 onClick: () => resolverPago(p, 'verificar'),
                               },
                               {
@@ -809,13 +823,22 @@ export default function TabPagos() {
         footer={
           selectedPago && (
             <div className="flex flex-col gap-2">
+              {esCitaFutura(selectedPago) && (
+                <div
+                  className="rounded-lg border px-3 py-2 text-xs font-medium"
+                  style={{ borderColor: 'var(--warn-line)', background: 'var(--warn-bg)', color: 'var(--warn)' }}
+                >
+                  🔒 Cita programada para el <strong>{selectedPago.fecha.slice(0, 10)}</strong>. Solo se puede verificar y aprobar el pago el mismo día de la cita o fechas anteriores.
+                </div>
+              )}
               <button
                 type="button"
+                disabled={esCitaFutura(selectedPago)}
                 onClick={() => resolverPago(selectedPago, 'verificar')}
-                className={`${T.btnPrimary} w-full`}
+                className={`${T.btnPrimary} w-full disabled:opacity-45 disabled:cursor-not-allowed`}
               >
                 <ModIcon name="Check" className="h-4 w-4" />
-                Verificar y Aprobar Pago
+                {esCitaFutura(selectedPago) ? 'Disponible el día de la cita' : 'Verificar y Aprobar Pago'}
               </button>
               <button
                 type="button"

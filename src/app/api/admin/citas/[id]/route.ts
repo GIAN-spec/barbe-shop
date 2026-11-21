@@ -5,6 +5,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { getFechaLima } from '@/lib/dates'
 
 const ESTADOS_VALIDOS = new Set(['pendiente', 'confirmada', 'completada', 'rechazada', 'pagado', 'cancelada'])
 
@@ -23,11 +24,25 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
     usuario_id: string | null
     nombre: string
     celular: string
+    fecha: string
     estado: string
   }>('SELECT * FROM citas WHERE id = ?', id)
 
   if (!cita) {
     return NextResponse.json({ error: 'Cita no encontrada.' }, { status: 404 })
+  }
+
+  // Restricción de negocio: no se puede verificar/aprobar pago ni marcar como atendida una cita de fecha futura
+  const hoy = getFechaLima(0)
+  const fechaEfectiva = (fecha !== undefined && String(fecha).trim()) ? String(fecha).trim() : cita.fecha
+  const intentaAprobarOAtender = estado === 'pagado' || estado === 'completada' || Boolean(body.verificarPago)
+  if (intentaAprobarOAtender && fechaEfectiva > hoy) {
+    return NextResponse.json(
+      {
+        error: `Restricción: no se puede verificar/aprobar el pago ni marcar como atendida una cita futura (${fechaEfectiva}). Solo está permitido para citas de hoy (${hoy}) o anteriores.`,
+      },
+      { status: 400 }
+    )
   }
 
   const updates: string[] = ['leida = 1']

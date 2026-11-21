@@ -331,8 +331,8 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                           actions={[
                             { label: 'Ver / Reprogramar', onClick: () => abrirDetalle(c) },
                             {
-                              label: 'Marcar atendida (+1 VIP)',
-                              disabled: c.estado === 'completada',
+                              label: c.fecha > getFechaHoy() ? 'Atendida (solo el día de la cita)' : 'Marcar atendida (+1 VIP)',
+                              disabled: c.estado === 'completada' || c.fecha > getFechaHoy(),
                               onClick: () => actualizarCita(c.id, { estado: 'completada' }, 'Cita atendida'),
                             },
                             {
@@ -452,14 +452,25 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
           selectedCita && (
             <div className="flex flex-col gap-2">
               {selectedCita.estado !== 'completada' && selectedCita.estado !== 'cancelada' && (
-                <button
-                  type="button"
-                  onClick={() => actualizarCita(selectedCita.id, { estado: 'completada' }, 'Cita atendida')}
-                  className={`${T.btnPrimary} w-full`}
-                >
-                  <ModIcon name="Check" className="h-4 w-4" />
-                  Marcar como Atendida (+1 sello VIP)
-                </button>
+                <>
+                  {selectedCita.fecha > getFechaHoy() && (
+                    <div
+                      className="rounded-lg border px-3 py-2 text-xs font-medium"
+                      style={{ borderColor: 'var(--warn-line)', background: 'var(--warn-bg)', color: 'var(--warn)' }}
+                    >
+                      🔒 Cita futura ({selectedCita.fecha}). Solo se puede marcar como atendida o aprobar pago el mismo día.
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    disabled={selectedCita.fecha > getFechaHoy()}
+                    onClick={() => actualizarCita(selectedCita.id, { estado: 'completada' }, 'Cita atendida')}
+                    className={`${T.btnPrimary} w-full disabled:opacity-45 disabled:cursor-not-allowed`}
+                  >
+                    <ModIcon name="Check" className="h-4 w-4" />
+                    {selectedCita.fecha > getFechaHoy() ? 'Disponible el día de la cita' : 'Marcar como Atendida (+1 sello VIP)'}
+                  </button>
+                </>
               )}
               <div className="flex gap-2">
                 {selectedCita.estado === 'pendiente' && (
