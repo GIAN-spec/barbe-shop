@@ -132,7 +132,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div data-theme={theme} className="admin-root flex min-h-screen w-full max-w-[100vw] overflow-x-hidden">
+    <div data-theme={theme} className="admin-root flex h-dvh max-h-dvh w-full overflow-hidden">
       {/* BACKDROP MÓVIL */}
       {mobileMenuOpen && (
         <div
@@ -141,9 +141,9 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* SIDEBAR COLAPSABLE */}
+      {/* SIDEBAR COLAPSABLE — fijo al 100% del alto de pantalla sin dejar espacio en blanco al hacer scroll */}
       <aside
-        className={`a-sidebar fixed inset-y-0 left-0 z-40 flex flex-col transition-all duration-200 lg:sticky lg:top-0 lg:z-20 lg:h-screen shrink-0 ${
+        className={`a-sidebar fixed inset-y-0 left-0 z-40 flex h-dvh max-h-dvh flex-col transition-all duration-200 lg:static lg:z-20 shrink-0 ${
           collapsed ? 'w-[68px]' : 'w-60'
         } ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
@@ -195,11 +195,11 @@ export default function AdminDashboard() {
       </aside>
 
       {/* CONTENIDO PRINCIPAL */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex h-dvh max-h-dvh min-w-0 flex-1 flex-col overflow-hidden">
         <Toast msg={liveToast?.msg ?? ''} tone={liveToast?.tone ?? 'ok'} />
         {/* TOPBAR */}
         <header
-          className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b px-4 sm:px-7 backdrop-blur-md"
+          className="shrink-0 z-30 flex h-14 items-center justify-between gap-3 border-b px-4 sm:px-7 backdrop-blur-md"
           style={{
             borderColor: 'var(--line)',
             background: theme === 'dark' ? 'rgba(9, 9, 11, 0.88)' : 'rgba(255, 255, 255, 0.9)',
@@ -264,20 +264,22 @@ export default function AdminDashboard() {
           </div>
         </header>
 
-        {/* ÁREA DE TRABAJO CON ESPACIO EN BLANCO GENEROSO */}
-        <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8 sm:py-7 overflow-x-hidden">
-          {tab === 'resumen'   && <TabDashboard onGoTab={t => setTab(t as TabKey)} roleMode={roleMode} />}
-          {tab === 'agenda'    && <TabAgenda roleMode={roleMode} />}
-          {tab === 'pedidos'   && <TabPedidos />}
-          {tab === 'pagos'     && <TabPagos />}
-          {tab === 'clientes'  && <TabClientes />}
-          {tab === 'resenas'   && <TabResenas />}
-          {tab === 'servicios' && <TabServicios />}
-          {tab === 'productos' && <TabProductos />}
-          {tab === 'barberos'  && <TabBarberos />}
-          {tab === 'galeria'   && <TabGaleria />}
-          {tab === 'negocio'   && <TabNegocio />}
-        </main>
+        {/* ÁREA DE TRABAJO CON SCROLL INDEPENDIENTE */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          <main className="mx-auto w-full max-w-6xl min-w-0 px-4 py-5 sm:px-6 lg:px-8 sm:py-7">
+            {tab === 'resumen'   && <TabDashboard onGoTab={t => setTab(t as TabKey)} roleMode={roleMode} />}
+            {tab === 'agenda'    && <TabAgenda roleMode={roleMode} />}
+            {tab === 'pedidos'   && <TabPedidos />}
+            {tab === 'pagos'     && <TabPagos />}
+            {tab === 'clientes'  && <TabClientes />}
+            {tab === 'resenas'   && <TabResenas />}
+            {tab === 'servicios' && <TabServicios />}
+            {tab === 'productos' && <TabProductos />}
+            {tab === 'barberos'  && <TabBarberos />}
+            {tab === 'galeria'   && <TabGaleria />}
+            {tab === 'negocio'   && <TabNegocio />}
+          </main>
+        </div>
       </div>
     </div>
   )
