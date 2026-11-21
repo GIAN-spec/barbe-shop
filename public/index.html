@@ -397,6 +397,12 @@ body.light .demo-creds code { color: var(--text); }
 /* Base & Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 15.5px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+html.large-text { font-size: 17.8px !important; }
+#textSizeBtn[aria-pressed="true"] {
+  background: var(--gold-gradient) !important;
+  color: #171104 !important;
+  border-color: var(--gold) !important;
+}
 body {
   font-family: var(--font-sans);
   background: var(--bg);
@@ -5176,12 +5182,14 @@ textarea:focus-visible,
   .whatsapp-float {
     bottom: 78px !important;
   }
-  /* Evita auto-zoom en iOS al tocar inputs y asegura área táctil >= 44px */
+  /* Evita auto-zoom en iOS al tocar inputs y asegura área táctil >= 44px (WCAG 2.1 AA) */
   input, select, textarea {
     font-size: 16px !important;
+    min-height: 44px;
   }
-  .slot-btn, .qty-btn {
-    min-height: 42px;
+  .slot-btn, .qty-btn, .filter-btn, .rp-add-btn, .rp-toggle-btn, .mc-tab-btn, .sc-segment-btn {
+    min-height: 44px !important;
+    min-width: 44px;
   }
   .mobile-bottom-nav {
     display: grid;
@@ -5277,6 +5285,11 @@ textarea:focus-visible,
           <path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
         <span class="cart-badge" id="cartCountBadge" style="display:none;">0</span>
+      </button>
+
+      <!-- Toggle Tamaño de Letra Accesible (A+) -->
+      <button class="theme-toggle-btn" id="textSizeBtn" onclick="toggleLargeText();" aria-label="Activar o desactivar letra grande para mejor lectura" aria-pressed="false" title="Letra grande accesible (A+)" style="font-weight:800; font-size:0.86rem;">
+        A+
       </button>
 
       <!-- Toggle Modo Claro / Modo Oscuro -->
@@ -5680,7 +5693,7 @@ textarea:focus-visible,
             <div class="form-field">
               <label class="form-label" for="bookName">Nombre y Apellidos <span class="req">*</span></label>
               <input class="form-input" id="bookName" type="text" placeholder="Ej. Carlos Mendoza" />
-              <div class="form-error" id="bookNameErr"><span>Por favor ingresa tu nombre completo</span></div>
+              <div class="form-error" id="bookNameErr" role="alert" aria-live="assertive"><span>Por favor ingresa tu nombre completo (mínimo 3 letras)</span></div>
             </div>
 
             <div class="form-field">
@@ -5689,7 +5702,7 @@ textarea:focus-visible,
                 <span class="phone-prefix">+51</span>
                 <input id="bookCel" type="tel" maxlength="9" placeholder="987 654 321" />
               </div>
-              <div class="form-error" id="bookCelErr"><span>El celular debe tener 9 dígitos e iniciar con 9</span></div>
+              <div class="form-error" id="bookCelErr" role="alert" aria-live="assertive"><span>El celular debe tener 9 dígitos e iniciar con 9</span></div>
             </div>
 
             <div class="form-field">
@@ -5838,10 +5851,10 @@ textarea:focus-visible,
         <!-- Credenciales de acceso (proyecto académico) -->
         <div class="demo-creds">
           <p class="dc-title">Credenciales de prueba</p>
-          <div class="dc-row" onclick="fillDemoCreds('carlos@demo.com','OtraClave77');" title="Clic para autocompletar">
+          <div class="dc-row" role="button" tabindex="0" onclick="fillDemoCreds('carlos@demo.com','OtraClave77');" title="Clic para autocompletar">
             <span class="dc-role">Cliente demo:</span><code>carlos@demo.com</code><code>OtraClave77</code>
           </div>
-          <div class="dc-row" onclick="fillDemoCreds('admin@chinobarber.com','Admin1234!');" title="Clic para autocompletar">
+          <div class="dc-row" role="button" tabindex="0" onclick="fillDemoCreds('admin@chinobarber.com','Admin1234!');" title="Clic para autocompletar">
             <span class="dc-role">Dueño (Panel Admin):</span><code>admin@chinobarber.com</code><code>Admin1234!</code>
           </div>
         </div>
@@ -5903,9 +5916,9 @@ textarea:focus-visible,
 </div>
 
 <!-- ==================== MODAL DE RECUPERACIÓN ==================== -->
-<div class="modal-overlay" id="forgotModal">
+<div class="modal-overlay" id="forgotModal" role="dialog" aria-modal="true">
   <div class="auth-card" style="max-width:380px;">
-    <button class="auth-close" onclick="closeForgotModal();">✕</button>
+    <button class="auth-close" onclick="closeForgotModal();" aria-label="Cerrar ventana de recuperación">✕</button>
     <div class="auth-header">
       <h3 class="auth-title" style="font-size:1.35rem;">Recuperar Cuenta</h3>
       <p class="auth-sub">Ingresa tu correo o celular registrado para restablecer tu contraseña.</p>
@@ -5951,8 +5964,8 @@ textarea:focus-visible,
 </div>
 
 <!-- ==================== LIGHTBOX GALERÍA ==================== -->
-<div class="lightbox" id="lightboxModal" onclick="closeLightbox(event);">
-  <button class="lightbox-close" onclick="closeLightbox();">✕</button>
+<div class="lightbox" id="lightboxModal" role="dialog" aria-modal="true" aria-label="Vista ampliada de imagen" onclick="closeLightbox(event);">
+  <button class="lightbox-close" onclick="closeLightbox();" aria-label="Cerrar imagen ampliada">✕</button>
   <div class="lightbox-content">
     <img id="lightboxImg" src="" alt="Vista previa de corte" />
   </div>
@@ -6699,7 +6712,7 @@ function updateHeaderAuth() {
   if (state.currentUser) {
     const initials = state.currentUser.nombre.split(' ').map(p => p[0]).slice(0, 2).join('');
     slot.innerHTML = `
-      <div class="user-menu-btn" id="userMenuBtn" onclick="toggleUserDropdown(event);">
+      <div class="user-menu-btn" id="userMenuBtn" role="button" tabindex="0" aria-haspopup="true" aria-label="Menú de usuario" onclick="toggleUserDropdown(event);">
         <div class="user-avatar">
           ${state.currentUser.avatar ? `<img src="${state.currentUser.avatar}" alt="${state.currentUser.nombre}" />` : initials}
         </div>
@@ -7270,7 +7283,7 @@ function renderAllServicesPage(filter = 'all') {
 function renderServiceCard(s) {
   return `
     <article class="service-card">
-      <div class="service-media" onclick="openLightbox('${s.foto}');" title="Ver foto completa">
+      <div class="service-media" role="button" tabindex="0" onclick="openLightbox('${s.foto}');" title="Ver foto completa">
         <img src="${s.foto}" alt="${s.nombre}" loading="lazy" />
         <span class="service-zoom-hint">🔍 Ver foto completa</span>
         <span class="service-dur-pill">
@@ -7316,7 +7329,7 @@ function renderBarberCard(b) {
 
 function renderGallery() {
   $('#galleryGrid').innerHTML = GALERIA.map((g, idx) => `
-    <div class="gallery-item" onclick="openLightbox('${g.url}');">
+    <div class="gallery-item" role="button" tabindex="0" aria-label="${escapeHTML(g.title)}" onclick="openLightbox('${g.url}');">
       <img src="${g.url}" alt="${g.titulo}" loading="lazy" />
       <div class="gallery-overlay">
         <span class="gallery-tag">${g.titulo}</span>
@@ -7419,7 +7432,9 @@ function updateStepperButtons() {
   }
 
   prevBtn.style.visibility = state.step === 1 ? 'hidden' : 'visible';
-  nextBtn.disabled = !valid;
+  nextBtn.disabled = false;
+  nextBtn.setAttribute('aria-disabled', String(!valid));
+  nextBtn.style.opacity = valid ? '1' : '0.78';
 
   let label = 'Siguiente Paso →';
   if (state.step === 5) {
@@ -7431,13 +7446,72 @@ function updateStepperButtons() {
   }
   nextBtn.textContent = label;
   if (sideBtn) {
-    sideBtn.disabled = !valid;
+    sideBtn.disabled = false;
+    sideBtn.setAttribute('aria-disabled', String(!valid));
+    sideBtn.style.opacity = valid ? '1' : '0.78';
     sideBtn.textContent = label;
   }
 }
 
+function scrollAndFocusField(selector) {
+  const el = typeof selector === 'string' ? $(selector) : selector;
+  if (!el) return;
+  try {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => { try { el.focus({ preventScroll: true }); } catch {} }, 180);
+  } catch {}
+}
+
+function guideStepError(step) {
+  const r = state.reservation;
+  if (step === 1) {
+    showToast('Selecciona un servicio de la lista para continuar.', 'err');
+    scrollAndFocusField('#serviceOptionsList .option-select-card');
+  } else if (step === 2) {
+    showToast('Elige un barbero o la opción "Cualquier Barbero".', 'err');
+    scrollAndFocusField('#barberOptionsList .option-select-card');
+  } else if (step === 3) {
+    showToast('Selecciona una fecha y un horario disponible.', 'err');
+    scrollAndFocusField('#slotsContainer .slot-btn:not(:disabled)');
+  } else if (step === 4) {
+    const cleanName = (r.name || '').trim();
+    const cleanCel = (r.celular || '').replace(/\s/g, '');
+    if (cleanName.length < 3) {
+      $('#bookNameErr')?.classList.add('show');
+      showToast('Por favor ingresa tu nombre y apellido (mínimo 3 letras).', 'err');
+      scrollAndFocusField('#bookName');
+      return;
+    }
+    if (!/^9\d{8}$/.test(cleanCel)) {
+      $('#bookCelErr')?.classList.add('show');
+      showToast('Ingresa tu número de celular de 9 dígitos (debe empezar con 9).', 'err');
+      scrollAndFocusField('#bookCel');
+      return;
+    }
+  } else if (step === 5) {
+    if (!r.method) {
+      showToast('Elige un método de pago para confirmar tu cita.', 'err');
+      scrollAndFocusField('#paymentMethodTabs .pay-method-btn');
+      return;
+    }
+    if (r.method === 'yape' || r.method === 'plin') {
+      showToast('Ingresa los 6 dígitos del código de operación de Yape/Plin.', 'err');
+      scrollAndFocusField('#paymentContentArea input');
+      return;
+    }
+    if (r.method === 'tarjeta') {
+      showToast('Completa los 16 dígitos del número de tarjeta.', 'err');
+      scrollAndFocusField('#paymentContentArea input');
+      return;
+    }
+  }
+}
+
 function goNextStep() {
-  if (!isStepValid(state.step)) return;
+  if (!isStepValid(state.step)) {
+    guideStepError(state.step);
+    return;
+  }
   if (state.step < 5) {
     state.step++;
     renderReservationFlow();
@@ -7468,7 +7542,7 @@ function renderStep1Services() {
   container.innerHTML = SERVICIOS.map(s => {
     const isSelected = state.reservation.service === s.id;
     return `
-      <div class="option-select-card" aria-pressed="${isSelected}" onclick="selectReserveService('${s.id}');">
+      <div class="option-select-card" role="button" tabindex="0" aria-pressed="${isSelected}" onclick="selectReserveService('${s.id}');">
         <div class="osc-media"><img src="${s.foto}" alt="${s.nombre}" /></div>
         <div class="osc-info">
           <span class="osc-title">${s.nombre}</span>
@@ -7494,7 +7568,7 @@ function renderStep2Barbers() {
   const anySelected = state.reservation.barber === 'any';
 
   let html = `
-    <div class="option-select-card" aria-pressed="${anySelected}" onclick="selectReserveBarber('any');">
+    <div class="option-select-card" role="button" tabindex="0" aria-pressed="${anySelected}" onclick="selectReserveBarber('any');">
       <div class="osc-media" style="background:var(--bg-elevated); display:grid; place-items:center; color:var(--gold);">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5.5 21v-2a6.5 6.5 0 0 1 13 0v2"/></svg>
       </div>
@@ -7509,7 +7583,7 @@ function renderStep2Barbers() {
   html += BARBEROS.map(b => {
     const isSelected = state.reservation.barber === b.id;
     return `
-      <div class="option-select-card" aria-pressed="${isSelected}" onclick="selectReserveBarber('${b.id}');">
+      <div class="option-select-card" role="button" tabindex="0" aria-pressed="${isSelected}" onclick="selectReserveBarber('${b.id}');">
         <div class="osc-media"><img src="${b.foto}" alt="${b.nombre}" /></div>
         <div class="osc-info">
           <span class="osc-title">${b.nombre}</span>
@@ -7980,7 +8054,7 @@ function renderStep5Payment() {
   tabsContainer.innerHTML = METODOS_PAGO.map(m => {
     const isSelected = state.reservation.method === m.id;
     return `
-      <div class="pay-method-btn" aria-pressed="${isSelected}" onclick="selectPaymentMethod('${m.id}');">
+      <div class="pay-method-btn" role="button" tabindex="0" aria-pressed="${isSelected}" onclick="selectPaymentMethod('${m.id}');">
         <div class="pm-icon" style="background:${m.color};">${m.nombre.slice(0, 2).toUpperCase()}</div>
         <div>
           <span class="pm-name">${m.nombre}</span>
@@ -9720,7 +9794,7 @@ function renderCartDrawer() {
               </div>
               <div class="sc-yape-info">
                 <div class="sc-yape-amount">Transfiere el total de <b>${fmtPrice(total)}</b> al:</div>
-                <div class="sc-phone-chip" onclick="navigator.clipboard?.writeText('987654321'); showToast('Número 987 654 321 copiado al portapapeles 📋', 'ok');" title="Clic para copiar">
+                <div class="sc-phone-chip" role="button" tabindex="0" onclick="navigator.clipboard?.writeText('987654321'); showToast('Número 987 654 321 copiado al portapapeles 📋', 'ok');" title="Clic para copiar">
                   <span class="sc-phone-num">987 654 321</span>
                   <span class="sc-copy-btn">Copiar</span>
                 </div>
@@ -9847,24 +9921,24 @@ async function processCartCheckout() {
   const direccion = (cartCheckoutDraft.direccion || '').trim();
 
   if (nombre.length < 3) {
-    showToast('Ingresa tu nombre y apellidos para el pedido.', 'err');
-    $('#cartCustName')?.focus();
+    showToast('Ingresa tu nombre y apellidos para el pedido (mínimo 3 letras).', 'err');
+    scrollAndFocusField('#cartCustName');
     return;
   }
   if (!/^9\d{8}$/.test(celular)) {
     showToast('Ingresa un celular válido de 9 dígitos (empieza con 9).', 'err');
-    $('#cartCustPhone')?.focus();
+    scrollAndFocusField('#cartCustPhone');
     return;
   }
   if (cartDeliveryMode === 'delivery') {
     if (distrito.length < 3) {
       showToast('Indica el distrito de entrega para el Delivery.', 'err');
-      $('#cartCustDistrict')?.focus();
+      scrollAndFocusField('#cartCustDistrict');
       return;
     }
     if (direccion.length < 5) {
       showToast('Ingresa tu dirección exacta y referencia.', 'err');
-      $('#cartCustAddress')?.focus();
+      scrollAndFocusField('#cartCustAddress');
       return;
     }
   }
@@ -10133,7 +10207,7 @@ function renderBookingProductMiniCard(p) {
   const qty = getBookingProductQty(p.id);
   return `
     <div class="rp-card ${qty > 0 ? 'selected' : ''}">
-      <div class="rp-media" onclick="openLightbox('${p.foto}');" title="Ampliar imagen">
+      <div class="rp-media" role="button" tabindex="0" onclick="openLightbox('${p.foto}');" title="Ampliar imagen">
         <img src="${p.foto}" alt="${escapeHTML(p.nombre)}" loading="lazy" />
       </div>
       <div class="rp-info">
@@ -10533,9 +10607,46 @@ function clientOrderWhatsApp(orderId) {
    INICIALIZACIÓN
    ========================================================= */
 
+function toggleLargeText() {
+  const isLarge = document.documentElement.classList.toggle('large-text');
+  localStorage.setItem('cbs_large_text', isLarge ? '1' : '0');
+  const btn = $('#textSizeBtn');
+  if (btn) btn.setAttribute('aria-pressed', String(isLarge));
+  showToast(isLarge ? '🔍 Letra grande activada para mejor lectura.' : 'Tamaño de letra estándar restaurado.', 'ok');
+}
+
+function initAccessibility() {
+  if (localStorage.getItem('cbs_large_text') === '1') {
+    document.documentElement.classList.add('large-text');
+    const btn = $('#textSizeBtn');
+    if (btn) btn.setAttribute('aria-pressed', 'true');
+  }
+  // Soporte global de teclado (Enter / Espacio en elementos role="button" y Escape para cerrar modales)
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if ($('#lightboxModal')?.classList.contains('open')) { closeLightbox(); return; }
+      if ($('#authModal')?.classList.contains('open')) { closeAuthModal(); return; }
+      if ($('#forgotModal')?.classList.contains('open')) { closeForgotModal(); return; }
+      if ($('#reschModal')?.classList.contains('open')) { closeRescheduleModal(); return; }
+      if ($('#profileModal')?.classList.contains('open')) { closeProfileModal(); return; }
+      if ($('#cartDrawerOverlay')?.classList.contains('open')) { toggleCartDrawer(false); return; }
+      if ($('#userDropdown')?.classList.contains('open')) { closeUserDropdown(); return; }
+      if ($('#mainNav')?.classList.contains('open')) { $('#mainNav').classList.remove('open'); return; }
+    }
+    if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.getAttribute && e.target.getAttribute('role') === 'button') {
+      const tag = e.target.tagName.toLowerCase();
+      if (tag !== 'button' && tag !== 'a' && tag !== 'input') {
+        e.preventDefault();
+        e.target.click();
+      }
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   $('#yearVal').textContent = new Date().getFullYear();
   initTheme();
+  initAccessibility();
   updateCartBadge();
 
   // Catálogo del BD (admin puede editar servicios/barberos)
