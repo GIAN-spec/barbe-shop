@@ -23,6 +23,7 @@ import {
   formatPaymentInfo,
   formatHora12,
   syncBus,
+  descargarCSV,
   type Cita,
   type Pedido,
 } from './ui'
@@ -286,6 +287,67 @@ export default function TabPagos() {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener')
   }
 
+  // Exportar datos a Excel / CSV con compatibilidad Windows UTF-8
+  function exportarReporteActual() {
+    if (subTab === 'liquidacion') {
+      const columnas = [
+        'Barbero',
+        'Cortes Atendidos',
+        'Total Facturado (S/)',
+        'Comisión (%)',
+        'Pago a Barbero (S/)',
+        'Ganancia Local (S/)',
+      ]
+      const filas = barberosFiltrados.map(b => [
+        b.barberoNombre,
+        b.atendidas,
+        b.totalCobrado.toFixed(2),
+        `${b.comisionPct}%`,
+        b.pagoBarbero.toFixed(2),
+        b.gananciaLocal.toFixed(2),
+      ])
+      filas.push([
+        'TOTAL GENERAL',
+        totalCortesLiq,
+        totalRecaudadoLiq.toFixed(2),
+        '—',
+        totalComisionesLiq.toFixed(2),
+        totalNetoLocalLiq.toFixed(2),
+      ])
+      descargarCSV(`liquidacion_comisiones_${periodoTipo}_${getFechaHoy()}`, columnas, filas)
+      notify('Reporte de liquidación exportado en Excel (CSV) con éxito')
+    } else {
+      const columnas = [
+        'ID Transacción',
+        'Fecha',
+        'Hora',
+        'Tipo',
+        'Cliente',
+        'Teléfono',
+        'Concepto',
+        'Método de Pago',
+        'N° Operación',
+        'Monto (S/)',
+        'Estado',
+      ]
+      const filas = pagosFiltrados.map(p => [
+        p.rawId,
+        p.fecha.slice(0, 10),
+        p.fecha.slice(11, 16) || '—',
+        p.origen === 'cita' ? 'Cita Presencial' : 'Venta Tienda',
+        p.cliente,
+        p.telefono,
+        p.concepto,
+        p.metodo.toUpperCase(),
+        p.refPago || '—',
+        p.monto.toFixed(2),
+        p.estado.toUpperCase(),
+      ])
+      descargarCSV(`auditoria_pagos_caja_${getFechaHoy()}`, columnas, filas)
+      notify('Auditoría de caja exportada en Excel (CSV) con éxito')
+    }
+  }
+
   // Filtrado de barberos para liquidación
   const barberosFiltrados = barberosLiq.filter(b => {
     const okBarbero = filtroBarbero === 'todos' || b.barberoId === filtroBarbero || b.barberoNombre === filtroBarbero
@@ -376,12 +438,23 @@ export default function TabPagos() {
           </button>
         </div>
 
-        <div className="text-xs a-muted font-medium">
-          {subTab === 'liquidacion' ? (
-            <span>Período actual: <b className="a-txt capitalize">{periodoTipo.replace('_', ' ')}</b></span>
-          ) : (
-            <span>Mostrando <b className="a-txt">{pagosFiltrados.length}</b> registros de pagos</span>
-          )}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={exportarReporteActual}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-emerald-600/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold transition-all shadow-sm cursor-pointer"
+            title="Descargar datos en formato Excel compatible (.csv UTF-8)"
+          >
+            <span className="text-sm">📥</span>
+            <span>Exportar a Excel (CSV)</span>
+          </button>
+          <div className="hidden sm:block text-xs a-muted font-medium">
+            {subTab === 'liquidacion' ? (
+              <span>Período: <b className="a-txt capitalize">{periodoTipo.replace('_', ' ')}</b></span>
+            ) : (
+              <span><b className="a-txt">{pagosFiltrados.length}</b> registros</span>
+            )}
+          </div>
         </div>
       </div>
 

@@ -25,6 +25,8 @@ import {
   formatPaymentInfo,
   formatHora12,
   syncBus,
+  TicketTermicoModal,
+  abrirWhatsAppRecordatorio,
   type Cita,
   type Barbero,
   type Servicio,
@@ -48,6 +50,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
   const [filtroEstado, setFiltroEstado] = useState<string>('todos')
   const [busqueda, setBusqueda] = useState('')
   const [selectedCita, setSelectedCita] = useState<Cita | null>(null)
+  const [ticketCita, setTicketCita] = useState<Cita | null>(null)
   const [openNew, setOpenNew] = useState(false)
   const [msg, setMsg] = useState('')
   const [tone, setTone] = useState<'ok' | 'err'>('ok')
@@ -330,6 +333,8 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                         <RowMenu
                           actions={[
                             { label: 'Ver / Reprogramar', onClick: () => abrirDetalle(c) },
+                            { label: '🖨️ Imprimir ticket térmico', onClick: () => setTicketCita(c) },
+                            { label: '📲 Recordatorio WhatsApp', onClick: () => abrirWhatsAppRecordatorio(c, 'recordatorio') },
                             {
                               label: c.fecha > getFechaHoy() ? 'Atendida (solo el día de la cita)' : 'Marcar atendida (+1 VIP)',
                               disabled: c.estado === 'completada' || c.fecha > getFechaHoy(),
@@ -581,6 +586,60 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                 </div>
               </div>
 
+              {/* Notificaciones y recordatorios por WhatsApp con 1 Clic */}
+              <div className="rounded-xl border p-3.5 space-y-2.5" style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}>
+                <div className="flex items-center justify-between text-xs font-semibold a-txt">
+                  <span className="flex items-center gap-1.5">
+                    <span>📲</span>
+                    <span>Avisos por WhatsApp</span>
+                  </span>
+                  <span className="text-[10px] a-muted font-normal">1 Clic</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => abrirWhatsAppRecordatorio(selectedCita, 'recordatorio')}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs font-medium hover:bg-[var(--hover)] a-txt transition-colors cursor-pointer"
+                    style={{ borderColor: 'var(--line)' }}
+                    title="Enviar recordatorio de fecha y hora"
+                  >
+                    <span>🔔</span>
+                    <span>Recordatorio</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => abrirWhatsAppRecordatorio(selectedCita, 'confirmacion')}
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs font-medium hover:bg-[var(--hover)] a-txt transition-colors cursor-pointer"
+                    style={{ borderColor: 'var(--line)' }}
+                    title="Confirmar reserva al cliente"
+                  >
+                    <span>✅</span>
+                    <span>Confirmación</span>
+                  </button>
+                </div>
+                {selectedCita.estado === 'completada' && (
+                  <button
+                    type="button"
+                    onClick={() => abrirWhatsAppRecordatorio(selectedCita, 'agradecimiento')}
+                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-[var(--hover)] transition-colors cursor-pointer"
+                    style={{ borderColor: 'var(--line)' }}
+                  >
+                    <span>⭐</span>
+                    <span>Pedir reseña y agradecer visita</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Botón de Impresión de Ticket Térmico */}
+              <button
+                type="button"
+                onClick={() => setTicketCita(selectedCita)}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-bold px-4 py-2.5 text-xs transition-colors cursor-pointer shadow-sm"
+              >
+                <span className="text-sm">🖨️</span>
+                <span>Imprimir Ticket Térmico (80mm)</span>
+              </button>
+
               {/* Sección colapsable para Reprogramar */}
               <AccordionSection title="Reprogramar fecha, hora o barbero" defaultOpen={false}>
                 <div className="grid grid-cols-2 gap-3">
@@ -705,6 +764,13 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
           </div>
         </form>
       </Drawer>
+
+      {/* MODAL DE IMPRESIÓN DE TICKET TÉRMICO */}
+      <TicketTermicoModal
+        open={!!ticketCita}
+        onClose={() => setTicketCita(null)}
+        cita={ticketCita}
+      />
     </div>
   )
 }

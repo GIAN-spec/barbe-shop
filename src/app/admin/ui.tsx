@@ -823,3 +823,219 @@ export function formatHora12(hora?: string | null): string {
   const h12 = h24 % 12 === 0 ? 12 : h24 % 12
   return `${h12}:${mins} ${period}`
 }
+
+/* ==========================================================================
+   RECORDATORIOS Y MENSAJES RÁPIDOS POR WHATSAPP (1 Clic)
+   ========================================================================== */
+export function generarWhatsAppRecordatorio(
+  cita: Cita,
+  tipo: 'recordatorio' | 'confirmacion' | 'agradecimiento' = 'recordatorio'
+): string {
+  const cel = cita.celular.replace(/\D/g, '')
+  const hora12 = formatHora12(cita.hora)
+  const fecha = fechaLarga(cita.fecha)
+  const barbero = cita.barbero.split(' ')[0]
+  const servicio = cita.servicioNombre ?? cita.servicio
+
+  let texto = ''
+  if (tipo === 'confirmacion') {
+    texto = `💈 *CHINO BARBER SHOP — CITA CONFIRMADA* 💈\n\nHola *${cita.nombre}*, confirmamos tu cita con éxito:\n\n📅 *Fecha:* ${fecha}\n⏰ *Hora:* ${hora12}\n✂️ *Servicio:* ${servicio}\n👤 *Barbero:* ${barbero}\n\n📍 Te esperamos en nuestro local. Recuerda llegar 5 minutos antes. ¡Gracias por tu preferencia!`
+  } else if (tipo === 'agradecimiento') {
+    texto = `💈 *CHINO BARBER SHOP — ¡GRACIAS POR TU VISITA!* 💈\n\nHola *${cita.nombre}*, fue un gusto atenderte hoy con *${barbero}*.\n\n⭐ Te invitamos a calificar tu experiencia aquí: https://chinobarber.vercel.app\n\n¡Suma sellos VIP y obtén tu 6to corte gratis! ¡Hasta la próxima!`
+  } else {
+    texto = `💈 *RECORDATORIO DE CITA — CHINO BARBER SHOP* 💈\n\nHola *${cita.nombre}*, te recordamos tu cita de barbería:\n\n📅 *Fecha:* ${fecha}\n⏰ *Hora:* ${hora12}\n✂️ *Servicio:* ${servicio}\n👤 *Barbero:* ${barbero}\n\n📍 Te esperamos puntualmente. Si necesitas reprogramar, avísanos con anticipación por este medio. ¡Nos vemos!`
+  }
+
+  return `https://wa.me/51${cel}?text=${encodeURIComponent(texto)}`
+}
+
+export function abrirWhatsAppRecordatorio(
+  cita: Cita,
+  tipo: 'recordatorio' | 'confirmacion' | 'agradecimiento' = 'recordatorio'
+) {
+  window.open(generarWhatsAppRecordatorio(cita, tipo), '_blank', 'noopener')
+}
+
+/* ==========================================================================
+   EXPORTACIÓN DE REPORTES A EXCEL / CSV CON BOM UTF-8
+   ========================================================================== */
+export function descargarCSV(nombreArchivo: string, columnas: string[], filas: (string | number)[][]) {
+  const contenido = [
+    columnas.join(';'),
+    ...filas.map(f => f.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(';')),
+  ].join('\r\n')
+
+  const blob = new Blob(['\uFEFF' + contenido], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = nombreArchivo.endsWith('.csv') ? nombreArchivo : `${nombreArchivo}.csv`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+/* ==========================================================================
+   MODAL DE IMPRESIÓN DE TICKET TÉRMICO (80mm / 58mm)
+   ========================================================================== */
+export function TicketTermicoModal({
+  open,
+  onClose,
+  cita,
+}: {
+  open: boolean
+  onClose: () => void
+  cita: Cita | null
+}) {
+  useEffect(() => {
+    if (!open) return
+    const h = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
+  }, [open, onClose])
+
+  if (!open || !cita) return null
+
+  const ex = parseCitaExtras(cita)
+  const ticketNum = cita.id.replace(/\D/g, '').slice(-5) || '00142'
+  const igv = ex.grandTotal * 0.18 / 1.18
+  const subtotal = ex.grandTotal - igv
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto cursor-pointer"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="relative w-full max-w-sm rounded-2xl bg-white text-slate-900 shadow-2xl p-6 cursor-default border border-slate-200 animate-in fade-in zoom-in-95 duration-200"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b pb-3 mb-4 border-slate-200 no-print">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🖨️</span>
+            <h3 className="font-bold text-sm text-slate-900">Impresión de Ticket Térmico</h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid size-8 place-items-center rounded-lg border border-slate-300 text-slate-500 hover:bg-slate-100 cursor-pointer"
+            aria-label="Cerrar modal de impresión"
+          >
+            <ModIcon name="X" className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* CONTENEDOR FÍSICO DEL TICKET (80mm) */}
+        <div className="a-ticket-print-wrapper rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 font-mono text-xs text-slate-800 space-y-2">
+          <div className="text-center space-y-0.5">
+            <p className="font-extrabold text-sm tracking-wider uppercase text-slate-900">CHINO BARBER SHOP</p>
+            <p className="text-[11px] text-slate-600">Tu mejor corte, sin esperas</p>
+            <p className="text-[10px] text-slate-500">RUC: 10458923412 · Lima, Perú</p>
+            <p className="text-[10px] text-slate-500">WhatsApp: +51 987 654 321</p>
+          </div>
+
+          <div className="border-t border-dashed border-slate-400 my-2 pt-2 text-[11px] space-y-1">
+            <div className="flex justify-between font-bold">
+              <span>COMPROBANTE:</span>
+              <span>#TK-{ticketNum}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Fecha / Hora:</span>
+              <span>{fechaLarga(cita.fecha)} {formatHora12(cita.hora)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Cliente:</span>
+              <span className="font-bold text-right truncate max-w-[170px]">{cita.nombre}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Teléfono:</span>
+              <span>{cita.celular}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Barbero:</span>
+              <span className="font-semibold">{cita.barbero}</span>
+            </div>
+          </div>
+
+          {/* DESGLOSE DE ÍTEMS */}
+          <div className="border-t border-dashed border-slate-400 my-2 pt-2 text-[11px]">
+            <div className="flex justify-between font-bold pb-1 border-b border-slate-300">
+              <span>DESCRIPCIÓN</span>
+              <span>TOTAL</span>
+            </div>
+            <div className="flex justify-between py-1">
+              <span className="truncate pr-2">{cita.servicioNombre ?? cita.servicio}</span>
+              <span className="font-bold font-mono">S/ {ex.serviceTotal.toFixed(2)}</span>
+            </div>
+            {ex.productsText && (
+              <div className="flex justify-between py-1 text-slate-600">
+                <span className="truncate pr-2">+ {ex.productsText}</span>
+                <span className="font-bold font-mono">S/ {ex.productsTotal.toFixed(2)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* TOTALES */}
+          <div className="border-t border-dashed border-slate-400 my-2 pt-2 text-[11px] space-y-1">
+            <div className="flex justify-between text-slate-600">
+              <span>Op. Gravada:</span>
+              <span>S/ {subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-slate-600">
+              <span>I.G.V. (18%):</span>
+              <span>S/ {igv.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between font-black text-sm text-slate-900 border-t border-slate-300 pt-1">
+              <span>TOTAL A PAGAR:</span>
+              <span className="font-mono">S/ {ex.grandTotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-[10px] text-slate-600 pt-1">
+              <span>Medio de Pago:</span>
+              <span className="font-semibold uppercase">{formatPaymentInfo(cita.metodo_pago, cita.ref_pago)}</span>
+            </div>
+            <div className="flex justify-between text-[10px] text-slate-600">
+              <span>Estado:</span>
+              <span className="font-bold uppercase text-emerald-700">{cita.estado}</span>
+            </div>
+          </div>
+
+          {/* PROGRAMA VIP */}
+          <div className="border-t border-dashed border-slate-400 my-2 pt-2 text-center text-[10px] space-y-0.5 text-slate-600">
+            <p className="font-bold text-slate-900">PROGRAMA DE FIDELIZACIÓN VIP</p>
+            <p>¡Gracias por acumular sellos VIP!</p>
+            <p>6 sellos = 1 corte clásico totalmente GRATIS.</p>
+          </div>
+
+          <div className="border-t border-dashed border-slate-400 pt-2 text-center text-[10px] text-slate-500">
+            <p>¡Gracias por tu preferencia!</p>
+            <p className="font-semibold text-slate-700">chinobarber.vercel.app</p>
+          </div>
+        </div>
+
+        {/* ACCIONES */}
+        <div className="mt-4 flex gap-2 no-print">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 text-xs shadow-md transition-colors cursor-pointer"
+          >
+            <span className="text-sm">🖨️</span>
+            <span>Imprimir Ticket</span>
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-300 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

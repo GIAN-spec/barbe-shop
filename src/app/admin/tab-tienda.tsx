@@ -360,6 +360,30 @@ export default function TabPedidos() {
                 ))}
               </div>
             </div>
+
+            {/* Acciones de WhatsApp y Comprobante */}
+            <div className="flex flex-col gap-2 pt-1">
+              <a
+                href={`https://wa.me/51${selected.telefono.replace(/\D/g, '')}?text=${encodeURIComponent(
+                  `💈 *CHINO BARBER SHOP — PEDIDO #${selected.id.toUpperCase()}* 💈\n\nHola *${selected.cliente}*, tu pedido por *${money(selected.total)}* (${selected.entrega === 'delivery' ? 'Delivery a domicilio' : 'Recojo en barbería'}) se encuentra en estado *${selected.estado.toUpperCase()}*.\n\n¡Gracias por tu compra!`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold hover:bg-[var(--hover)] a-txt transition-colors"
+                style={{ borderColor: 'var(--line)' }}
+              >
+                <span>📲</span>
+                <span>Notificar estado al cliente por WhatsApp</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-bold px-3 py-2 text-xs transition-colors"
+              >
+                <span>🖨️</span>
+                <span>Imprimir Comprobante de Entrega</span>
+              </button>
+            </div>
           </>
         )}
       </Drawer>
