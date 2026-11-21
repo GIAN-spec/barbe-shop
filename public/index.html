@@ -338,10 +338,16 @@ body.light .btn-dark:hover {
 }
 body.light .btn-primary {
   color: #ffffff;
-  background: linear-gradient(135deg, #b48a1c 0%, #855f08 100%);
+  background: #181512;
+  border: 1px solid #181512;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  transition: all 0.2s ease;
 }
 body.light .btn-primary:hover {
-  filter: brightness(1.1);
+  background: #2b251e;
+  color: #ffffff;
+  filter: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
 }
 body.light .filter-btn {
   background: #ffffff;
@@ -514,6 +520,31 @@ ul { list-style: none; }
   background: var(--bg-card); border-color: var(--line); color: var(--text);
 }
 .btn-dark:hover { background: var(--bg-card-hover); border-color: var(--line-gold); color: #fff; }
+body.light .btn-dark {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.16);
+  color: #181512;
+}
+body.light .btn-dark:hover {
+  background: #f4f1ea;
+  border-color: rgba(0, 0, 0, 0.3);
+  color: #000000;
+}
+.cd-book-addon-btn {
+  justify-content: center;
+  border: 1px solid var(--line-gold);
+  color: var(--gold);
+}
+body.light .cd-book-addon-btn {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.18);
+  color: #181512;
+}
+body.light .cd-book-addon-btn:hover {
+  background: #f4f1ea;
+  border-color: rgba(0, 0, 0, 0.3);
+  color: #000000;
+}
 .btn-sm { min-height: 36px; padding: 0.4rem 0.85rem; font-size: 0.84rem; border-radius: var(--radius-sm); }
 .btn-lg { min-height: 52px; padding: 0.9rem 1.8rem; font-size: 1.05rem; }
 .btn-block { width: 100%; display: flex; }
@@ -3348,8 +3379,10 @@ body.light .sc-back-btn:hover {
   margin-bottom: 1rem;
 }
 body.light .sc-segmented-control {
-  background: #f4f1ea;
-  border-color: rgba(40, 30, 10, 0.12);
+  background: #ebe7df;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0.3rem;
+  border-radius: 12px;
 }
 .sc-segment-btn {
   display: flex;
@@ -3366,20 +3399,32 @@ body.light .sc-segmented-control {
   cursor: pointer;
   transition: all 0.22s ease;
 }
-.sc-segment-btn:hover {
+.sc-segment-btn:hover:not(.active) {
   color: var(--title);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.06);
 }
-body.light .sc-segment-btn:hover {
-  background: rgba(40, 30, 10, 0.05);
+body.light .sc-segment-btn {
+  color: #555248;
+}
+body.light .sc-segment-btn:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.05);
   color: #181510;
 }
-.sc-segment-btn.active {
-  background: var(--gold-gradient);
-  color: #171104;
-  font-weight: 800;
-  box-shadow: 0 4px 12px rgba(232, 185, 65, 0.32);
-  border-color: transparent;
+.sc-segment-btn.active,
+.sc-segment-btn.active:hover {
+  background: #27272a;
+  color: #f4f4f5;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+body.light .sc-segment-btn.active,
+body.light .sc-segment-btn.active:hover {
+  background: #ffffff !important;
+  color: #181510 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 .sc-seg-tag {
   font-size: 0.68rem;
@@ -3398,16 +3443,28 @@ body.light .sc-seg-tag.free {
   color: #15803d;
 }
 .sc-segment-btn.active .sc-seg-tag.free {
-  background: rgba(0, 0, 0, 0.2);
-  color: #000000;
+  background: rgba(34, 197, 94, 0.25);
+  color: #4ade80;
+}
+body.light .sc-segment-btn.active .sc-seg-tag.free {
+  background: #dcfce7 !important;
+  color: #15803d !important;
 }
 .sc-seg-tag.cost {
   background: rgba(232, 185, 65, 0.22);
   color: var(--gold);
 }
+body.light .sc-seg-tag.cost {
+  background: #fef3c7;
+  color: #92400e;
+}
 .sc-segment-btn.active .sc-seg-tag.cost {
-  background: rgba(0, 0, 0, 0.2);
-  color: #000000;
+  background: rgba(232, 185, 65, 0.22);
+  color: #facc15;
+}
+body.light .sc-segment-btn.active .sc-seg-tag.cost {
+  background: #fef3c7 !important;
+  color: #92400e !important;
 }
 
 .sc-card {
@@ -8597,13 +8654,6 @@ function renderConfirmationView(cita) {
           </div>
           <b class="rcp-total-amount">${fmtPrice(cita.total)}</b>
         </div>
-
-        <!-- Código de Barras y Certificación SUNAT -->
-        <div class="rcp-barcode">
-          <div class="barcode-lines"></div>
-          <span class="barcode-text">*B001-${escapeHTML(cita.opNum || '').replace(/\D/g, '').padStart(6, '0')}*</span>
-        </div>
-        <p class="rcp-legend">Representación impresa de la Boleta Electrónica de Servicio.<br>Presenta este comprobante digital o impreso al llegar a tu cita.</p>
       </div>
 
       <!-- Botones Ordenados y Simétricos -->
@@ -9589,13 +9639,6 @@ function renderCartDrawer() {
             <b>${escapeHTML(r.metodoDetalle)}</b>
           </div>
         </div>
-
-        <!-- Código de Barras y Certificación SUNAT -->
-        <div class="rcp-barcode" style="padding: 0.65rem 1rem 0.85rem;">
-          <div class="barcode-lines"></div>
-          <span class="barcode-text">*B001-${escapeHTML(r.codigo || '').replace(/\D/g, '').padStart(6, '0')}*</span>
-        </div>
-        <p class="rcp-legend">Representación impresa de la Boleta Electrónica de Venta.<br>Consulte la validez de este comprobante en nuestro portal oficial.</p>
       </div>
     `;
     setTimeout(() => { if (body) body.scrollTop = 0; }, 50);
@@ -9894,13 +9937,13 @@ function renderCartDrawer() {
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
       <span style="font-size:0.84rem; color:var(--text-dim); font-weight:600; text-transform:uppercase;">Total Pedido</span>
-      <b style="font-family:var(--font-display); font-size:1.95rem; color:var(--gold); line-height:1;">${fmtPrice(total)}</b>
+      <b style="font-family:var(--font-display); font-size:1.95rem; color:var(--title); line-height:1;">${fmtPrice(total)}</b>
     </div>
     <div style="display:flex; flex-direction:column; gap:0.5rem;">
       <button type="button" class="btn btn-primary btn-block" style="justify-content:center;" onclick="setCartDrawerStep('checkout');">
         💳 Continuar al Pago (Solo Productos) →
       </button>
-      <button type="button" class="btn btn-dark btn-block btn-sm" style="justify-content:center; border-color:var(--line-gold); color:var(--gold);" onclick="importCartToBooking();">
+      <button type="button" class="btn btn-dark btn-block btn-sm cd-book-addon-btn" onclick="importCartToBooking();">
         💈 Agendar Cita + Llevar estos Productos →
       </button>
     </div>
