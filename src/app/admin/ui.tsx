@@ -421,25 +421,37 @@ export function Drawer({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-[1px]" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex justify-between sm:justify-end bg-black/65 backdrop-blur-sm transition-all duration-200 cursor-pointer"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      {/* Indicador visible en PC para indicar que es un modal superpuesto */}
+      <div className="hidden lg:flex items-center gap-2 self-start mt-5 ml-6 px-3.5 py-1.5 rounded-full bg-black/70 text-white text-xs font-medium border border-white/20 backdrop-blur-md shadow-lg pointer-events-none select-none">
+        <ModIcon name="X" className="h-3.5 w-3.5" />
+        <span>Clic en el fondo o presiona Esc para volver</span>
+      </div>
+
       <aside
         onClick={e => e.stopPropagation()}
-        className="a-drawer-panel flex h-dvh max-h-dvh w-full max-w-md flex-col border-l shadow-2xl"
+        className="a-drawer-panel flex h-dvh max-h-dvh w-full sm:max-w-md lg:max-w-lg flex-col border-l shadow-2xl relative z-10 cursor-default animate-in slide-in-from-right duration-200"
         style={{ background: 'var(--panel)', borderColor: 'var(--line)' }}
       >
-        <header className="flex items-start justify-between gap-3 border-b px-6 py-4" style={{ borderColor: 'var(--line)' }}>
+        <header className="flex items-center justify-between gap-3 border-b px-6 py-4 shrink-0" style={{ borderColor: 'var(--line)' }}>
           <div className="min-w-0">
             <h3 className="text-base font-bold a-txt truncate">{title}</h3>
-            {sub && <p className="text-xs a-muted mt-0.5">{sub}</p>}
+            {sub && <p className="text-xs a-muted mt-0.5 truncate">{sub}</p>}
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="grid size-8 shrink-0 place-items-center rounded-lg border a-txt-2 hover:bg-[var(--hover)]"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold a-txt-2 hover:bg-[var(--hover)] hover:text-white cursor-pointer transition-colors shadow-sm shrink-0"
             style={{ borderColor: 'var(--line)' }}
-            aria-label="Cerrar panel"
+            aria-label="Cerrar panel y volver"
           >
             <ModIcon name="X" className="h-4 w-4" />
+            <span>Cerrar</span>
           </button>
         </header>
 
@@ -448,7 +460,7 @@ export function Drawer({
         </div>
 
         {footer && (
-          <footer className="border-t px-6 py-4" style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}>
+          <footer className="border-t px-6 py-4 shrink-0" style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}>
             {footer}
           </footer>
         )}

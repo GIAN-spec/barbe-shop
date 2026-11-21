@@ -472,17 +472,55 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                   </button>
                 </>
               )}
-              <div className="flex gap-2">
-                {selectedCita.estado === 'pendiente' && (
+              {selectedCita.estado === 'completada' && (
+                <div className="flex flex-col gap-2">
+                  <div
+                    className="flex items-center justify-between rounded-lg border px-3.5 py-2.5 text-xs font-medium"
+                    style={{ borderColor: 'var(--line)', background: 'var(--panel)' }}
+                  >
+                    <span className="font-semibold text-emerald-500 flex items-center gap-1.5">
+                      <ModIcon name="Check" className="h-4 w-4" />
+                      Atención completada con éxito
+                    </span>
+                    <span className="a-muted font-mono text-[11px]">+1 sello VIP</span>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => actualizarCita(selectedCita.id, { estado: 'confirmada' }, 'Cita confirmada')}
-                    className={`${T.btnGhost} flex-1`}
+                    onClick={() => setSelectedCita(null)}
+                    className={`${T.btnGhost} w-full`}
                   >
-                    Confirmar
+                    Volver a la agenda
                   </button>
-                )}
-                {selectedCita.estado !== 'cancelada' && (
+                </div>
+              )}
+              {selectedCita.estado === 'cancelada' && (
+                <div className="flex flex-col gap-2">
+                  <div
+                    className="rounded-lg border px-3.5 py-2.5 text-xs font-medium text-rose-500"
+                    style={{ borderColor: 'var(--line)', background: 'var(--panel)' }}
+                  >
+                    ❌ Esta cita se encuentra cancelada.
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCita(null)}
+                    className={`${T.btnGhost} w-full`}
+                  >
+                    Volver a la agenda
+                  </button>
+                </div>
+              )}
+              {selectedCita.estado !== 'completada' && selectedCita.estado !== 'cancelada' && (
+                <div className="flex gap-2">
+                  {selectedCita.estado === 'pendiente' && (
+                    <button
+                      type="button"
+                      onClick={() => actualizarCita(selectedCita.id, { estado: 'confirmada' }, 'Cita confirmada')}
+                      className={`${T.btnGhost} flex-1`}
+                    >
+                      Confirmar
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => actualizarCita(selectedCita.id, { estado: 'cancelada' }, 'Cita cancelada')}
@@ -490,8 +528,8 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                   >
                     Cancelar cita
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )
         }

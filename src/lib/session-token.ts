@@ -5,9 +5,13 @@
  */
 import { SignJWT, jwtVerify } from 'jose'
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? 'chino-barber-shop-secret-local-dev-key-2026'
-)
+const rawSecret =
+  process.env.JWT_SECRET ||
+  (process.env.NODE_ENV === 'production' && process.env.TURSO_AUTH_TOKEN
+    ? `cbs-prod-derived-${process.env.TURSO_AUTH_TOKEN.slice(0, 32)}`
+    : 'chino-barber-shop-secret-local-dev-key-2026')
+
+const JWT_SECRET = new TextEncoder().encode(rawSecret)
 
 export const COOKIE_NAME = 'cbs_session'
 /** Cap absoluto del token (tiempo máximo aunque el usuario esté activo) */

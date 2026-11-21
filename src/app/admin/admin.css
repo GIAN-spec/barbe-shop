@@ -366,10 +366,11 @@
 
 /* Monitores PC compactos (1024px - 1366px o zoom 125%): evita que las tablas se corten */
 @media (max-width: 1366px) and (min-width: 721px) {
-  .a-table { font-size: 13px; }
-  .a-table th { padding: 10px 12px; font-size: 11px; }
-  .a-table td { padding: 11px 12px; }
-  .a-search-box { min-width: 160px; }
+  .a-table { font-size: 13px; min-width: 600px; }
+  .a-table th { padding: 9px 12px; font-size: 11px; white-space: nowrap; }
+  .a-table td { padding: 10px 12px; }
+  .a-search-box { min-width: 150px; }
+  .a-drawer-panel { max-width: min(420px, 85vw); }
 }
 
 /* Móvil: las tablas pasan a tarjetas (data-label se asigna automáticamente) */

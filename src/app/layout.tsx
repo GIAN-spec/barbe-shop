@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -34,7 +33,6 @@ export default function RootLayout({
         className="font-sans antialiased bg-background text-foreground"
       >
         {children}
-        <Toaster />
       </body>
     </html>
   );
