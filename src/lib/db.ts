@@ -33,7 +33,7 @@ function createLibsqlClient(): Client {
   })
 }
 
-const SCHEMA_VERSION = 4
+const SCHEMA_VERSION = 5
 const globalForDb = globalThis as unknown as {
   __libsqlClient?: Client
   __libsqlInitPromise?: Promise<void>
@@ -174,6 +174,8 @@ async function initSchema(client: Client) {
 
     CREATE TABLE IF NOT EXISTS pedidos (
       id          TEXT PRIMARY KEY,
+      usuario_id  TEXT,
+      cita_id     TEXT,
       cliente     TEXT NOT NULL,
       telefono    TEXT NOT NULL,
       entrega     TEXT NOT NULL DEFAULT 'recojo',
@@ -225,6 +227,10 @@ async function initSchema(client: Client) {
   await execSafe(client, `ALTER TABLE productos ADD COLUMN marca TEXT NOT NULL DEFAULT 'American Crew · Reserve'`)
   await execSafe(client, `ALTER TABLE productos ADD COLUMN presentacion TEXT NOT NULL DEFAULT '85 g'`)
   await execSafe(client, `ALTER TABLE productos ADD COLUMN desc TEXT NOT NULL DEFAULT ''`)
+  await execSafe(client, `ALTER TABLE pedidos ADD COLUMN usuario_id TEXT`)
+  await execSafe(client, `ALTER TABLE pedidos ADD COLUMN cita_id TEXT`)
+  await execSafe(client, `CREATE INDEX IF NOT EXISTS idx_pedidos_usuario ON pedidos(usuario_id)`)
+  await execSafe(client, `CREATE INDEX IF NOT EXISTS idx_pedidos_tel ON pedidos(telefono)`)
 }
 
 async function seedDemoData(client: Client) {

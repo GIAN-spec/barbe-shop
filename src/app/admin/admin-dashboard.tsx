@@ -132,7 +132,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div data-theme={theme} className="admin-root flex min-h-screen">
+    <div data-theme={theme} className="admin-root flex min-h-screen w-full max-w-[100vw] overflow-x-hidden">
       {/* BACKDROP MÓVIL */}
       {mobileMenuOpen && (
         <div
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
 
       {/* SIDEBAR COLAPSABLE */}
       <aside
-        className={`a-sidebar fixed inset-y-0 left-0 z-50 flex flex-col transition-all duration-200 lg:sticky lg:top-0 lg:h-screen ${
+        className={`a-sidebar fixed inset-y-0 left-0 z-40 flex flex-col transition-all duration-200 lg:sticky lg:top-0 lg:z-20 lg:h-screen shrink-0 ${
           collapsed ? 'w-[68px]' : 'w-60'
         } ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
@@ -265,7 +265,7 @@ export default function AdminDashboard() {
         </header>
 
         {/* ÁREA DE TRABAJO CON ESPACIO EN BLANCO GENEROSO */}
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-8 sm:py-8">
+        <main className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8 sm:py-7 overflow-x-hidden">
           {tab === 'resumen'   && <TabDashboard onGoTab={t => setTab(t as TabKey)} roleMode={roleMode} />}
           {tab === 'agenda'    && <TabAgenda roleMode={roleMode} />}
           {tab === 'pedidos'   && <TabPedidos />}

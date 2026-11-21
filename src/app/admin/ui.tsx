@@ -424,7 +424,7 @@ export function Drawer({
     <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-[1px]" onClick={onClose}>
       <aside
         onClick={e => e.stopPropagation()}
-        className="a-drawer-panel flex h-full w-full max-w-md flex-col border-l"
+        className="a-drawer-panel flex h-dvh max-h-dvh w-full max-w-md flex-col border-l shadow-2xl"
         style={{ background: 'var(--panel)', borderColor: 'var(--line)' }}
       >
         <header className="flex items-start justify-between gap-3 border-b px-6 py-4" style={{ borderColor: 'var(--line)' }}>

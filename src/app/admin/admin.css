@@ -364,6 +364,14 @@
 .a-table tbody tr:last-child td { border-bottom: none; }
 .a-table tbody tr:hover td { background: var(--panel-2); }
 
+/* Monitores PC compactos (1024px - 1366px o zoom 125%): evita que las tablas se corten */
+@media (max-width: 1366px) and (min-width: 721px) {
+  .a-table { font-size: 13px; }
+  .a-table th { padding: 10px 12px; font-size: 11px; }
+  .a-table td { padding: 11px 12px; }
+  .a-search-box { min-width: 160px; }
+}
+
 /* Móvil: las tablas pasan a tarjetas (data-label se asigna automáticamente) */
 @media (max-width: 720px) {
   .a-table thead { display: none; }

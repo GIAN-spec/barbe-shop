@@ -5002,6 +5002,135 @@ body.light .main-nav a[aria-current="page"]::after {
   }
 }
 
+/* ==========================================================================
+   PESTAÑAS MIS CITAS / MIS PEDIDOS & TARJETAS DE HISTORIAL DE COMPRAS
+   ========================================================================== */
+.mc-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--line-strong);
+  margin: 0 auto 2rem;
+  box-shadow: var(--shadow-sm);
+}
+.mc-tabs-wrap {
+  display: flex;
+  justify-content: center;
+}
+.mc-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.35rem;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.mc-tab-btn:hover {
+  color: var(--title);
+}
+.mc-tab-btn.active {
+  background: var(--gold-gradient);
+  color: #171104;
+  box-shadow: 0 6px 18px -6px rgba(232, 185, 65, 0.6);
+}
+.mc-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 99px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.12);
+}
+body.light .mc-tab-badge {
+  background: rgba(0, 0, 0, 0.08);
+}
+.mc-tab-btn.active .mc-tab-badge {
+  background: rgba(23, 17, 4, 0.18);
+  color: #171104;
+}
+.order-items-box {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  margin-top: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+body.light .order-items-box {
+  background: #faf7f0;
+  border-color: rgba(40, 30, 10, 0.12);
+}
+.order-item-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.84rem;
+}
+.order-item-row img {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 2px;
+  object-fit: contain !important;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.order-linked-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  background: rgba(232, 185, 65, 0.14);
+  color: var(--gold);
+  border: 1px solid var(--line-gold);
+  margin-bottom: 0.45rem;
+}
+body.light .order-linked-tag {
+  color: #8a5e00;
+  background: rgba(200, 148, 22, 0.14);
+}
+.status-pill.entregado {
+  background: rgba(139, 92, 246, 0.16);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+}
+body.light .status-pill.entregado {
+  background: #f3e8ff;
+  color: #6d28d9;
+  border-color: #d8b4fe;
+}
+.status-pill.cancelado {
+  background: rgba(239, 68, 68, 0.14);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+body.light .status-pill.cancelado {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+@media (max-width: 520px) {
+  .mc-tabs { width: 100%; }
+  .mc-tab-btn { flex: 1; justify-content: center; padding: 0.6rem 0.75rem; font-size: 0.85rem; }
+}
+
 </style>
 </head>
 <body>
@@ -5081,9 +5210,13 @@ body.light .main-nav a[aria-current="page"]::after {
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg>
         Mi Perfil
       </button>
-      <button class="ud-link" onclick="go('miscitas');closeUserDropdown();">
+      <button class="ud-link" onclick="go('miscitas');switchMisCitasTab('citas');closeUserDropdown();">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         Mis citas agendadas
+      </button>
+      <button class="ud-link" onclick="go('miscitas');switchMisCitasTab('pedidos');closeUserDropdown();">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Mis pedidos de tienda
       </button>
       <a class="ud-link" id="udAdminLink" href="/admin" target="_top" rel="noopener" style="display:none;">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="10" width="7" height="11" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
@@ -5515,17 +5648,29 @@ body.light .main-nav a[aria-current="page"]::after {
     </div>
   </section>
 
-  <!-- ==================== VISTA: MIS CITAS ==================== -->
+  <!-- ==================== VISTA: MIS CITAS Y PEDIDOS ==================== -->
   <section class="view" id="view-miscitas">
     <div class="section container">
       <div class="section-head">
-        <div class="eyebrow">HISTORIAL Y RESERVAS</div>
-        <h2 class="section-title">Mis Citas <span>Agendadas</span></h2>
+        <div class="eyebrow">HISTORIAL EN TIEMPO REAL</div>
+        <h2 class="section-title">Mis Citas &amp; <span>Pedidos</span></h2>
         <div class="barber-pole-line"></div>
-        <p class="section-sub">Gestiona tus reservas, consulta el estado de pago o cancela una cita si no puedes asistir.</p>
+        <p class="section-sub">Consulta tus reservas, tus compras de productos y su estado actualizado al instante.</p>
+      </div>
+
+      <div class="mc-tabs-wrap">
+        <div class="mc-tabs" role="tablist" aria-label="Historial del cliente">
+          <button type="button" class="mc-tab-btn active" id="mcTabCitas" role="tab" aria-selected="true" onclick="switchMisCitasTab('citas');">
+            📅 Mis Citas <span class="mc-tab-badge" id="mcCountCitas">0</span>
+          </button>
+          <button type="button" class="mc-tab-btn" id="mcTabPedidos" role="tab" aria-selected="false" onclick="switchMisCitasTab('pedidos');">
+            🛍️ Mis Pedidos <span class="mc-tab-badge" id="mcCountPedidos">0</span>
+          </button>
+        </div>
       </div>
 
       <div id="miscitasContent"></div>
+      <div id="mispedidosContent" style="display:none;"></div>
     </div>
   </section>
 
@@ -6818,6 +6963,7 @@ function go(viewName, opts = {}) {
   }
   if (viewName === 'miscitas') {
     renderAppointmentsView();
+    renderOrdersView();
   }
   if (viewName === 'tienda') {
     renderAllProductsPage();
@@ -7904,7 +8050,17 @@ async function processReservationFinal() {
     metodoPago: r.method,
     refPago:    r.ref || null,
     notas:      combinedNotas,
+    addonItems: addonList.length ? addonList.map(i => ({ id: i.id, nombre: i.nombre, qty: i.qty, precio: i.precio, foto: i.foto, marca: i.marca })) : [],
   });
+  if (res && res.pedidoId && !state.currentUser) {
+    try {
+      const gOrders = JSON.parse(localStorage.getItem('cbs_guest_order_ids') || '[]');
+      if (!gOrders.includes(res.pedidoId)) {
+        gOrders.unshift(res.pedidoId);
+        localStorage.setItem('cbs_guest_order_ids', JSON.stringify(gOrders.slice(0, 30)));
+      }
+    } catch {}
+  }
 
   nextBtn.disabled = false;
   nextBtn.textContent = 'Confirmar Reserva';
@@ -8411,6 +8567,8 @@ async function renderAppointmentsView(opts = {}) {
 
     _lastApptsSignature = newSig;
     state.appointments = userAppts;
+    const cntCitas = $('#mcCountCitas');
+    if (cntCitas) cntCitas.textContent = String(userAppts.length);
   } finally {
     _apptsFetching = false;
   }
@@ -9625,6 +9783,14 @@ function processCartCheckout() {
     const prevOrders = JSON.parse(localStorage.getItem('cbs_shop_orders') || '[]');
     prevOrders.unshift(lastShopReceipt);
     localStorage.setItem('cbs_shop_orders', JSON.stringify(prevOrders.slice(0, 30)));
+    if (!state.currentUser) {
+      const gOrders = JSON.parse(localStorage.getItem('cbs_guest_order_ids') || '[]');
+      if (!gOrders.includes(codigo)) {
+        gOrders.unshift(codigo);
+        localStorage.setItem('cbs_guest_order_ids', JSON.stringify(gOrders.slice(0, 30)));
+      }
+      if (cel) localStorage.setItem('cbs_guest_phone', cel);
+    }
   } catch {}
 
   // ENVIAR DIRECTAMENTE A LA BASE DE DATOS PARA QUE APAREZCA AL INSTANTE EN EL PANEL ADMIN
@@ -9915,6 +10081,273 @@ function toggleAddonProduct(prodId) {
 }
 
 /* =========================================================
+   HISTORIAL DE COMPRAS / MIS PEDIDOS (TIEMPO REAL + BOLETA)
+   ========================================================= */
+let activeMisCitasTab = 'citas';
+let _lastOrdersSignature = '';
+let _ordersFetching = false;
+state.orders = [];
+
+function switchMisCitasTab(tab) {
+  activeMisCitasTab = tab === 'pedidos' ? 'pedidos' : 'citas';
+  const isCitas = activeMisCitasTab === 'citas';
+  const btnC = $('#mcTabCitas');
+  const btnP = $('#mcTabPedidos');
+  const boxC = $('#miscitasContent');
+  const boxP = $('#mispedidosContent');
+  if (btnC) { btnC.classList.toggle('active', isCitas); btnC.setAttribute('aria-selected', String(isCitas)); }
+  if (btnP) { btnP.classList.toggle('active', !isCitas); btnP.setAttribute('aria-selected', String(!isCitas)); }
+  if (boxC) boxC.style.display = isCitas ? 'block' : 'none';
+  if (boxP) boxP.style.display = isCitas ? 'none' : 'block';
+  if (!isCitas) renderOrdersView();
+}
+
+function formatOrderTimestamp(raw) {
+  if (!raw) return 'Reciente';
+  try {
+    const iso = raw.includes('T') ? raw : raw.replace(' ', 'T') + 'Z';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return raw;
+    const fecha = d.toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
+    const hora = d.toLocaleTimeString('es-PE', { hour: 'numeric', minute: '2-digit', hour12: true }).toUpperCase();
+    return `${fecha} · ${hora}`;
+  } catch {
+    return raw;
+  }
+}
+
+async function searchGuestOrders() {
+  const inp = $('#guestOrderSearchCel');
+  const cel = inp ? inp.value.replace(/\D/g, '').slice(-9) : '';
+  if (!/^9\d{8}$/.test(cel)) {
+    showToast('Ingresa un celular válido de 9 dígitos (ej. 987654321).', 'err');
+    return;
+  }
+  localStorage.setItem('cbs_guest_phone', cel);
+  await renderOrdersView();
+  await renderAppointmentsView({ silent: true });
+}
+
+async function renderOrdersView(opts = {}) {
+  const silent = Boolean(opts && opts.silent);
+  const container = $('#mispedidosContent');
+  if (!container) return;
+  if (silent && _ordersFetching) return;
+  _ordersFetching = true;
+
+  const prevStatusMap = new Map((state.orders || []).map(o => [o.id, o.estado]));
+
+  if (!silent) {
+    _lastOrdersSignature = '';
+    container.innerHTML = `
+      <div style="padding:2.5rem 0; text-align:center;">
+        <div class="skeleton-box" style="height:80px; max-width:680px; margin:0 auto 1.2rem;"></div>
+      </div>
+    `;
+  }
+
+  let pedidos = [];
+  const guestPhone = localStorage.getItem('cbs_guest_phone') || '';
+
+  try {
+    if (state.currentUser) {
+      const res = await API.get('/api/pedidos');
+      if (!res.error) pedidos = res.pedidos || [];
+    } else {
+      let guestOrderIds = [];
+      try { guestOrderIds = JSON.parse(localStorage.getItem('cbs_guest_order_ids') || '[]'); } catch {}
+      if (guestOrderIds.length > 0) {
+        const res = await API.get(`/api/pedidos?ids=${encodeURIComponent(guestOrderIds.join(','))}`);
+        if (!res.error) pedidos = res.pedidos || [];
+      } else if (guestPhone) {
+        const res = await API.get(`/api/pedidos?telefono=${encodeURIComponent(guestPhone)}`);
+        if (!res.error) pedidos = res.pedidos || [];
+      }
+    }
+
+    const newSig = JSON.stringify(pedidos.map(p => [p.id, p.estado, p.total, p.ref_pago]));
+    const cntPed = $('#mcCountPedidos');
+    if (cntPed) cntPed.textContent = String(pedidos.length);
+
+    if (silent && newSig === _lastOrdersSignature) {
+      return;
+    }
+
+    if (silent && prevStatusMap.size > 0) {
+      for (const p of pedidos) {
+        const prev = prevStatusMap.get(p.id);
+        if (prev && prev !== p.estado) {
+          if (p.estado === 'pagado') {
+            showToast(`💳 ¡Pago confirmado para tu pedido ${p.id}!`, 'ok');
+          } else if (p.estado === 'entregado') {
+            showToast(`📦 ¡Tu pedido ${p.id} fue marcado como entregado!`, 'ok');
+          } else if (p.estado === 'cancelado') {
+            showToast(`⚠️ Tu pedido ${p.id} fue cancelado.`, 'err');
+          }
+        }
+      }
+    }
+
+    _lastOrdersSignature = newSig;
+    state.orders = pedidos;
+  } finally {
+    _ordersFetching = false;
+  }
+
+  if (!state.currentUser && !pedidos.length) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:3.5rem 1.5rem; background:var(--bg-surface); border:1px solid var(--line); border-radius:var(--radius-lg); max-width:600px; margin:0 auto;">
+        <div style="width:70px; height:70px; border-radius:50%; background:var(--bg-card); border:1px solid var(--line-gold); color:var(--gold); display:grid; place-items:center; margin:0 auto 1.2rem;">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <h3 style="font-family:var(--font-serif); font-size:1.5rem; color:var(--title); margin-bottom:0.4rem;">Consulta Tus Compras</h3>
+        <p style="color:var(--text-dim); margin-bottom:1.5rem; font-size:0.92rem;">Ingresa tu celular o inicia sesión para ver los productos que has pedido.</p>
+        <div style="display:flex; gap:0.5rem; max-width:380px; margin:0 auto 1.2rem;">
+          <input type="tel" id="guestOrderSearchCel" class="form-input" placeholder="Tu celular (ej. 987654321)" maxlength="9" value="${escapeHTML(guestPhone)}" />
+          <button class="btn btn-primary" onclick="searchGuestOrders();">Buscar</button>
+        </div>
+        <div style="display:flex; gap:0.8rem; justify-content:center; align-items:center; margin-top:1.2rem; border-top:1px solid var(--line); padding-top:1.2rem;">
+          <button class="btn btn-gold-outline btn-sm" onclick="openAuthModal('login');">Iniciar Sesión</button>
+          <button class="btn btn-dark btn-sm" onclick="go('tienda');">Ir a la Tienda</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (!pedidos.length) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:4rem 1rem; background:var(--bg-surface); border:1px solid var(--line); border-radius:var(--radius-lg); max-width:600px; margin:0 auto;">
+        <div style="width:70px; height:70px; border-radius:50%; background:var(--bg-card); border:1px solid var(--line-gold); color:var(--gold); display:grid; place-items:center; margin:0 auto 1.2rem;">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <h3 style="font-family:var(--font-serif); font-size:1.5rem; color:var(--title); margin-bottom:0.4rem;">Aún No Tienes Pedidos</h3>
+        <p style="color:var(--text-dim); margin-bottom:1.5rem;">Explora nuestras ceras, pomadas, aceites de barba y packs exclusivos.</p>
+        <button class="btn btn-primary" onclick="go('tienda');">Explorar Tienda</button>
+      </div>
+    `;
+    return;
+  }
+
+  const nombresEstado = { pendiente: 'Pendiente', pagado: 'Pagado', entregado: 'Entregado', cancelado: 'Cancelado' };
+  const avisosEstado = {
+    pendiente: 'Pedido registrado. En espera de verificación o pago al recoger.',
+    pagado: 'Pago verificado. Tu pedido está listo para entrega o envío.',
+    entregado: 'Pedido entregado con éxito. ¡Gracias por tu compra!',
+    cancelado: 'Este pedido fue cancelado.',
+  };
+
+  container.innerHTML = `
+    <div class="citas-grid">
+      ${pedidos.map(p => {
+        let items = [];
+        try { items = JSON.parse(p.items_json || '[]'); } catch {}
+        const totalUnid = items.reduce((acc, it) => acc + (Number(it.qty) || 1), 0);
+        const stClass = p.estado === 'pagado' ? 'pagado' : p.estado === 'entregado' ? 'entregado' : p.estado === 'cancelado' ? 'cancelado' : 'pendiente';
+        return `
+          <div class="cita-card estado-${stClass}">
+            <div class="cita-card-top">
+              <div>
+                <div style="font-size:0.72rem; font-weight:700; letter-spacing:0.08em; color:var(--text-mut); text-transform:uppercase;">Orden de Tienda</div>
+                <b style="font-family:var(--font-serif); font-size:1.05rem; color:var(--title);">${escapeHTML(p.id)}</b>
+              </div>
+              <div class="cita-top-meta">
+                <span class="status-pill ${stClass}">${nombresEstado[p.estado] ?? p.estado}</span>
+                <b class="cita-price-badge">${fmtPrice(Number(p.total) || 0)}</b>
+              </div>
+            </div>
+
+            <div class="cita-card-body">
+              ${p.cita_id ? `<div class="order-linked-tag">🔗 Incluido con tu cita (entrega en local)</div>` : ''}
+              <div class="cita-chips-row">
+                <span class="cita-chip">🕒 ${escapeHTML(formatOrderTimestamp(p.created_at))}</span>
+                <span class="cita-chip">${p.entrega === 'delivery' ? '🛵 Delivery' : '🏪 Recojo en Local'}</span>
+                <span class="cita-chip">💳 ${escapeHTML((p.metodo_pago || 'efectivo').toUpperCase())}</span>
+              </div>
+
+              ${p.direccion ? `<p class="cita-notes-text">📍 ${escapeHTML(p.direccion)}</p>` : ''}
+
+              <div class="order-items-box">
+                <div style="font-size:0.74rem; font-weight:700; color:var(--text-mut); text-transform:uppercase; letter-spacing:0.05em;">
+                  Productos (${totalUnid} ${totalUnid === 1 ? 'unidad' : 'unidades'})
+                </div>
+                ${items.map(it => {
+                  const prodCatalog = PRODUCTOS.find(x => x.id === it.id || x.nombre === it.name);
+                  const imgUrl = it.img || (prodCatalog ? prodCatalog.foto : '/productos/prod-01.jpg');
+                  const qty = Number(it.qty) || 1;
+                  const price = Number(it.price) || 0;
+                  return `
+                    <div class="order-item-row">
+                      <img src="${escapeHTML(imgUrl)}" alt="${escapeHTML(it.name || 'Producto')}" loading="lazy" />
+                      <div style="flex:1; min-width:0;">
+                        <div style="font-weight:600; color:var(--title); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${qty}× ${escapeHTML(it.name || 'Producto')}</div>
+                        <div style="font-size:0.74rem; color:var(--text-mut);">${fmtPrice(price)} c/u</div>
+                      </div>
+                      <b style="color:var(--gold); white-space:nowrap;">${fmtPrice(price * qty)}</b>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+
+              ${avisosEstado[p.estado] ? `<p class="cita-advice-text" style="margin-top:0.6rem;">${avisosEstado[p.estado]}</p>` : ''}
+            </div>
+
+            <div class="cita-actions">
+              <button type="button" class="btn btn-gold-outline btn-sm" onclick="openOrderReceipt('${escapeHTML(p.id)}');">
+                🧾 Ver / Imprimir Boleta
+              </button>
+              <button type="button" class="btn btn-dark btn-sm cita-btn-ws" onclick="clientOrderWhatsApp('${escapeHTML(p.id)}');">
+                💬 WhatsApp
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function openOrderReceipt(orderId) {
+  const p = (state.orders || []).find(x => x.id === orderId);
+  if (!p) return;
+  let items = [];
+  try { items = JSON.parse(p.items_json || '[]'); } catch {}
+  lastShopReceipt = {
+    codigo: p.id,
+    fecha: formatOrderTimestamp(p.created_at),
+    cliente: p.cliente,
+    celular: p.telefono,
+    entregaModo: p.entrega || 'recojo',
+    destino: p.direccion || (p.entrega === 'delivery' ? 'Dirección registrada' : 'Av. Universitaria 1234, Lima'),
+    items: items.map(it => {
+      const prodCatalog = PRODUCTOS.find(x => x.id === it.id || x.nombre === it.name);
+      return {
+        id: it.id,
+        nombre: it.name || 'Producto',
+        marca: it.marca || (prodCatalog ? prodCatalog.marca : 'Chino Barber Shop'),
+        foto: it.img || (prodCatalog ? prodCatalog.foto : '/productos/prod-01.jpg'),
+        qty: Number(it.qty) || 1,
+        precio: Number(it.price) || 0,
+      };
+    }),
+    subtotal: Number(p.subtotal) || Number(p.total) || 0,
+    shipping: Number(p.envio) || 0,
+    total: Number(p.total) || 0,
+    metodoDetalle: (p.metodo_pago || 'efectivo').toUpperCase() + (p.ref_pago ? ` · Op. #${p.ref_pago}` : ''),
+    estadoPago: p.estado === 'pagado' ? 'PAGADO · VERIFICADO' : p.estado === 'entregado' ? 'ENTREGADO' : 'PENDIENTE',
+  };
+  cartDrawerMode = 'receipt';
+  toggleCartDrawer(true);
+}
+
+function clientOrderWhatsApp(orderId) {
+  const p = (state.orders || []).find(x => x.id === orderId);
+  if (!p) return;
+  const msg = `Hola 💈 Chino Barber! Quiero consultar sobre mi pedido ${p.id} (Total: ${fmtPrice(Number(p.total) || 0)} · Estado: ${p.estado}).`;
+  window.open(`https://wa.me/51${WHATSAPP_BARBERIA}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+}
+
+/* =========================================================
    INICIALIZACIÓN
    ========================================================= */
 
@@ -9949,17 +10382,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateHeaderAuth();
   updateQuickRebookBanner();
 
-  /* Sincronización en Tiempo Real: escuchar cambios del admin y actualizar Mis Citas sin recargar */
+  /* Sincronización en Tiempo Real: escuchar cambios del admin y actualizar Mis Citas y Mis Pedidos sin recargar */
   const refreshMisCitasSilent = () => {
     if (state.view !== 'miscitas') return;
-    const hasGuest = Boolean(localStorage.getItem('cbs_guest_phone') || (localStorage.getItem('cbs_guest_cita_ids') && localStorage.getItem('cbs_guest_cita_ids') !== '[]'));
+    const hasGuest = Boolean(
+      localStorage.getItem('cbs_guest_phone') ||
+      (localStorage.getItem('cbs_guest_cita_ids') && localStorage.getItem('cbs_guest_cita_ids') !== '[]') ||
+      (localStorage.getItem('cbs_guest_order_ids') && localStorage.getItem('cbs_guest_order_ids') !== '[]')
+    );
     if (state.currentUser || hasGuest) {
       renderAppointmentsView({ silent: true });
+      renderOrdersView({ silent: true });
     }
   };
 
   CBS_SYNC.subscribe((event, payload) => {
-    if (['cita_updated', 'cita_created', 'pago_updated', 'pedido_updated'].includes(event)) {
+    if (['cita_updated', 'cita_created', 'pago_updated', 'pedido_updated', 'pedido_created'].includes(event)) {
       refreshMisCitasSilent();
     }
   });

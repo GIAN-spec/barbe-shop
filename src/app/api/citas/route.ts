@@ -67,7 +67,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { nombre, celular, servicio, barbero, fecha, hora, metodoPago, refPago, notas } = body
+    const { nombre, celular, servicio, barbero, fecha, hora, metodoPago, refPago, notas, addonItems } = body
 
     // Validaciones básicas
     if (!nombre || !celular || !servicio || !barbero || !fecha || !hora || !metodoPago) {
@@ -133,13 +133,56 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Este horario ya fue reservado. Elige otro.' }, { status: 409 })
     }
 
+    // Si la cita incluye productos sumados, registrar también en `pedidos` (vinculado por cita_id) y descontar stock
+    let linkedPedidoId: string | null = null
+    if (Array.isArray(addonItems) && addonItems.length > 0) {
+      const cleanItems = addonItems
+        .filter((it: Record<string, unknown>) => it && (it.nombre || it.name))
+        .map((it: Record<string, unknown>) => ({
+          id: it.id || null,
+          name: String(it.nombre || it.name),
+          qty: Math.max(1, Math.floor(Number(it.qty) || 1)),
+          price: Number(it.precio || it.price) || 0,
+          img: it.foto || it.img || null,
+          marca: it.marca || null,
+        }))
+
+      if (cleanItems.length > 0) {
+        const sub = cleanItems.reduce((acc, it) => acc + it.price * it.qty, 0)
+        linkedPedidoId = `ORD-${Math.floor(100000 + Math.random() * 900000)}`
+        const tel = String(celular).replace(/\D/g, '').slice(-9)
+        for (const it of cleanItems) {
+          if (it.id) {
+            await db.run('UPDATE productos SET stock = MAX(0, stock - ?) WHERE id = ?', it.qty, it.id)
+          }
+        }
+        await db.run(`
+          INSERT INTO pedidos (id, usuario_id, cita_id, cliente, telefono, entrega, direccion, items_json, subtotal, envio, total, metodo_pago, ref_pago, estado)
+          VALUES (?, ?, ?, ?, ?, 'recojo', ?, ?, ?, 0, ?, ?, ?, 'pendiente')
+        `,
+          linkedPedidoId,
+          usuarioId,
+          result,
+          String(nombre).trim(),
+          tel,
+          `Entrega en local junto a tu cita (${fecha} · ${hora})`,
+          JSON.stringify(cleanItems),
+          sub,
+          sub,
+          String(metodoPago || 'efectivo'),
+          refPago ?? '',
+        )
+      }
+    }
+
     const rawCita = await db.get<Record<string, unknown>>('SELECT * FROM citas WHERE id = ?', result)
     const cita = rawCita ? {
       ...rawCita,
       date: rawCita.fecha,
       time: rawCita.hora,
+      pedido_id: linkedPedidoId,
     } : null
-    return NextResponse.json({ ok: true, cita }, { status: 201 })
+    return NextResponse.json({ ok: true, cita, pedidoId: linkedPedidoId }, { status: 201 })
 
   } catch (err) {
     console.error('[citas POST]', err)
