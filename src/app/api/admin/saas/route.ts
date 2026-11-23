@@ -13,6 +13,15 @@ import { requireAdmin } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
+class StockConflictError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'StockConflictError'
+  }
+}
+
+type OrderLineInput = { id?: string; name?: string; nombre?: string; qty?: number; price?: number; precio?: number }
+
 export async function GET(request: Request) {
   const auth = await requireAdmin()
   if (auth.denied) {
@@ -220,23 +229,73 @@ export async function POST(request: Request) {
     const id = customId || `ORD-${String(Date.now()).slice(-6)}`
     const exists = await db.get('SELECT id FROM pedidos WHERE id = ?', id)
     if (!exists) {
-      await db.run(`
-        INSERT INTO pedidos (id, cliente, telefono, entrega, direccion, items_json, subtotal, envio, total, metodo_pago, ref_pago, estado)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `,
-        id,
-        String(cliente ?? 'Cliente Tienda').trim(),
-        String(telefono ?? '999999999').trim(),
-        String(entrega ?? 'recojo'),
-        String(direccion ?? ''),
-        JSON.stringify(items ?? []),
-        Number(subtotal) || Number(total) || 0,
-        Number(envio) || 0,
-        Number(total) || 0,
-        String(metodo_pago ?? 'yape'),
-        String(ref_pago ?? ''),
-        String(estado ?? 'pendiente'),
-      )
+      const rawItems = Array.isArray(items) ? (items as OrderLineInput[]) : []
+      try {
+        await db.transaction(async (tx) => {
+          const normalizedItems: Array<{ id: string | null; name: string; qty: number; price: number }> = []
+          for (const it of rawItems) {
+            const qty = Math.max(1, Math.floor(Number(it.qty) || 1))
+            const rawId = it.id ? String(it.id).trim() : ''
+            const rawName = String(it.name || it.nombre || '').trim()
+            const dbProd = rawId
+              ? await tx.get<{ id: string; nombre: string; precio: number; stock: number }>(
+                  'SELECT id, nombre, precio, stock FROM productos WHERE id = ?',
+                  rawId
+                )
+              : rawName
+                ? await tx.get<{ id: string; nombre: string; precio: number; stock: number }>(
+                    'SELECT id, nombre, precio, stock FROM productos WHERE LOWER(nombre) = LOWER(?)',
+                    rawName
+                  )
+                : undefined
+
+            if (dbProd) {
+              if (Number(dbProd.stock) < qty) {
+                throw new StockConflictError(
+                  `Stock insuficiente para "${dbProd.nombre}" (disponible: ${dbProd.stock} unid.).`
+                )
+              }
+              await tx.run('UPDATE productos SET stock = MAX(0, stock - ?) WHERE id = ?', qty, dbProd.id)
+              normalizedItems.push({
+                id: dbProd.id,
+                name: dbProd.nombre,
+                qty,
+                price: Number(it.price ?? it.precio ?? dbProd.precio) || 0,
+              })
+            } else {
+              normalizedItems.push({
+                id: rawId || null,
+                name: rawName || 'Producto',
+                qty,
+                price: Number(it.price ?? it.precio) || 0,
+              })
+            }
+          }
+
+          await tx.run(`
+            INSERT INTO pedidos (id, cliente, telefono, entrega, direccion, items_json, subtotal, envio, total, metodo_pago, ref_pago, estado)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `,
+            id,
+            String(cliente ?? 'Cliente Tienda').trim(),
+            String(telefono ?? '999999999').trim(),
+            String(entrega ?? 'recojo'),
+            String(direccion ?? ''),
+            JSON.stringify(normalizedItems),
+            Number(subtotal) || Number(total) || 0,
+            Number(envio) || 0,
+            Number(total) || 0,
+            String(metodo_pago ?? 'yape'),
+            String(ref_pago ?? ''),
+            String(estado ?? 'pendiente'),
+          )
+        })
+      } catch (err) {
+        if (err instanceof StockConflictError) {
+          return NextResponse.json({ error: err.message }, { status: 409 })
+        }
+        throw err
+      }
     }
     const pedido = await db.get('SELECT * FROM pedidos WHERE id = ?', id)
     return NextResponse.json({ ok: true, pedido })
@@ -349,14 +408,77 @@ export async function PATCH(request: Request) {
 
   if (mod === 'pedido') {
     const { estado, ref_pago } = body
-    if (estado !== undefined) {
-      await db.run('UPDATE pedidos SET estado = ? WHERE id = ?', String(estado), id)
+    const existing = await db.get<{ id: string; estado: string; items_json: string }>(
+      'SELECT id, estado, items_json FROM pedidos WHERE id = ?',
+      id
+    )
+    if (!existing) {
+      return NextResponse.json({ error: 'Pedido no encontrado.' }, { status: 404 })
     }
-    if (ref_pago !== undefined) {
-      await db.run('UPDATE pedidos SET ref_pago = ? WHERE id = ?', String(ref_pago), id)
+
+    let parsedItems: OrderLineInput[] = []
+    try {
+      const arr = JSON.parse(existing.items_json || '[]')
+      if (Array.isArray(arr)) parsedItems = arr
+    } catch {}
+
+    let stockAjustado: 'restored' | 'deducted' | null = null
+    const nextEstado = estado !== undefined ? String(estado) : existing.estado
+
+    try {
+      await db.transaction(async (tx) => {
+        const shouldRestore = existing.estado !== 'cancelado' && nextEstado === 'cancelado'
+        const shouldDeduct = existing.estado === 'cancelado' && nextEstado !== 'cancelado'
+
+        if (shouldRestore || shouldDeduct) {
+          for (const it of parsedItems) {
+            const qty = Math.max(1, Math.floor(Number(it.qty) || 1))
+            const rawId = it.id ? String(it.id).trim() : ''
+            const rawName = String(it.name || it.nombre || '').trim()
+            const dbProd = rawId
+              ? await tx.get<{ id: string; nombre: string; stock: number }>(
+                  'SELECT id, nombre, stock FROM productos WHERE id = ?',
+                  rawId
+                )
+              : rawName
+                ? await tx.get<{ id: string; nombre: string; stock: number }>(
+                    'SELECT id, nombre, stock FROM productos WHERE LOWER(nombre) = LOWER(?)',
+                    rawName
+                  )
+                : undefined
+
+            if (!dbProd) continue
+
+            if (shouldRestore) {
+              await tx.run('UPDATE productos SET stock = stock + ? WHERE id = ?', qty, dbProd.id)
+            } else {
+              if (Number(dbProd.stock) < qty) {
+                throw new StockConflictError(
+                  `Stock insuficiente para reactivar "${dbProd.nombre}" (disponible: ${dbProd.stock} unid.).`
+                )
+              }
+              await tx.run('UPDATE productos SET stock = MAX(0, stock - ?) WHERE id = ?', qty, dbProd.id)
+            }
+          }
+          stockAjustado = shouldRestore ? 'restored' : 'deducted'
+        }
+
+        if (estado !== undefined) {
+          await tx.run('UPDATE pedidos SET estado = ? WHERE id = ?', nextEstado, id)
+        }
+        if (ref_pago !== undefined) {
+          await tx.run('UPDATE pedidos SET ref_pago = ? WHERE id = ?', String(ref_pago), id)
+        }
+      })
+    } catch (err) {
+      if (err instanceof StockConflictError) {
+        return NextResponse.json({ error: err.message }, { status: 409 })
+      }
+      throw err
     }
+
     const updated = await db.get('SELECT * FROM pedidos WHERE id = ?', id)
-    return NextResponse.json({ ok: true, pedido: updated })
+    return NextResponse.json({ ok: true, pedido: updated, stockAjustado })
   }
 
   if (mod === 'galeria') {

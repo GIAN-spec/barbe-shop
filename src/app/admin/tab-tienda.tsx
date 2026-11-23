@@ -1,10 +1,10 @@
 'use client'
 
 /**
- * MÓDULO 3: PEDIDOS DE TIENDA (SaaS)
- * - Tabla de máximo 5 columnas: Orden · Cliente · Entrega · Total · Estado
- * - Sincroniza órdenes desde localStorage ('cbs_shop_orders') hacia SQLite
- * - Drawer lateral para ver productos del pedido, dirección delivery y verificar/entregar
+ * MÓDULO 3: PEDIDOS DE TIENDA
+ * - Tabla limpia: Orden · Cliente · Entrega · Total · Estado
+ * - Control automático de inventario al crear ventas manuales o cancelar pedidos
+ * - Drawer lateral para ver productos, modalidad Delivery Local y comprobantes
  */
 import { useEffect, useState } from 'react'
 import {
@@ -19,6 +19,7 @@ import {
   money,
   formatPaymentInfo,
   syncBus,
+  printComprobantePedido,
   type Pedido,
   type Producto,
 } from './ui'
@@ -43,53 +44,22 @@ export default function TabPedidos() {
 
   const notify = (m: string, t: 'ok' | 'err' = 'ok') => {
     setMsg(m); setTone(t)
-    setTimeout(() => setMsg(''), 1400)
+    setTimeout(() => setMsg(''), 2200)
   }
 
   async function cargarPedidos() {
-    // 1. Si hay órdenes nuevas en localStorage creadas desde la web pública con datos válidos, migrarlas a SQLite
-    try {
-      const raw = localStorage.getItem('cbs_shop_orders')
-      if (raw) {
-        const localOrders = JSON.parse(raw) as Array<Record<string, unknown>>
-        for (const o of localOrders) {
-          const cliName = String(o.customerName ?? '').trim()
-          // Evitar reinsertar datos simulados de pruebas
-          if (!cliName || cliName.toLowerCase() === 'cliente web' || cliName.toLowerCase().includes('test')) {
-            continue
-          }
-          await fetch('/api/admin/saas', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              mod: 'pedido',
-              id: o.id,
-              cliente: cliName,
-              telefono: o.customerPhone ?? '999999999',
-              entrega: o.deliveryMode === 'delivery' ? 'delivery' : 'recojo',
-              direccion: o.address ? `${o.district ?? ''} - ${o.address}` : '',
-              items: o.items ?? [],
-              subtotal: o.subtotal ?? o.total ?? 0,
-              envio: o.shipping ?? 0,
-              total: o.total ?? 0,
-              metodo_pago: o.payMethod ?? 'yape',
-              ref_pago: o.payRef ?? '',
-              estado: o.status === 'entregado' ? 'entregado' : o.status === 'pagado' ? 'pagado' : 'pendiente',
-            }),
-          })
-        }
-      }
-    } catch {}
-
     const [rPed, rProd] = await Promise.all([
       fetch('/api/admin/saas?mod=pedidos', { cache: 'no-store' }),
       fetch('/api/admin/saas?mod=productos', { cache: 'no-store' }),
     ])
     if (rPed.ok) setPedidos((await rPed.json()).pedidos ?? [])
     if (rProd.ok) {
-      const list = (await rProd.json()).productos ?? []
+      const list: Producto[] = (await rProd.json()).productos ?? []
       setProductos(list)
-      if (!pProdId && list[0]) setPProdId(list[0].id)
+      if (!pProdId && list.length > 0) {
+        const disponible = list.find(x => x.stock > 0) ?? list[0]
+        setPProdId(disponible.id)
+      }
     }
   }
 
@@ -106,7 +76,7 @@ export default function TabPedidos() {
       if (document.visibilityState === 'visible') {
         void cargarPedidos()
       }
-    }, 4000)
+    }, 12000)
 
     const onFocus = () => void cargarPedidos()
     window.addEventListener('focus', onFocus)
@@ -125,12 +95,18 @@ export default function TabPedidos() {
       body: JSON.stringify({ mod: 'pedido', id, estado }),
     })
     if (r.ok) {
-      notify(`Pedido actualizado a ${estado}`)
+      const j = await r.json().catch(() => ({}))
+      if (estado === 'cancelado' && j.stockAjustado === 'restored') {
+        notify('Pedido cancelado (stock repuesto)')
+      } else {
+        notify(`Pedido actualizado a ${estado}`)
+      }
       setSelected(null)
       syncBus.emit('pedido_updated', { id, estado })
       await cargarPedidos()
     } else {
-      notify('Error al actualizar pedido', 'err')
+      const j = await r.json().catch(() => ({}))
+      notify(j.error ?? 'Error al actualizar pedido', 'err')
     }
   }
 
@@ -138,7 +114,8 @@ export default function TabPedidos() {
     e.preventDefault()
     const prod = productos.find(x => x.id === pProdId)
     if (!prod) return
-    const subtotal = prod.precio * pCant
+    const qty = Math.max(1, Math.floor(Number(pCant) || 1))
+    const subtotal = prod.precio * qty
     const envio = pEntrega === 'delivery' ? 8 : 0
     const r = await fetch('/api/admin/saas', {
       method: 'POST',
@@ -148,7 +125,7 @@ export default function TabPedidos() {
         cliente: pCliente || 'Cliente Mostrador',
         telefono: pTel || '999999999',
         entrega: pEntrega,
-        items: [{ name: prod.nombre, qty: pCant, price: prod.precio }],
+        items: [{ id: prod.id, name: prod.nombre, qty, price: prod.precio }],
         subtotal,
         envio,
         total: subtotal + envio,
@@ -157,11 +134,14 @@ export default function TabPedidos() {
       }),
     })
     if (r.ok) {
-      notify('Pedido registrado')
+      notify('Pedido registrado y stock actualizado')
       setOpenNew(false)
-      setPCliente(''); setPTel('')
+      setPCliente(''); setPTel(''); setPCant(1)
       syncBus.emit('pedido_created')
       await cargarPedidos()
+    } else {
+      const j = await r.json().catch(() => ({}))
+      notify(j.error ?? 'No se pudo registrar el pedido', 'err')
     }
   }
 
@@ -176,12 +156,15 @@ export default function TabPedidos() {
     try { return JSON.parse(json) } catch { return [] }
   }
 
+  const prodSeleccionado = productos.find(x => x.id === pProdId)
+
   return (
     <div className="a-fade space-y-5">
       <Toast msg={msg} tone={tone} />
 
       <ScreenHeader
         title="Pedidos"
+        sub="Órdenes online y ventas en mostrador con descuento automático de stock"
         primaryAction={{
           label: 'Nuevo pedido',
           icon: 'Plus',
@@ -241,12 +224,14 @@ export default function TabPedidos() {
               <tbody>
                 {filtrados.map(p => (
                   <tr key={p.id} onClick={() => setSelected(p)} className="cursor-pointer">
-                    <td className="font-mono font-semibold">{p.id}</td>
-                    <td className="font-medium">{p.cliente}</td>
-                    <td className="a-txt-2">{p.entrega === 'delivery' ? 'Delivery Lima' : 'Recojo en local'}</td>
-                    <td className="font-mono font-semibold">{money(p.total)}</td>
-                    <td><Pill estado={p.estado} /></td>
-                    <td className="text-right">
+                    <td data-label="Orden" className="font-mono font-semibold">{p.id}</td>
+                    <td data-label="Cliente" className="font-medium">{p.cliente}</td>
+                    <td data-label="Entrega" className="a-txt-2">
+                      {p.entrega === 'delivery' ? 'Delivery Local' : 'Recojo en local'}
+                    </td>
+                    <td data-label="Total" className="font-mono font-semibold">{money(p.total)}</td>
+                    <td data-label="Estado"><Pill estado={p.estado} /></td>
+                    <td data-label="" className="text-right">
                       <RowMenu
                         actions={[
                           { label: 'Ver detalle', onClick: () => setSelected(p) },
@@ -257,7 +242,7 @@ export default function TabPedidos() {
                           },
                           {
                             label: 'Marcar entregado',
-                            disabled: p.estado === 'entregado',
+                            disabled: p.estado === 'entregado' || p.estado === 'cancelado',
                             onClick: () => cambiarEstado(p.id, 'entregado'),
                           },
                           {
@@ -304,6 +289,15 @@ export default function TabPedidos() {
                   Marcar como Entregado
                 </button>
               )}
+              {selected.estado !== 'cancelado' && (
+                <button
+                  type="button"
+                  onClick={() => cambiarEstado(selected.id, 'cancelado')}
+                  className={`${T.btnDanger} w-full`}
+                >
+                  Cancelar pedido (reponer stock)
+                </button>
+              )}
             </div>
           )
         }
@@ -334,7 +328,7 @@ export default function TabPedidos() {
               <div className="flex justify-between">
                 <span className="a-muted">Modalidad</span>
                 <span className="font-semibold a-txt">
-                  {selected.entrega === 'delivery' ? 'Delivery Lima (+S/ 8)' : 'Recojo en Local'}
+                  {selected.entrega === 'delivery' ? 'Delivery Local (+S/ 8)' : 'Recojo en Local'}
                 </span>
               </div>
               {selected.direccion && (
@@ -365,23 +359,23 @@ export default function TabPedidos() {
             <div className="flex flex-col gap-2 pt-1">
               <a
                 href={`https://wa.me/51${selected.telefono.replace(/\D/g, '')}?text=${encodeURIComponent(
-                  `💈 *CHINO BARBER SHOP — PEDIDO #${selected.id.toUpperCase()}* 💈\n\nHola *${selected.cliente}*, tu pedido por *${money(selected.total)}* (${selected.entrega === 'delivery' ? 'Delivery a domicilio' : 'Recojo en barbería'}) se encuentra en estado *${selected.estado.toUpperCase()}*.\n\n¡Gracias por tu compra!`
+                  `💈 *CHINO BARBERSHOP — PEDIDO #${selected.id.toUpperCase()}* 💈\n\nHola *${selected.cliente}*, tu pedido por *${money(selected.total)}* (${selected.entrega === 'delivery' ? 'Delivery a domicilio' : 'Recojo en barbería'}) se encuentra en estado *${selected.estado.toUpperCase()}*.\n\n¡Gracias por tu compra!`
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold hover:bg-[var(--hover)] a-txt transition-colors"
-                style={{ borderColor: 'var(--line)' }}
+                className={`${T.btnGhost} w-full`}
               >
-                <span>📲</span>
-                <span>Notificar estado al cliente por WhatsApp</span>
+                <ModIcon name="MessageCircle" className="h-4 w-4" />
+                <span>Notificar estado por WhatsApp</span>
               </a>
               <button
                 type="button"
-                onClick={() => window.print()}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-bold px-3 py-2 text-xs transition-colors"
+                onClick={() => printComprobantePedido(selected)}
+                className={`${T.btnGhost} w-full`}
+                style={{ borderColor: 'var(--gold-line)', background: 'var(--gold-soft)', color: 'var(--gold)' }}
               >
-                <span>🖨️</span>
-                <span>Imprimir Comprobante de Entrega</span>
+                <ModIcon name="Printer" className="h-4 w-4" />
+                <span>Imprimir Comprobante</span>
               </button>
             </div>
           </>
@@ -393,9 +387,14 @@ export default function TabPedidos() {
         open={openNew}
         onClose={() => setOpenNew(false)}
         title="Nuevo pedido"
-        sub="Venta directa de productos"
+        sub="Venta directa en mostrador (descuenta stock)"
         footer={
-          <button type="submit" form="form-nuevo-pedido" className={`${T.btnPrimary} w-full`}>
+          <button
+            type="submit"
+            form="form-nuevo-pedido"
+            disabled={!prodSeleccionado || prodSeleccionado.stock <= 0}
+            className={`${T.btnPrimary} w-full`}
+          >
             Registrar pedido
           </button>
         }
@@ -413,20 +412,29 @@ export default function TabPedidos() {
             <label className={T.label}>Producto</label>
             <select className={T.input} value={pProdId} onChange={e => setPProdId(e.target.value)}>
               {productos.map(pr => (
-                <option key={pr.id} value={pr.id}>{pr.nombre} — S/ {pr.precio}</option>
+                <option key={pr.id} value={pr.id} disabled={pr.stock <= 0}>
+                  {pr.nombre} — {money(pr.precio)} ({pr.stock > 0 ? `Stock: ${pr.stock}` : 'Agotado'})
+                </option>
               ))}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={T.label}>Cantidad</label>
-              <input type="number" min={1} className={T.input} value={pCant} onChange={e => setPCant(Number(e.target.value))} />
+              <input
+                type="number"
+                min={1}
+                max={prodSeleccionado?.stock || 99}
+                className={T.input}
+                value={pCant}
+                onChange={e => setPCant(Math.max(1, Number(e.target.value) || 1))}
+              />
             </div>
             <div>
               <label className={T.label}>Entrega</label>
               <select className={T.input} value={pEntrega} onChange={e => setPEntrega(e.target.value as 'recojo' | 'delivery')}>
                 <option value="recojo">Recojo en local</option>
-                <option value="delivery">Delivery (+S/ 8)</option>
+                <option value="delivery">Delivery Local (+S/ 8)</option>
               </select>
             </div>
           </div>

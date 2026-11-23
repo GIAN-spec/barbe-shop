@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Chino Barber Shop — Barbería de lujo y sistema de reservas en línea. Tu mejor corte, sin esperas." />
+<meta name="description" content="Chino Barbershop — Barbería de lujo y sistema de reservas en línea. Tu mejor corte, sin esperas." />
 <meta name="theme-color" content="#09090b" />
+<link rel="icon" type="image/png" href="/logo.png?v=3" />
+<link rel="apple-touch-icon" href="/logo.png?v=3" />
 <link rel="manifest" href="/manifest.json" />
 <meta name="version" content="2.4" />
 <!-- cache-bust: 2.5 premium -->
-<title>Chino Barber Shop | Barbería de Lujo & Reservas en Línea</title>
+<title>Chino Barbershop | Barbería de Lujo & Reservas en Línea</title>
 
 <!-- Tipografías de alta gama -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -33,6 +35,7 @@
   --gold-light: #f7d774;
   --gold-dark: #a17c18;
   --gold-gradient: linear-gradient(135deg, #fae292 0%, #d4af37 50%, #996515 100%);
+  --gold-satin: linear-gradient(135deg, #ebd288 0%, #d5b254 55%, #be9639 100%);
   --gold-glow: rgba(212, 175, 55, 0.22);
   
   --copper: #b87333;
@@ -363,7 +366,7 @@ body.light .filter-btn.active {
   color: #ffffff;
   border-color: var(--gold);
 }
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   body.light .main-nav {
     background: rgba(255, 255, 255, 0.98);
     border-bottom: 1px solid rgba(0, 0, 0, 0.25);
@@ -404,10 +407,11 @@ body.light .demo-creds code { color: var(--text); }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 15.5px; scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
 html.large-text { font-size: 17.8px !important; }
-#textSizeBtn[aria-pressed="true"] {
-  background: var(--gold-gradient) !important;
-  color: #171104 !important;
-  border-color: var(--gold) !important;
+#textSizeBtn[aria-pressed="true"],
+#textSizeBtn[aria-pressed="true"]:hover {
+  background: var(--gold-satin) !important;
+  color: #1a1408 !important;
+  border-color: rgba(145, 108, 22, 0.38) !important;
 }
 body {
   font-family: var(--font-sans);
@@ -453,11 +457,22 @@ ul { list-style: none; }
   display: flex; align-items: center; gap: 0.85rem; text-decoration: none; flex-shrink: 0;
 }
 .brand-badge {
-  width: 44px; height: 44px; border-radius: 12px;
-  background: linear-gradient(135deg, #1f1f26, #121215);
-  border: 1px solid var(--line-gold);
+  width: 62px; height: 62px; border-radius: 0;
+  background: transparent;
+  border: none;
   display: grid; place-items: center; color: var(--gold);
-  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.15);
+  box-shadow: none;
+  overflow: visible;
+}
+.brand-badge img {
+  width: 100%; height: 100%; object-fit: contain; display: block;
+  filter: drop-shadow(0 2px 6px rgba(145, 108, 22, 0.24));
+}
+body:not(.light) .brand-badge img {
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.55));
+}
+.footer-brand .brand-badge {
+  width: 74px !important; height: 74px !important;
 }
 .brand-title {
   font-family: var(--font-serif); font-size: 1.15rem; font-weight: 800;
@@ -512,10 +527,16 @@ ul { list-style: none; }
 .btn-gold-outline:hover {
   background: rgba(212, 175, 55, 0.1); border-color: var(--gold); color: #fff;
 }
+body.light .btn-gold-outline:hover {
+  background: rgba(160, 120, 30, 0.12);
+  border-color: var(--gold);
+  color: var(--gold-dark);
+}
 .btn-ghost {
   background: transparent; color: var(--text-dim);
 }
 .btn-ghost:hover { background: rgba(255, 255, 255, 0.06); color: #fff; }
+body.light .btn-ghost:hover { background: rgba(0, 0, 0, 0.05); color: var(--title); }
 .btn-dark {
   background: var(--bg-card); border-color: var(--line); color: var(--text);
 }
@@ -560,7 +581,8 @@ body.light .cd-book-addon-btn:hover {
 .user-menu-btn:hover { background: var(--bg-card-hover); border-color: var(--gold); }
 .user-avatar {
   width: 32px; height: 32px; border-radius: 50%;
-  background: var(--gold); color: #000; font-weight: 700; font-size: 0.85rem;
+  background: var(--gold-satin); color: #1a1408; font-weight: 800; font-size: 0.85rem;
+  border: 1px solid rgba(145, 108, 22, 0.28);
   display: grid; place-items: center; overflow: hidden;
 }
 .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
@@ -609,7 +631,7 @@ body.light .cd-book-addon-btn:hover {
 }
 
 .menu-toggle { display: none; }
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .main-nav {
     position: fixed; top: var(--header-h); left: 0; right: 0;
     background: rgba(14, 14, 18, 0.98); backdrop-filter: blur(20px);
@@ -814,7 +836,7 @@ main { flex: 1 0 auto; padding-top: var(--header-h); }
   display: flex; align-items: center; gap: 0.35rem;
 }
 .service-body { padding: 1.4rem; display: flex; flex-direction: column; flex: 1; }
-.service-title { font-family: var(--font-serif); font-size: 1.28rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+.service-title { font-family: var(--font-sans); font-size: 1.28rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
 .service-desc { color: var(--text-dim); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.2rem; flex: 1; }
 .service-footer {
   display: flex; align-items: center; justify-content: space-between;
@@ -822,6 +844,37 @@ main { flex: 1 0 auto; padding-top: var(--header-h); }
 }
 .service-price { font-family: var(--font-display); font-size: 2.1rem; color: var(--gold); line-height: 1; }
 .service-price small { font-size: 1rem; color: var(--text-mut); font-family: var(--font-sans); font-weight: 600; }
+.btn-card {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0.45rem 0.85rem; border-radius: 8px;
+  font-size: 0.9rem; font-weight: 600; color: var(--text);
+  border: 1px solid transparent; background: transparent;
+  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+}
+.btn-card:hover,
+.btn-card:focus-visible {
+  color: var(--gold);
+  background: rgba(194, 163, 107, 0.1);
+  border-color: var(--line-gold);
+}
+.btn-card:active {
+  color: var(--gold);
+  background: rgba(194, 163, 107, 0.2);
+  border-color: var(--gold);
+  transform: scale(0.97);
+}
+body.light .btn-card:hover,
+body.light .btn-card:focus-visible {
+  color: var(--gold-dark);
+  background: rgba(160, 120, 30, 0.1);
+  border-color: rgba(160, 120, 30, 0.35);
+}
+body.light .btn-card:active {
+  color: var(--gold-dark);
+  background: rgba(160, 120, 30, 0.2);
+  border-color: var(--gold-dark);
+  transform: scale(0.97);
+}
 
 /* ==================== BARBEROS ==================== */
 .barbers-grid {
@@ -843,11 +896,13 @@ main { flex: 1 0 auto; padding-top: var(--header-h); }
 }
 .barber-experience {
   position: absolute; top: 12px; left: 12px;
-  background: var(--gold); color: #000; font-size: 0.72rem; font-weight: 800;
+  background: var(--gold-satin); color: #1a1408; font-size: 0.72rem; font-weight: 800;
+  border: 1px solid rgba(145, 108, 22, 0.28);
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.28);
   padding: 0.25rem 0.65rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .barber-body { padding: 0.5rem 1.4rem 1.6rem; position: relative; z-index: 2; }
-.barber-name { font-family: var(--font-serif); font-size: 1.45rem; font-weight: 800; color: #fff; }
+.barber-name { font-family: var(--font-sans); font-size: 1.45rem; font-weight: 800; color: #fff; }
 .barber-role {
   color: var(--gold); font-size: 0.82rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 2px; margin: 0.25rem 0 0.8rem;
@@ -957,8 +1012,8 @@ main { flex: 1 0 auto; padding-top: var(--header-h); }
   color: var(--text-mut); transition: all 0.22s; z-index: 2;
 }
 .step-item[aria-current="true"] .step-circle {
-  background: var(--gold); border-color: var(--gold); color: #000;
-  box-shadow: 0 0 16px rgba(212, 175, 55, 0.45);
+  background: var(--gold-satin); border-color: rgba(145, 108, 22, 0.32); color: #1a1408;
+  box-shadow: 0 0 16px rgba(180, 138, 28, 0.38);
 }
 .step-item.done .step-circle {
   background: var(--ok); border-color: var(--ok); color: #000;
@@ -1007,7 +1062,7 @@ main { flex: 1 0 auto; padding-top: var(--header-h); }
   display: grid; place-items: center; color: transparent; flex-shrink: 0;
 }
 .option-select-card[aria-pressed="true"] .osc-radio {
-  border-color: var(--gold); background: var(--gold); color: #000;
+  border-color: rgba(145, 108, 22, 0.32); background: var(--gold-satin); color: #1a1408;
 }
 
 /* Calendario & Horarios */
@@ -1018,8 +1073,8 @@ main { flex: 1 0 auto; padding-top: var(--header-h); }
   background: var(--bg-card); border: 2px solid var(--line); border-radius: var(--radius-sm);
   padding: 0.75rem 0.2rem; text-align: center; color: #fff; transition: all 0.18s;
 }
-.cal-day-btn:hover:not(:disabled) { border-color: var(--line-gold); background: var(--bg-card-hover); }
-.cal-day-btn[aria-pressed="true"] { border-color: var(--gold); background: var(--gold); color: #000; font-weight: 700; }
+.cal-day-btn:hover:not(:disabled):not([aria-pressed="true"]) { border-color: var(--line-gold); background: var(--bg-card-hover); }
+.cal-day-btn[aria-pressed="true"] { border-color: rgba(145, 108, 22, 0.32); background: var(--gold-satin); color: #1a1408; font-weight: 700; }
 .cal-day-btn:disabled { opacity: 0.25; cursor: not-allowed; }
 .cd-name { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; display: block; }
 .cd-num { font-family: var(--font-display); font-size: 1.45rem; line-height: 1.1; display: block; }
@@ -1032,8 +1087,8 @@ main { flex: 1 0 auto; padding-top: var(--header-h); }
   padding: 0.65rem 0.2rem; font-weight: 700; font-size: 0.92rem; text-align: center; color: #fff;
   transition: all 0.18s;
 }
-.slot-btn:hover:not(:disabled) { border-color: var(--gold); background: var(--bg-card-hover); }
-.slot-btn[aria-pressed="true"] { border-color: var(--gold); background: var(--gold); color: #000; }
+.slot-btn:hover:not(:disabled):not([aria-pressed="true"]) { border-color: var(--gold); background: var(--bg-card-hover); }
+.slot-btn[aria-pressed="true"] { border-color: rgba(145, 108, 22, 0.32); background: var(--gold-satin); color: #1a1408; }
 .slot-btn:disabled { opacity: 0.25; cursor: not-allowed; text-decoration: line-through; }
 
 /* Formularios */
@@ -1290,7 +1345,7 @@ body.light .cita-price-badge {
 }
 
 .cita-svc-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 1.18rem;
   font-weight: 700;
   color: var(--title);
@@ -1475,20 +1530,28 @@ body.light .auth-card {
   pointer-events: none;
 }
 .brand-badge-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 13px;
-  background: linear-gradient(145deg, #23201b 0%, #14120f 100%);
-  border: 1px solid rgba(194, 163, 107, 0.45);
-  box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.45), 0 0 0 4px rgba(194, 163, 107, 0.08);
+  width: 92px;
+  height: 92px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
   color: #e4c580;
   display: grid;
   place-items: center;
-  margin: 0 auto 0.55rem;
+  margin: 0 auto 0.4rem;
+  overflow: visible;
+}
+.brand-badge-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(145, 108, 22, 0.24));
 }
 body.light .brand-badge-circle {
-  background: linear-gradient(145deg, #1e1b17 0%, #12100d 100%);
-  box-shadow: 0 8px 18px -6px rgba(24, 21, 18, 0.25), 0 0 0 4px rgba(180, 138, 28, 0.1);
+  background: transparent;
+  box-shadow: none;
 }
 .auth-eyebrow {
   display: block;
@@ -1814,7 +1877,7 @@ body.light .btn-social:hover {
 .mobile-nav-auth {
   display: none;
 }
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .mobile-nav-auth {
     display: block; border-top: 1px solid var(--line);
     margin-top: 0.8rem; padding-top: 0.9rem;
@@ -2140,7 +2203,7 @@ body.light .main-nav a[aria-current="page"] { background: transparent; }
 body.light .main-nav a:hover { background: transparent; color: var(--title); }
 body.light .reservar-card,
 body.light .resumen-sidebar { border-color: var(--line); box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 20px 40px -28px rgba(60,40,10,0.25); }
-@media (max-width: 900px) { body.light .main-nav { border-bottom-color: var(--line); } }
+@media (max-width: 1023px) { body.light .main-nav { border-bottom-color: var(--line); } }
 
 /* ---------- B. FLUJO DE RESERVA ---------- */
 .reservar-layout {
@@ -2165,10 +2228,10 @@ body.light .resumen-sidebar { border-color: var(--line); box-shadow: 0 1px 2px r
   font-size: 0.8rem; font-weight: 600;
 }
 .step-item[aria-current="true"] .step-circle {
-  background: var(--gold-gradient);
-  border-color: transparent;
+  background: var(--gold-satin);
+  border-color: rgba(145, 108, 22, 0.32);
   color: #1a1408;
-  box-shadow: 0 0 0 4px rgba(201, 162, 74, 0.14);
+  box-shadow: 0 0 0 4px rgba(201, 162, 74, 0.16);
 }
 .step-item.done .step-circle {
   background: rgba(201, 162, 74, 0.12);
@@ -2204,7 +2267,7 @@ body.light .resumen-sidebar { border-color: var(--line); box-shadow: 0 1px 2px r
 .osc-price { font-size: 1.4rem; color: var(--gold-light); }
 body.light .osc-price { color: var(--gold); }
 .osc-radio { width: 20px; height: 20px; border: 1.5px solid var(--line-strong); font-size: 0.7rem; }
-.option-select-card[aria-pressed="true"] .osc-radio { background: var(--gold-gradient); border-color: transparent; color: #1a1408; }
+.option-select-card[aria-pressed="true"] .osc-radio { background: var(--gold-satin); border-color: rgba(145, 108, 22, 0.32); color: #1a1408; }
 
 /* Calendario compacto y 100% responsivo (2 filas de 7 columnas sin desbordar) */
 .cal-grid {
@@ -2226,15 +2289,18 @@ body.light .osc-price { color: var(--gold); }
   color: var(--title);
   transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 }
-.cal-day-btn:hover:not(:disabled) { border-color: var(--line-gold); transform: translateY(-1px); background: var(--bg-card); }
+.cal-day-btn:hover:not(:disabled):not([aria-pressed="true"]) { border-color: var(--line-gold); transform: translateY(-1px); background: var(--bg-card); }
 .cal-day-btn .cd-name { color: var(--text-mut); font-weight: 600; letter-spacing: 0.08em; font-size: 0.58rem; line-height: 1.1; }
 .cal-day-btn .cd-num { font-size: 1.22rem; line-height: 1.05; margin: 0.06rem 0; }
 .cal-day-btn .cd-month { color: var(--text-mut); letter-spacing: 0.06em; font-size: 0.55rem !important; line-height: 1; }
-.cal-day-btn[aria-pressed="true"] {
-  background: var(--gold-gradient);
-  border-color: transparent;
+.cal-day-btn[aria-pressed="true"],
+.cal-day-btn[aria-pressed="true"]:hover,
+body.light .cal-day-btn[aria-pressed="true"],
+body.light .cal-day-btn[aria-pressed="true"]:hover {
+  background: var(--gold-satin);
+  border-color: rgba(145, 108, 22, 0.32);
   color: #1a1408;
-  box-shadow: 0 6px 16px -6px rgba(201, 162, 74, 0.65);
+  box-shadow: 0 6px 16px -6px rgba(145, 108, 22, 0.45);
 }
 .cal-day-btn[aria-pressed="true"] .cd-name,
 .cal-day-btn[aria-pressed="true"] .cd-month { color: rgba(26, 20, 8, 0.78); }
@@ -2303,12 +2369,15 @@ body.light .osc-price { color: var(--gold); }
   font-variant-numeric: tabular-nums;
   transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
-.slot-btn:hover:not(:disabled) { border-color: var(--gold); background: rgba(201,162,74,0.08); color: var(--title); }
-.slot-btn[aria-pressed="true"] {
-  background: var(--gold-gradient);
-  border-color: transparent;
+.slot-btn:hover:not(:disabled):not([aria-pressed="true"]) { border-color: var(--gold); background: rgba(201,162,74,0.08); color: var(--title); }
+.slot-btn[aria-pressed="true"],
+.slot-btn[aria-pressed="true"]:hover,
+body.light .slot-btn[aria-pressed="true"],
+body.light .slot-btn[aria-pressed="true"]:hover {
+  background: var(--gold-satin);
+  border-color: rgba(145, 108, 22, 0.32);
   color: #1a1408;
-  box-shadow: 0 6px 14px -6px rgba(201, 162, 74, 0.65);
+  box-shadow: 0 6px 14px -6px rgba(145, 108, 22, 0.42);
 }
 .slot-btn:disabled { opacity: 0.3; background: transparent; border-style: dashed; }
 
@@ -2652,12 +2721,13 @@ body.light .stepper-actions {
   width: 42px;
   height: 42px;
   border-radius: 11px;
-  background: var(--gold-gradient);
+  background: var(--gold-satin);
+  border: 1px solid rgba(145, 108, 22, 0.28);
   color: #1a1408;
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(201, 162, 74, 0.35);
+  box-shadow: 0 4px 12px -2px rgba(145, 108, 22, 0.32);
 }
 .dp-btn-text {
   display: flex;
@@ -2769,19 +2839,20 @@ body.light .dp-btn-action {
   place-items: center;
   transition: all 0.16s ease;
 }
-.dp-day:hover:not(:disabled) {
+.dp-day:hover:not(:disabled):not([aria-pressed="true"]) {
   border-color: var(--gold);
   background: rgba(201, 162, 74, 0.14);
 }
 .dp-day.today {
   border-color: var(--line-gold);
 }
-.dp-day[aria-pressed="true"] {
-  background: var(--gold-gradient);
+.dp-day[aria-pressed="true"],
+.dp-day[aria-pressed="true"]:hover {
+  background: var(--gold-satin);
   color: #1a1408;
   font-weight: 800;
-  border-color: transparent;
-  box-shadow: 0 4px 12px rgba(201, 162, 74, 0.5);
+  border-color: rgba(145, 108, 22, 0.32);
+  box-shadow: 0 4px 12px -2px rgba(145, 108, 22, 0.38);
 }
 .dp-day:disabled {
   opacity: 0.25;
@@ -2805,15 +2876,17 @@ body.light .dp-btn-action {
   background: var(--bg-card);
   color: var(--title);
 }
-.slots-clean-grid .slot-btn:hover:not(:disabled) {
+.slots-clean-grid .slot-btn:hover:not(:disabled):not([aria-pressed="true"]) {
   border-color: var(--gold);
   background: rgba(201, 162, 74, 0.1);
 }
-.slots-clean-grid .slot-btn[aria-pressed="true"] {
-  background: var(--gold-gradient);
+.slots-clean-grid .slot-btn[aria-pressed="true"],
+.slots-clean-grid .slot-btn[aria-pressed="true"]:hover {
+  background: var(--gold-satin);
   color: #1a1408;
   font-weight: 700;
-  border-color: transparent;
+  border-color: rgba(145, 108, 22, 0.32);
+  box-shadow: 0 4px 12px -3px rgba(145, 108, 22, 0.36);
 }
 @media (max-width: 680px) {
   .slots-clean-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -3315,13 +3388,14 @@ body.light .cart-header-btn {
   height: 19px;
   padding: 0 5px;
   border-radius: 999px;
-  background: var(--gold-gradient);
-  color: #171104;
+  background: var(--gold-satin);
+  border: 1px solid rgba(145, 108, 22, 0.28);
+  color: #1a1408;
   font-size: 0.7rem;
   font-weight: 800;
   display: grid;
   place-items: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 2px 6px rgba(145, 108, 22, 0.32);
 }
 
 /* Grid de Productos */
@@ -3387,13 +3461,14 @@ body.light .product-media {
   left: 12px;
   padding: 0.28rem 0.7rem;
   border-radius: 999px;
-  background: var(--gold-gradient);
-  color: #171104;
+  background: var(--gold-satin);
+  border: 1px solid rgba(145, 108, 22, 0.28);
+  color: #1a1408;
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 12px -2px rgba(145, 108, 22, 0.32);
 }
 .product-size-pill {
   position: absolute;
@@ -3424,7 +3499,7 @@ body.light .product-media {
   margin-bottom: 0.25rem;
 }
 .product-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 1.06rem;
   font-weight: 700;
   color: var(--title);
@@ -3787,14 +3862,15 @@ body.light .sc-card-head {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--gold-gradient);
-  color: #171104;
+  background: var(--gold-satin);
+  border: 1px solid rgba(145, 108, 22, 0.28);
+  color: #1a1408;
   font-size: 0.76rem;
   font-weight: 900;
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(232, 185, 65, 0.4);
+  box-shadow: 0 2px 6px rgba(145, 108, 22, 0.32);
 }
 .sc-card-sub {
   font-size: 0.74rem;
@@ -3821,8 +3897,9 @@ body.light .sc-card-sub {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--gold);
-  color: #171104;
+  background: var(--gold-satin);
+  border: 1px solid rgba(145, 108, 22, 0.28);
+  color: #1a1408;
   font-weight: 800;
   font-size: 0.9rem;
   display: grid;
@@ -4289,51 +4366,53 @@ body.light .upsell-chip {
   font-size: 0.84rem !important;
 }
 
-/* Botón Iniciar Sesión: Resaltado nítido */
+/* Botón Iniciar Sesión: enlace limpio tipo estudio */
 .header-login-btn {
-  background: rgba(232, 185, 65, 0.14) !important;
-  color: #ffe082 !important;
-  border: 1.5px solid var(--gold) !important;
+  background: transparent !important;
+  color: var(--text) !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
 }
 .header-login-btn:hover {
-  background: rgba(232, 185, 65, 0.26) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
   color: #ffffff !important;
-  transform: translateY(-1px);
+  transform: none;
 }
 body.light .header-login-btn {
-  background: #181510 !important;
-  color: #ffffff !important;
-  border: 1.5px solid #181510 !important;
-  box-shadow: 0 4px 12px -4px rgba(24, 21, 16, 0.35);
+  background: transparent !important;
+  color: #141416 !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
 }
 body.light .header-login-btn:hover {
-  background: #2c261d !important;
-  border-color: #2c261d !important;
-  color: #ffe082 !important;
+  background: rgba(20, 20, 22, 0.06) !important;
+  border-color: transparent !important;
+  color: #141416 !important;
 }
 
-/* Botón Registrarse: Dorado Primario Brillante en ambos modos */
+/* Botón Registrarse: contraste editorial sobrio en ambos modos */
 .header-reg-btn {
-  background: var(--gold-gradient) !important;
-  color: #171104 !important;
-  border: none !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 6px 16px -6px rgba(232, 185, 65, 0.65) !important;
+  background: #f4f1ea !important;
+  color: #141416 !important;
+  border: 1px solid #f4f1ea !important;
+  box-shadow: none !important;
 }
 .header-reg-btn:hover {
-  filter: brightness(1.07);
-  color: #000000 !important;
+  background: #ffffff !important;
+  color: #141416 !important;
+  filter: none;
   transform: translateY(-1px);
 }
 body.light .header-reg-btn {
-  background: linear-gradient(135deg, #f3c64f 0%, #c89416 55%, #9a6d08 100%) !important;
+  background: #141416 !important;
   color: #ffffff !important;
-  box-shadow: 0 6px 16px -6px rgba(160, 115, 15, 0.5) !important;
+  border: 1px solid #141416 !important;
+  box-shadow: none !important;
 }
 body.light .header-reg-btn:hover {
+  background: #27272a !important;
   color: #ffffff !important;
-  filter: brightness(1.08);
+  filter: none;
 }
 
 /* ---------- Q. TARJETAS DE SERVICIOS Y BARBEROS EN RESERVA (2 COLUMNAS COMPACTAS Y ALTO CONTRASTE) ---------- */
@@ -4914,23 +4993,20 @@ body.light .rp-summary-bar {
     print-color-adjust: exact !important;
   }
 
-  /* Ocultar por completo todas las secciones y componentes de la web */
+  /* Ocultar navegación, secciones inactivas y controles de interfaz (sin ocultar main ni vouchers activos) */
   .site-header,
   .site-footer,
-  main,
-  #contenido,
-  #inicio,
-  #servicios,
-  #tienda,
-  #barberos,
-  #galeria,
-  #reservar,
-  #mis-citas,
+  .mobile-bottom-nav,
+  .view:not(.active),
+  .reservar-layout,
+  .view-back-bar,
+  .section-head,
   .whatsapp-float,
   .toast-container,
   .skip-link,
   #mobileNav,
-  #authModal,
+  .modal-overlay:not(.open),
+  .cart-drawer-overlay:not(.open),
   .rcp-actions,
   .cd-header,
   .cd-footer,
@@ -4940,13 +5016,9 @@ body.light .rp-summary-bar {
     visibility: hidden !important;
   }
 
-  /* Desbloquear y limpiar los contenedores modales para la impresión */
-  .cart-drawer-overlay,
+  /* Desbloquear SOLO los contenedores modales o drawers que estén abiertos */
   .cart-drawer-overlay.open,
-  .cart-drawer,
-  #receiptModal,
-  #receiptModal.open,
-  .modal-overlay,
+  .cart-drawer-overlay.open .cart-drawer,
   .modal-overlay.open {
     display: block !important;
     position: static !important;
@@ -5086,8 +5158,8 @@ html, body {
   }
 }
 
-/* Header móvil y menú hamburguesa (< 900px) */
-@media (max-width: 900px) {
+/* Header móvil y menú hamburguesa (< 1024px) */
+@media (max-width: 1023px) {
   .site-header {
     height: 64px !important;
   }
@@ -5102,9 +5174,9 @@ html, body {
     flex-shrink: 0 !important;
   }
   .brand-badge {
-    width: 38px !important;
-    height: 38px !important;
-    border-radius: 10px !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 0 !important;
   }
   .brand-title {
     font-size: 1.05rem !important;
@@ -5311,33 +5383,33 @@ html, body {
   transition: all 0.2s ease;
 }
 .main-nav a[aria-current="page"] {
-  color: #ffe082 !important;
-  background: rgba(232, 185, 65, 0.16) !important;
-  border: 1px solid rgba(232, 185, 65, 0.45) !important;
+  color: var(--title) !important;
+  background: transparent !important;
+  border: none !important;
   font-weight: 700 !important;
-  box-shadow: 0 4px 14px -6px rgba(232, 185, 65, 0.45) !important;
+  box-shadow: none !important;
 }
 .main-nav a[aria-current="page"]::after {
   content: "";
   position: absolute;
-  left: 14%;
-  right: 14%;
+  left: 16%;
+  right: 16%;
   bottom: 2px;
-  height: 2.5px;
+  height: 2px;
   border-radius: 99px;
   background: var(--gold);
 }
 body.light .main-nav a[aria-current="page"] {
-  color: #8a5e00 !important;
-  background: rgba(200, 148, 22, 0.16) !important;
-  border: 1.5px solid rgba(200, 148, 22, 0.55) !important;
-  font-weight: 800 !important;
-  box-shadow: 0 4px 12px -6px rgba(180, 130, 15, 0.35) !important;
+  color: #141416 !important;
+  background: transparent !important;
+  border: none !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
 }
 body.light .main-nav a[aria-current="page"]::after {
-  background: #b88412;
+  background: var(--gold);
 }
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .main-nav a[aria-current="page"]::after {
     left: 0;
     right: auto;
@@ -5382,9 +5454,10 @@ body.light .main-nav a[aria-current="page"]::after {
   color: var(--title);
 }
 .mc-tab-btn.active {
-  background: var(--gold-gradient);
-  color: #171104;
-  box-shadow: 0 6px 18px -6px rgba(232, 185, 65, 0.6);
+  background: var(--gold-satin);
+  border: 1px solid rgba(145, 108, 22, 0.28);
+  color: #1a1408;
+  box-shadow: 0 6px 16px -6px rgba(180, 138, 28, 0.45);
 }
 .mc-tab-badge {
   display: inline-flex;
@@ -5402,8 +5475,8 @@ body.light .mc-tab-badge {
   background: rgba(0, 0, 0, 0.08);
 }
 .mc-tab-btn.active .mc-tab-badge {
-  background: rgba(23, 17, 4, 0.18);
-  color: #171104;
+  background: rgba(26, 20, 8, 0.16);
+  color: #1a1408;
 }
 .order-items-box {
   background: var(--bg-card);
@@ -5501,13 +5574,22 @@ textarea:focus-visible,
 .product-stock-tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  font-size: 0.72rem;
-  font-weight: 700;
+  gap: 0.38rem;
+  font-size: 0.76rem;
+  font-weight: 600;
   margin-bottom: 0.45rem;
   color: var(--ok);
 }
+body.light .product-stock-tag { color: #15803d; }
+.product-stock-tag .stock-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
 .product-stock-tag.low { color: #f59e0b; }
+body.light .product-stock-tag.low { color: #b45309; }
 .product-stock-tag.out { color: var(--err); }
 
 /* Barra inferior fija tipo App en celulares */
@@ -5577,6 +5659,1148 @@ textarea:focus-visible,
   }
 }
 
+/* ==========================================================================
+   HEADER ESTABLE CON LETRA GRANDE (A+) — DESKTOP Y MÓVIL SIN DESBORDES
+   ========================================================================== */
+#textSizeBtn {
+  font-weight: 800;
+  font-size: 13px !important;
+  letter-spacing: -0.02em;
+}
+#textSizeBtn:hover,
+#textSizeBtn:focus-visible {
+  transform: translateY(-1px) !important;
+}
+@media (hover: none) {
+  .theme-toggle-btn:hover,
+  #textSizeBtn:hover {
+    transform: none !important;
+  }
+}
+
+/* Desktop (>= 1024px): medidas en px estables para que activar A+ nunca empuje ni oculte botones */
+@media (min-width: 1024px) {
+  .site-header {
+    width: 100%;
+    overflow: visible;
+  }
+  .header-inner {
+    justify-content: flex-start !important;
+    max-width: min(1320px, 100%) !important;
+    width: 100%;
+    padding: 0 20px !important;
+    gap: 12px !important;
+  }
+  .brand {
+    gap: 6px !important;
+    flex-shrink: 0;
+  }
+  .brand-badge {
+    width: 62px;
+    height: 62px;
+    border-radius: 0;
+    flex-shrink: 0;
+  }
+  .brand-title {
+    font-size: 15.5px !important;
+    letter-spacing: 1.1px !important;
+    white-space: nowrap;
+  }
+  .main-nav {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    gap: 4px !important;
+    min-width: 0;
+  }
+  .main-nav a {
+    font-size: 15px !important;
+    padding: 8px 11px !important;
+    white-space: nowrap;
+  }
+  .header-actions {
+    margin-left: 0 !important;
+    gap: 6px !important;
+    flex-shrink: 0;
+  }
+  #authHeaderSlot {
+    gap: 6px !important;
+    flex-shrink: 0;
+  }
+  .header-login-btn,
+  .header-reg-btn {
+    padding: 7px 13px !important;
+    font-size: 13px !important;
+    min-height: 38px !important;
+    white-space: nowrap;
+  }
+  .cart-header-btn,
+  .theme-toggle-btn {
+    width: 40px !important;
+    height: 40px !important;
+    flex-shrink: 0;
+  }
+
+  /* Con A+ activo: links ligeramente más legibles sin exceder nunca el ancho del header */
+  html.large-text .header-inner {
+    padding: 0 14px !important;
+    gap: 8px !important;
+  }
+  html.large-text .main-nav {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    gap: 2px !important;
+  }
+  html.large-text .brand-title {
+    font-size: 15px !important;
+    letter-spacing: 0.9px !important;
+  }
+  html.large-text .main-nav a {
+    font-size: 15.5px !important;
+    padding: 7px 9px !important;
+  }
+  html.large-text .header-login-btn,
+  html.large-text .header-reg-btn {
+    padding: 7px 10px !important;
+    font-size: 13px !important;
+  }
+  html.large-text .cart-header-btn,
+  html.large-text .theme-toggle-btn {
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+
+/* Desktop compacto (1024px - 1220px): ajuste compacto para laptops de 1024px-1180px con o sin A+ */
+@media (min-width: 1024px) and (max-width: 1220px) {
+  .header-inner,
+  html.large-text .header-inner {
+    justify-content: flex-start !important;
+    padding: 0 12px !important;
+    gap: 8px !important;
+  }
+  .brand,
+  html.large-text .brand {
+    gap: 4px !important;
+  }
+  .brand-badge {
+    width: 52px !important;
+    height: 52px !important;
+  }
+  .brand-title,
+  html.large-text .brand-title {
+    font-size: 13px !important;
+    letter-spacing: 0.45px !important;
+  }
+  .main-nav {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  html.large-text .main-nav {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .main-nav a {
+    font-size: 13.5px !important;
+    padding: 6px 7px !important;
+  }
+  html.large-text .main-nav a {
+    font-size: 13.5px !important;
+    padding: 6px 6px !important;
+  }
+  .header-actions {
+    margin-left: 0 !important;
+  }
+  .header-actions,
+  #authHeaderSlot {
+    gap: 5px !important;
+  }
+  .header-login-btn,
+  .header-reg-btn,
+  html.large-text .header-login-btn,
+  html.large-text .header-reg-btn {
+    padding: 6px 8px !important;
+    font-size: 12px !important;
+    min-height: 36px !important;
+  }
+  .cart-header-btn,
+  .theme-toggle-btn,
+  html.large-text .cart-header-btn,
+  html.large-text .theme-toggle-btn {
+    width: 35px !important;
+    height: 35px !important;
+  }
+}
+
+/* Tablet y Móvil (<= 1023px): padding, logo y botones en px estables + brand encogible para nunca ocultar botones */
+@media (max-width: 1023px) {
+  .header-inner,
+  html.large-text .header-inner {
+    padding: 0 12px !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  .brand,
+  html.large-text .brand {
+    gap: 5px !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+  .brand > div {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+  .brand-badge,
+  html.large-text .brand-badge {
+    width: 50px !important;
+    height: 50px !important;
+    flex-shrink: 0 !important;
+  }
+  .brand-title,
+  html.large-text .brand-title {
+    font-size: 13.8px !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .header-actions,
+  html.large-text .header-actions {
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+  }
+  .cart-header-btn,
+  .theme-toggle-btn,
+  .menu-toggle,
+  html.large-text .cart-header-btn,
+  html.large-text .theme-toggle-btn,
+  html.large-text .menu-toggle {
+    width: 38px !important;
+    height: 38px !important;
+    flex-shrink: 0 !important;
+  }
+  #authHeaderSlot .user-avatar {
+    width: 34px !important;
+    height: 34px !important;
+  }
+}
+
+/* Celulares estándar y pequeños (<= 480px) */
+@media (max-width: 480px) {
+  .header-inner,
+  html.large-text .header-inner {
+    padding: 0 10px !important;
+    gap: 6px !important;
+  }
+  .brand,
+  html.large-text .brand {
+    gap: 4px !important;
+  }
+  .brand-badge,
+  html.large-text .brand-badge {
+    width: 46px !important;
+    height: 46px !important;
+    border-radius: 0 !important;
+  }
+  .brand-badge svg {
+    width: 18px;
+    height: 18px;
+  }
+  .brand-title,
+  html.large-text .brand-title {
+    font-size: 12.2px !important;
+    letter-spacing: 0.25px !important;
+  }
+  .header-actions,
+  html.large-text .header-actions {
+    gap: 5px !important;
+  }
+  .cart-header-btn,
+  .theme-toggle-btn,
+  .menu-toggle,
+  html.large-text .cart-header-btn,
+  html.large-text .theme-toggle-btn,
+  html.large-text .menu-toggle {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  #authHeaderSlot .user-avatar {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  #textSizeBtn {
+    font-size: 12px !important;
+  }
+}
+
+/* Pantallas muy angostas (<= 360px) */
+@media (max-width: 360px) {
+  .header-inner,
+  html.large-text .header-inner {
+    padding: 0 8px !important;
+    gap: 4px !important;
+  }
+  .brand-badge,
+  html.large-text .brand-badge {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  .brand-title,
+  html.large-text .brand-title {
+    font-size: 11px !important;
+    letter-spacing: 0.1px !important;
+  }
+  .header-actions,
+  html.large-text .header-actions {
+    gap: 4px !important;
+  }
+  .cart-header-btn,
+  .theme-toggle-btn,
+  .menu-toggle,
+  html.large-text .cart-header-btn,
+  html.large-text .theme-toggle-btn,
+  html.large-text .menu-toggle {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  #authHeaderSlot .user-avatar {
+    width: 30px !important;
+    height: 30px !important;
+  }
+}
+
+/* ==========================================================================
+   REDISEÑO EDITORIAL PROFESIONAL (WEB PÚBLICA)
+   ========================================================================== */
+.hero-title,
+.section-title,
+.loc-details h3,
+.panel-heading,
+.confirm-title,
+.footer-col h4,
+.gallery-tag,
+.lv-title,
+.dp-head b,
+.rcp-title,
+.cd-header h3,
+.rs-title {
+  font-family: var(--font-sans) !important;
+  letter-spacing: -0.025em;
+}
+.section-title {
+  font-size: clamp(1.85rem, 3.2vw, 2.55rem);
+  font-weight: 800;
+  line-height: 1.12;
+  color: var(--title);
+}
+.section-title span,
+.hero-title span {
+  -webkit-text-fill-color: unset;
+  background: none;
+  color: #d4ba8a;
+}
+body.light .section-title span,
+body.light .hero-title span {
+  color: #8a6510;
+}
+.service-price,
+.product-price,
+.osc-price,
+.cita-price-badge,
+.rcp-total-amount {
+  font-family: var(--font-sans) !important;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+}
+.service-price,
+.product-price {
+  font-size: 1.38rem;
+}
+.cita-price-badge {
+  font-size: 1.22rem;
+}
+.rcp-total-amount {
+  font-size: 1.7rem;
+}
+
+/* Encabezados editoriales alineados a la izquierda + sin barra tricolor */
+.barber-pole-line {
+  display: none !important;
+}
+.section {
+  padding: 4.5rem 0;
+}
+.section-head {
+  text-align: left;
+  margin-bottom: 2.25rem;
+  padding-bottom: 1.35rem;
+  border-bottom: 1px solid var(--line);
+}
+#view-reservar .section-head {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.section-head-split {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.section-sub {
+  margin: 0.55rem 0 0;
+  max-width: 560px;
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+.eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+  display: block;
+}
+.eyebrow::before,
+.eyebrow::after {
+  display: none;
+}
+.filter-tabs {
+  justify-content: flex-start;
+}
+
+/* Bandas alternadas */
+.band-surface {
+  background: #16181d;
+}
+body.light .band-surface {
+  background: #ffffff;
+  border-top: 1px solid rgba(20, 20, 22, 0.06);
+  border-bottom: 1px solid rgba(20, 20, 22, 0.06);
+}
+.band-ivory {
+  background: #111214;
+}
+body.light .band-ivory {
+  background: #f6f4ef;
+}
+.band-dark {
+  background: #0e1014;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+body.light .band-dark {
+  background: #efece4;
+  border-top: 1px solid rgba(20, 20, 22, 0.07);
+  border-bottom: 1px solid rgba(20, 20, 22, 0.07);
+}
+body.light .band-dark .barber-card {
+  background: #ffffff;
+  border-color: rgba(20, 20, 22, 0.1);
+  box-shadow: 0 8px 24px -18px rgba(20, 20, 22, 0.18);
+}
+body.light .band-dark .barber-card .btn-dark {
+  background: #141416;
+  border-color: #141416;
+  color: #ffffff;
+}
+body.light .band-dark .barber-card .btn-dark:hover {
+  background: #27272a;
+  border-color: #27272a;
+  color: #ffffff;
+}
+body:not(.light) .band-dark .barber-card {
+  background: #181a20;
+  border-color: rgba(255, 255, 255, 0.09);
+}
+body:not(.light) .band-dark .barber-media::after {
+  background: linear-gradient(180deg, transparent 70%, #181a20 100%);
+}
+
+/* Hero editorial y franja informativa */
+.hero {
+  background: #111214;
+  padding: 3.75rem 0 4rem;
+  border-bottom: none;
+}
+body.light .hero {
+  background: #f6f4ef;
+}
+.hero-kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.9rem;
+}
+.hero-title {
+  font-size: clamp(2.5rem, 5vw, 4.1rem);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: var(--title);
+}
+.hero-desc {
+  font-size: 1.04rem;
+  line-height: 1.65;
+  color: var(--text-dim);
+  margin: 1.25rem 0 1.9rem;
+  max-width: 490px;
+}
+.hero-editorial-frame {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-card);
+  max-width: 460px;
+  width: 100%;
+}
+body.light .hero-editorial-frame {
+  background: #ffffff;
+  box-shadow: 0 20px 44px -26px rgba(20, 20, 22, 0.22);
+}
+.hero-editorial-frame img {
+  width: 100%;
+  height: 390px;
+  object-fit: cover;
+  display: block;
+}
+.hero-editorial-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.15rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  border-top: 1px solid var(--line);
+}
+.studio-strip {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-surface);
+}
+body.light .studio-strip {
+  background: #ffffff;
+}
+.studio-strip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.studio-strip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1.4rem 1.5rem;
+  border-right: 1px solid var(--line);
+}
+.studio-strip-item:first-child {
+  padding-left: 0;
+}
+.studio-strip-item:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+.studio-strip-ico {
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-card);
+  color: var(--gold);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+body.light .studio-strip-ico {
+  background: #f6f4ef;
+}
+.studio-strip-item h4 {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--title);
+  margin-bottom: 0.15rem;
+}
+.studio-strip-item p {
+  font-size: 0.83rem;
+  color: var(--text-dim);
+  line-height: 1.45;
+  margin: 0;
+}
+@media (max-width: 768px) {
+  .hero {
+    padding: 2.5rem 0 2.75rem;
+  }
+  .hero-editorial-frame img {
+    height: 290px;
+  }
+  .studio-strip-grid {
+    grid-template-columns: 1fr;
+  }
+  .studio-strip-item {
+    padding: 1.1rem 0;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .studio-strip-item:last-child {
+    border-bottom: none;
+  }
+}
+
+/* Jerarquía unificada de botones, tarjetas, mapa y atajo rápido */
+.btn {
+  border-radius: 9px;
+}
+.btn-primary {
+  background: #f4f1ea;
+  color: #141416;
+  border: 1px solid #f4f1ea;
+  box-shadow: none;
+}
+.btn-primary:hover {
+  background: #ffffff;
+  color: #141416;
+  filter: none;
+  box-shadow: none;
+}
+body.light .btn-primary {
+  background: #141416;
+  color: #ffffff;
+  border: 1px solid #141416;
+  box-shadow: 0 2px 10px rgba(20, 20, 22, 0.12);
+}
+body.light .btn-primary:hover {
+  background: #27272a;
+  color: #ffffff;
+  filter: none;
+  box-shadow: 0 4px 14px rgba(20, 20, 22, 0.18);
+}
+.sc-confirm-btn {
+  border-radius: 9px !important;
+  background: #f4f1ea !important;
+  color: #141416 !important;
+  border: 1px solid #f4f1ea !important;
+  box-shadow: none !important;
+}
+.sc-confirm-btn:hover {
+  background: #ffffff !important;
+  filter: none !important;
+}
+body.light .sc-confirm-btn {
+  background: #141416 !important;
+  color: #ffffff !important;
+  border: 1px solid #141416 !important;
+  box-shadow: 0 2px 10px rgba(20, 20, 22, 0.14) !important;
+}
+body.light .sc-confirm-btn:hover {
+  background: #27272a !important;
+}
+.service-card,
+.barber-card,
+.product-card,
+.test-card,
+.cita-card {
+  border-radius: 12px;
+}
+.service-card:hover,
+.barber-card:hover,
+.product-card:hover {
+  transform: none;
+  box-shadow: 0 12px 28px -18px rgba(0, 0, 0, 0.22);
+  border-color: var(--line-strong);
+}
+.service-media img,
+.barber-media img,
+.product-media img {
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.service-card:hover .service-media img,
+.product-card:hover .product-media img {
+  transform: scale(1.035);
+}
+.map-box {
+  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  box-shadow: none;
+}
+.map-box iframe {
+  filter: brightness(0.84) contrast(1.06) grayscale(20%);
+}
+body.light .map-box iframe {
+  filter: grayscale(18%) contrast(1.03);
+}
+.quick-rebook-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  padding: 0.7rem 0.95rem;
+  margin-bottom: 1.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--line-gold);
+  background: rgba(201, 162, 74, 0.08);
+}
+body.light .quick-rebook-banner {
+  background: #ffffff;
+  box-shadow: 0 6px 18px -14px rgba(20, 20, 22, 0.18);
+}
+.qrb-content {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  font-size: 0.84rem;
+  color: var(--text);
+}
+.qrb-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  background: var(--gold-satin);
+  color: #1a1408;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+/* Botones de retroceso en vistas y pasos de reserva */
+.view-back-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.15rem;
+}
+.back-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.44rem 0.9rem;
+  border-radius: 9px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg-surface);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.back-nav-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+body.light .back-nav-btn {
+  background: #ffffff;
+  border-color: rgba(20, 20, 22, 0.14);
+  color: #141416;
+}
+body.light .back-nav-btn:hover {
+  background: #f6f4ef;
+  border-color: rgba(20, 20, 22, 0.28);
+  color: #141416;
+}
+.step-top-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.36rem 0.78rem;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.step-top-back:hover {
+  color: var(--title);
+  border-color: var(--gold);
+}
+
+/* Carrito y checkout adaptados a móvil sin cortes ni zoom */
+.cart-drawer {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+@media (max-width: 520px) {
+  .cart-drawer {
+    max-width: 100%;
+    border-left: none;
+  }
+}
+.cd-header {
+  flex-shrink: 0;
+  padding: 0.9rem 1.15rem;
+}
+.cd-header-back {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--title);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+.cd-header-back:hover {
+  border-color: var(--gold);
+  background: rgba(201, 162, 74, 0.1);
+}
+.cd-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 1rem 1.15rem;
+}
+.cd-footer {
+  flex-shrink: 0;
+  padding: 0.85rem 1.1rem calc(0.9rem + env(safe-area-inset-bottom, 0px));
+}
+.sc-checkout-sticky-cta {
+  width: 100%;
+}
+.sc-segment-btn {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  padding: 0.55rem 0.5rem;
+  text-align: center;
+}
+.sc-seg-top {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+.sc-seg-tag {
+  white-space: nowrap;
+}
+.sc-payment-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+  margin-bottom: 0.9rem;
+}
+.sc-pay-option {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.35rem;
+  padding: 0.65rem 0.4rem;
+  margin-bottom: 0;
+}
+.sc-pay-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--title);
+  line-height: 1.2;
+}
+.sc-pay-option .sc-pay-sub {
+  font-size: 0.68rem;
+  line-height: 1.2;
+}
+.sc-yape-lux-content {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+.sc-summary-card {
+  padding: 0.95rem 1rem;
+  margin-top: 0.2rem;
+}
+.sc-summary-card .sc-fb-amount {
+  font-family: var(--font-sans) !important;
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .sc-input {
+    font-size: 16px !important;
+    padding: 0.72rem 0.85rem;
+  }
+  .cd-item {
+    padding: 0.65rem;
+    gap: 0.65rem;
+  }
+  .cd-item img {
+    width: 48px;
+    height: 48px;
+  }
+  .cd-item .qty-btn {
+    width: 26px;
+    height: 26px;
+  }
+  .cd-body {
+    padding: 0.85rem 0.95rem 1.4rem;
+  }
+  .sc-card {
+    padding: 0.9rem 0.85rem;
+  }
+  .cd-footer .btn {
+    font-size: 0.86rem;
+    padding: 0.65rem 0.9rem;
+    white-space: nowrap;
+  }
+}
+
+/* ==================== MODAL DE AUTENTICACIÓN REFINADO ==================== */
+#authModal.modal-overlay {
+  background: rgba(10, 11, 14, 0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+#authModal .auth-card {
+  max-width: 420px;
+  border-radius: 20px;
+  max-height: min(92vh, 720px);
+  max-height: min(92dvh, 720px);
+  background: #16181e;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  box-shadow: 0 32px 70px -16px rgba(0, 0, 0, 0.72), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+body.light #authModal .auth-card {
+  background: #ffffff;
+  border: 1px solid rgba(24, 21, 18, 0.08);
+  box-shadow: 0 28px 64px -16px rgba(15, 23, 42, 0.22), 0 2px 10px rgba(15, 23, 42, 0.06);
+}
+#authModal .auth-card::before {
+  display: none;
+}
+#authModal .auth-close {
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-mut);
+  font-size: 0.85rem;
+}
+#authModal .auth-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: transparent;
+}
+body.light #authModal .auth-close {
+  background: transparent;
+  color: #64748b;
+  border-color: transparent;
+}
+body.light #authModal .auth-close:hover {
+  background: rgba(24, 21, 18, 0.06);
+  color: #181512;
+}
+#authModal .auth-header {
+  padding: 1.55rem 1.75rem 0.9rem;
+  border-bottom: none !important;
+}
+#authModal .brand-badge-circle {
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 0.5rem;
+}
+#authModal .auth-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+}
+body.light #authModal .auth-eyebrow {
+  color: var(--gold-dark);
+}
+#authModal .auth-title {
+  font-family: var(--font-sans);
+  font-size: 1.38rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+#authModal .auth-tabs {
+  margin: 0 1.75rem;
+  padding: 3px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+body.light #authModal .auth-tabs {
+  background: #f2f0ea;
+  border: 1px solid rgba(24, 21, 18, 0.06);
+}
+#authModal .auth-tab-btn {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+#authModal .auth-body {
+  padding: 1.15rem 1.75rem 1.45rem;
+}
+.btn-google-auth {
+  width: 100%;
+  height: 44px;
+  padding: 0 1rem;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  background: #1f232b;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f8fafc;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, transform 0.15s ease;
+}
+.btn-google-auth:hover:not(:disabled) {
+  background: #272c36;
+  border-color: rgba(212, 175, 55, 0.45);
+}
+.btn-google-auth:active:not(:disabled) {
+  transform: scale(0.99);
+}
+.btn-google-auth:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+body.light .btn-google-auth {
+  background: #ffffff;
+  border: 1px solid #d7d2c8;
+  color: #1c1917;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+body.light .btn-google-auth:hover:not(:disabled) {
+  background: #faf9f6;
+  border-color: #b5afa3;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+#authModal .auth-separator {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-mut);
+  margin: 1rem 0;
+}
+#authModal .form-field {
+  margin-bottom: 0.9rem;
+}
+#authModal .form-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+#authModal .form-input,
+#authModal .phone-input-wrap {
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--title);
+  outline: none !important;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+}
+body.light #authModal .form-input,
+body.light #authModal .phone-input-wrap {
+  background: #ffffff;
+  border: 1px solid #dcd7cd;
+  color: #181512;
+}
+#authModal .form-input:focus,
+#authModal .form-input:focus-visible,
+#authModal .phone-input-wrap:focus-within {
+  outline: none !important;
+  background: rgba(255, 255, 255, 0.055);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+body.light #authModal .form-input:focus,
+body.light #authModal .form-input:focus-visible,
+body.light #authModal .phone-input-wrap:focus-within {
+  outline: none !important;
+  background: #ffffff;
+  border-color: #181512;
+  box-shadow: 0 0 0 3px rgba(24, 21, 18, 0.08);
+}
+#authModal .phone-input-wrap input {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+#authModal .auth-input-wrap:focus-within .auth-input-icon {
+  color: var(--gold);
+}
+body.light #authModal .auth-input-wrap:focus-within .auth-input-icon {
+  color: #181512;
+}
+body.light #authModal .form-input:-webkit-autofill,
+body.light #authModal .form-input:-webkit-autofill:hover,
+body.light #authModal .form-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #181512 !important;
+}
+body:not(.light) #authModal .form-input:-webkit-autofill,
+body:not(.light) #authModal .form-input:-webkit-autofill:hover,
+body:not(.light) #authModal .form-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #1c2028 inset !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+#authModal #loginSubmitBtn,
+#authModal #regSubmitBtn {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  justify-content: center;
+  gap: 0.45rem;
+}
+#authModal .auth-switch-prompt {
+  margin-top: 1.05rem;
+  padding-top: 0.9rem;
+  font-size: 0.82rem;
+}
+@media (max-width: 600px) {
+  #authModal .auth-header {
+    padding: 1.35rem 1.25rem 0.75rem;
+  }
+  #authModal .auth-tabs {
+    margin: 0 1.25rem;
+  }
+  #authModal .auth-body {
+    padding: 1rem 1.25rem 1.3rem;
+  }
+  #authModal .form-input,
+  #authModal .phone-input-wrap input {
+    font-size: 16px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -5586,15 +6810,12 @@ textarea:focus-visible,
 <!-- ==================== HEADER ==================== -->
 <header class="site-header" role="banner">
   <div class="header-inner">
-    <a class="brand" href="#inicio" onclick="go('inicio');return false;" aria-label="Chino Barber Shop — Inicio">
+    <a class="brand" href="#inicio" onclick="go('inicio');return false;" aria-label="Chino Barbershop — Inicio">
       <div class="brand-badge">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
-          <line x1="8" y1="8" x2="20" y2="18"/><line x1="8" y1="16" x2="20" y2="6"/>
-        </svg>
+        <img src="/logo.png?v=3" alt="Logo Chino Barbershop" />
       </div>
       <div>
-        <div class="brand-title">CHINO <span>BARBER</span></div>
+        <div class="brand-title">CHINO <span>BARBERSHOP</span></div>
       </div>
     </a>
 
@@ -5627,7 +6848,7 @@ textarea:focus-visible,
       </button>
 
       <!-- Toggle Tamaño de Letra Accesible (A+) -->
-      <button class="theme-toggle-btn" id="textSizeBtn" onclick="toggleLargeText();" aria-label="Activar o desactivar letra grande para mejor lectura" aria-pressed="false" title="Letra grande accesible (A+)" style="font-weight:800; font-size:0.86rem;">
+      <button class="theme-toggle-btn" id="textSizeBtn" onclick="toggleLargeText();" aria-label="Activar o desactivar letra grande para mejor lectura" aria-pressed="false" title="Letra grande accesible (A+)">
         A+
       </button>
 
@@ -5690,201 +6911,197 @@ textarea:focus-visible,
 
   <!-- ==================== VISTA: INICIO ==================== -->
   <section class="view active" id="view-inicio">
-    <!-- HERO -->
+    <!-- HERO EDITORIAL -->
     <section class="hero">
-      <div class="hero-backdrop" aria-hidden="true"></div>
       <div class="container hero-content">
         <div>
           <div id="quickRebookSlot"></div>
           <h1 class="hero-title">
-            TU MEJOR CORTE,
-            <span>SIN ESPERAS.</span>
+            Tu mejor corte,<br /><span>sin esperas.</span>
           </h1>
           <p class="hero-desc">
-            Maestría, estilo contemporáneo y atención personalizada. Agenda tu cita en 60 segundos, elige a tu barbero preferido y vive una experiencia de lujo.
+            Precisión a tijera y navaja en un estudio pensado para tu ritmo. Reserva tu sillón en menos de un minuto con tu barbero de confianza.
           </p>
           <div class="hero-actions">
             <button class="btn btn-primary btn-lg" onclick="go('reservar');">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-              Reservar Cita Ahora
+              Reservar Cita
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </button>
             <button class="btn btn-dark btn-lg" onclick="go('servicios');">
-              Ver Menú de Cortes
+              Ver Servicios
             </button>
           </div>
         </div>
 
         <div class="hero-showcase">
-          <div class="hero-card">
-            <div class="hero-card-img">
-              <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=800&q=80" alt="Corte y Barba Master" />
-              <div class="hero-card-tag">SERVICIO DESTACADO</div>
-            </div>
-            <h3>Corte + Barba Signature</h3>
-            <div class="hero-card-rating">
-              ★★★★★ <span>4.9 / 5 (380 reseñas verificadas)</span>
-            </div>
-            <div class="hero-stats-grid">
-              <div class="hero-stat-box">
-                <b>10-20h</b>
-                <small>Horario</small>
-              </div>
-              <div class="hero-stat-box">
-                <b>3</b>
-                <small>Master Barberos</small>
-              </div>
-              <div class="hero-stat-box">
-                <b>100%</b>
-                <small>Garantía</small>
-              </div>
-            </div>
-          </div>
+          <figure class="hero-editorial-frame">
+            <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=960&q=85" alt="Chino Barbershop — Estudio de barbería en Nueva Cajamarca" />
+            <figcaption class="hero-editorial-caption">
+              <span>Estudio Nueva Cajamarca</span>
+              <span>Lun – Dom · 8:00 a. m. – 9:00 p. m.</span>
+            </figcaption>
+          </figure>
         </div>
       </div>
     </section>
 
-    <!-- QUICK FEATURES -->
-    <div class="container">
-      <div class="features-bar">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    <!-- FRANJA INFORMATIVA DEL ESTUDIO -->
+    <div class="studio-strip">
+      <div class="container studio-strip-grid">
+        <div class="studio-strip-item">
+          <div class="studio-strip-ico">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           </div>
           <div>
-            <h4>Cero Esperas</h4>
-            <p>Tu sillón te espera a la hora exacta reservada.</p>
+            <h4>Puntualidad garantizada</h4>
+            <p>Tu sillón reservado a la hora exacta, sin colas.</p>
           </div>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <div class="studio-strip-item">
+          <div class="studio-strip-ico">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
           </div>
           <div>
-            <h4>Ubicación Céntrica</h4>
-            <p>Av. Los Barberos 123, Centro de Lima.</p>
+            <h4>Plaza de la Cultura</h4>
+            <p>22845, Nueva Cajamarca 22846 · Jr. Libertad S/N.</p>
           </div>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        <div class="studio-strip-item">
+          <div class="studio-strip-ico">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
           </div>
           <div>
-            <h4>Pagos Flexibles</h4>
-            <p>Yape, Plin, Tarjetas y Efectivo en el local.</p>
+            <h4>Pagos flexibles</h4>
+            <p>Yape, Plin, tarjeta o efectivo al finalizar tu corte.</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- SERVICIOS DESTACADOS -->
-    <section class="section container">
-      <div class="section-head">
-        <div class="eyebrow">NUESTROS SERVICIOS</div>
-        <h2 class="section-title">Cortes con <span>Carácter y Precisión</span></h2>
-        <div class="barber-pole-line"></div>
-        <p class="section-sub">Desde fades quirúrgicos hasta rituales completos de barba con toalla caliente.</p>
-      </div>
-      <div class="services-grid" id="featuredServicesGrid"></div>
-      <div style="text-align:center; margin-top: 2.5rem;">
-        <button class="btn btn-gold-outline btn-lg" onclick="go('servicios');">Ver todos los servicios</button>
-      </div>
-    </section>
+    <div class="section-band band-surface">
+      <section class="section container">
+        <div class="section-head section-head-split">
+          <div>
+            <div class="eyebrow">Carta de Servicios</div>
+            <h2 class="section-title">Cortes con carácter y precisión</h2>
+            <p class="section-sub">Desde degradados de precisión hasta rituales completos de barba con toalla caliente.</p>
+          </div>
+          <button class="btn btn-dark" onclick="go('servicios');">Ver todos los servicios →</button>
+        </div>
+        <div class="services-grid" id="featuredServicesGrid"></div>
+      </section>
+    </div>
 
     <!-- EQUIPO DE BARBEROS -->
-    <section class="section container">
-      <div class="section-head">
-        <div class="eyebrow">STAFF PROFESIONAL</div>
-        <h2 class="section-title">El Arte en <span>Manos Expertas</span></h2>
-        <div class="barber-pole-line"></div>
-        <p class="section-sub">Barberos apasionados por los detalles, las tendencias y la perfección técnica.</p>
-      </div>
-      <div class="barbers-grid" id="featuredBarbersGrid"></div>
-    </section>
+    <div class="section-band band-dark">
+      <section class="section container">
+        <div class="section-head section-head-split">
+          <div>
+            <div class="eyebrow">Nuestro Equipo</div>
+            <h2 class="section-title">El arte en manos expertas</h2>
+            <p class="section-sub">Barberos dedicados al detalle, la técnica tradicional y las tendencias contemporáneas.</p>
+          </div>
+          <button class="btn btn-dark" onclick="go('barberos');">Ver equipo completo →</button>
+        </div>
+        <div class="barbers-grid" id="featuredBarbersGrid"></div>
+      </section>
+    </div>
 
     <!-- TIENDA OFICIAL DESTACADA EN INICIO -->
-    <section class="section container">
-      <div class="section-head">
-        <div class="eyebrow">TIENDA OFICIAL GROOMING</div>
-        <h2 class="section-title">Productos de <span>Cuidado Masculino</span></h2>
-        <div class="barber-pole-line"></div>
-        <p class="section-sub">Lleva la experiencia de la barbería a casa: ceras mate, aceites de barba, tónicos y packs exclusivos.</p>
-      </div>
-      <div class="products-grid" id="featuredProductsGrid"></div>
-      <div style="text-align:center; margin-top: 2.5rem;">
-        <button class="btn btn-gold-outline btn-lg" onclick="go('tienda');">Ver Tienda Completa →</button>
-      </div>
-    </section>
+    <div class="section-band band-ivory">
+      <section class="section container">
+        <div class="section-head section-head-split">
+          <div>
+            <div class="eyebrow">Tienda Oficial</div>
+            <h2 class="section-title">Productos de cuidado masculino</h2>
+            <p class="section-sub">Lleva la experiencia de la barbería a casa: ceras mate, aceites de barba, tónicos y packs exclusivos.</p>
+          </div>
+          <button class="btn btn-dark" onclick="go('tienda');">Ver tienda completa →</button>
+        </div>
+        <div class="products-grid" id="featuredProductsGrid"></div>
+      </section>
+    </div>
 
     <!-- TESTIMONIOS -->
-    <section class="section container">
-      <div class="section-head">
-        <div class="eyebrow">RESEÑAS REALES</div>
-        <h2 class="section-title">La Comunidad de <span>Chino Barber</span></h2>
-        <div class="barber-pole-line"></div>
-      </div>
-      <div class="testimonials-grid" id="testimonialsGrid"></div>
-    </section>
+    <div class="section-band band-surface">
+      <section class="section container">
+        <div class="section-head">
+          <div class="eyebrow">Reseñas Reales</div>
+          <h2 class="section-title">La comunidad de Chino Barbershop</h2>
+        </div>
+        <div class="testimonials-grid" id="testimonialsGrid"></div>
+      </section>
+    </div>
 
     <!-- UBICACIÓN & CONTACTO -->
-    <section class="section container">
-      <div class="location-grid">
-        <div class="map-box">
-          <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.884501716942!2d-77.0336214!3d-12.0463731!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c8b5d35661bb%3A0x2863925c040d39e!2sPlaza%20Mayor%20de%20Lima!5e0!3m2!1ses!2spe!4v1700000000000!5m2!1ses!2spe" 
-            title="Ubicación Chino Barber Shop" 
-            loading="lazy">
-          </iframe>
-        </div>
-        <div class="loc-details">
-          <div class="eyebrow" style="margin-bottom:0.5rem">VISÍTANOS</div>
-          <h3>Un Espacio Pensado para Tu Comodidad</h3>
-          <p style="color:var(--text-dim); line-height:1.6">
-            Ambiente climatizado, café artesanal de cortesía, música selecta y Wi-Fi de alta velocidad para que tu espera sea tan placentera como tu corte.
-          </p>
-          <div class="loc-info-list">
-            <div class="loc-info-item">
-              <div class="loc-info-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+    <div class="section-band band-ivory">
+      <section class="section container">
+        <div class="location-grid">
+          <div class="map-box">
+            <iframe 
+              src="https://www.google.com/maps?q=CHINO+BARBERSHOP,+Plaza+De+La+Cultura,+22845,+Nueva+Cajamarca+22846&output=embed" 
+              title="Ubicación Chino Barbershop — Nueva Cajamarca" 
+              loading="lazy">
+            </iframe>
+          </div>
+          <div class="loc-details">
+            <div class="eyebrow" style="margin-bottom:0.5rem">Visítanos</div>
+            <h3>Un espacio pensado para tu comodidad</h3>
+            <p style="color:var(--text-dim); line-height:1.6">
+              Ambiente climatizado, café artesanal de cortesía, música selecta y Wi-Fi de alta velocidad para que tu espera sea tan placentera como tu corte.
+            </p>
+            <div class="loc-info-list">
+              <div class="loc-info-item">
+                <div class="loc-info-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                </div>
+                <div class="loc-info-text">
+                  <b>Dirección</b>
+                  <span>22845, Nueva Cajamarca 22846 (Jr. Libertad S/N · Ref. Plaza de la Cultura)</span>
+                </div>
               </div>
-              <div class="loc-info-text">
-                <b>Dirección</b>
-                <span>Av. Los Barberos 123, Centro de Lima (a 1 cuadra de Jr. de la Unión)</span>
+              <div class="loc-info-item">
+                <div class="loc-info-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                </div>
+                <div class="loc-info-text">
+                  <b>Horario de Atención</b>
+                  <span>Lunes a Domingo: 8:00 a. m. – 9:00 p. m.</span>
+                </div>
+              </div>
+              <div class="loc-info-item">
+                <div class="loc-info-icon">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.5a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/></svg>
+                </div>
+                <div class="loc-info-text">
+                  <b>Teléfono & WhatsApp</b>
+                  <span>+51 928 192 437</span>
+                </div>
               </div>
             </div>
-            <div class="loc-info-item">
-              <div class="loc-info-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-              </div>
-              <div class="loc-info-text">
-                <b>Horario de Atención</b>
-                <span>Lunes a Sábado: 10:00 am - 8:00 pm · Domingo: Cerrado</span>
-              </div>
-            </div>
-            <div class="loc-info-item">
-              <div class="loc-info-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.5a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/></svg>
-              </div>
-              <div class="loc-info-text">
-                <b>Teléfono & WhatsApp</b>
-                <span>+51 987 654 321 / (01) 234-5678</span>
-              </div>
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="go('reservar');">Agendar Mi Hora</button>
+              <a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&query=CHINO+BARBERSHOP+Plaza+De+La+Cultura+Nueva+Cajamarca" target="_blank" rel="noopener">Abrir en Google Maps</a>
             </div>
           </div>
-          <button class="btn btn-dark" onclick="go('reservar');">
-            Agendar Mi Hora Ahora
-          </button>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </section>
 
   <!-- ==================== VISTA: SERVICIOS ==================== -->
   <section class="view" id="view-servicios">
     <div class="section container">
+      <div class="view-back-bar">
+        <button type="button" class="back-nav-btn" onclick="goBack();">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Volver</span>
+        </button>
+      </div>
       <div class="section-head">
         <div class="eyebrow">CATÁLOGO EXCLUSIVO</div>
         <h2 class="section-title">Nuestra Carta de <span>Servicios</span></h2>
-        <div class="barber-pole-line"></div>
         <p class="section-sub">Selecciona el tratamiento que deseas y reserva en línea en cuestión de segundos.</p>
       </div>
 
@@ -5902,10 +7119,15 @@ textarea:focus-visible,
   <!-- ==================== VISTA: TIENDA DE PRODUCTOS ==================== -->
   <section class="view" id="view-tienda">
     <div class="section container">
+      <div class="view-back-bar">
+        <button type="button" class="back-nav-btn" onclick="goBack();">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Volver</span>
+        </button>
+      </div>
       <div class="section-head">
         <div class="eyebrow">GROOMING & CUIDADO PERSONAL</div>
-        <h2 class="section-title">Tienda Oficial <span>Chino Barber</span></h2>
-        <div class="barber-pole-line"></div>
+        <h2 class="section-title">Tienda Oficial <span>Chino Barbershop</span></h2>
         <p class="section-sub">Fórmulas profesionales para el estilizado del cabello, mantenimiento de barba y cuidado de la piel masculina.</p>
       </div>
 
@@ -5924,10 +7146,15 @@ textarea:focus-visible,
   <!-- ==================== VISTA: BARBEROS ==================== -->
   <section class="view" id="view-barberos">
     <div class="section container">
+      <div class="view-back-bar">
+        <button type="button" class="back-nav-btn" onclick="goBack();">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Volver</span>
+        </button>
+      </div>
       <div class="section-head">
         <div class="eyebrow">NUESTROS MAESTROS</div>
         <h2 class="section-title">Conoce a los <span>Especialistas</span></h2>
-        <div class="barber-pole-line"></div>
         <p class="section-sub">Cada barbero cuenta con un estilo y técnica distintiva para elevar tu imagen.</p>
       </div>
       <div class="barbers-grid" id="allBarbersGrid"></div>
@@ -5937,10 +7164,15 @@ textarea:focus-visible,
   <!-- ==================== VISTA: GALERÍA ==================== -->
   <section class="view" id="view-galeria">
     <div class="section container">
+      <div class="view-back-bar">
+        <button type="button" class="back-nav-btn" onclick="goBack();">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Volver</span>
+        </button>
+      </div>
       <div class="section-head">
         <div class="eyebrow">BOOK DE ESTILOS</div>
         <h2 class="section-title">Galería de <span>Trabajos Reales</span></h2>
-        <div class="barber-pole-line"></div>
         <p class="section-sub">Inspírate con algunos de los cortes y afeitados realizados en nuestro estudio.</p>
       </div>
       <div class="gallery-grid" id="galleryGrid"></div>
@@ -5950,10 +7182,15 @@ textarea:focus-visible,
   <!-- ==================== VISTA: RESERVAR ==================== -->
   <section class="view" id="view-reservar">
     <div class="section container">
+      <div class="view-back-bar">
+        <button type="button" class="back-nav-btn" onclick="goBack();">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Volver</span>
+        </button>
+      </div>
       <div class="section-head">
         <div class="eyebrow">SISTEMA INTELIGENTE DE CITAS</div>
         <h2 class="section-title">Agenda Tu <span>Próximo Look</span></h2>
-        <div class="barber-pole-line"></div>
         <p class="section-sub">Elige tu servicio, barbero, fecha y método de pago en solo unos clics.</p>
       </div>
 
@@ -5994,6 +7231,11 @@ textarea:focus-visible,
               <span class="step-label">Pago</span>
             </button>
           </div>
+
+          <button type="button" class="step-top-back" id="stepTopBackBtn" onclick="goPrevStep();" style="display:none;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <span>Paso anterior</span>
+          </button>
 
           <!-- PASO 1: SERVICIO -->
           <div class="step-panel active" id="stepPanel-1">
@@ -6073,7 +7315,7 @@ textarea:focus-visible,
 
           <!-- Navegación de Pasos -->
           <div class="stepper-actions">
-            <button class="btn btn-dark" id="stepPrevBtn" type="button" style="visibility:hidden;">Atrás</button>
+            <button class="btn btn-dark" id="stepPrevBtn" type="button">← Volver</button>
             <button class="btn btn-primary" id="stepNextBtn" type="button" disabled>Siguiente Paso</button>
           </div>
         </div>
@@ -6102,20 +7344,27 @@ textarea:focus-visible,
   <!-- ==================== VISTA: MIS CITAS Y PEDIDOS ==================== -->
   <section class="view" id="view-miscitas">
     <div class="section container">
+      <div class="view-back-bar">
+        <button type="button" class="back-nav-btn" onclick="goBack();">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <span>Volver</span>
+        </button>
+      </div>
       <div class="section-head">
         <div class="eyebrow">HISTORIAL EN TIEMPO REAL</div>
         <h2 class="section-title">Mis Citas &amp; <span>Pedidos</span></h2>
-        <div class="barber-pole-line"></div>
         <p class="section-sub">Consulta tus reservas, tus compras de productos y su estado actualizado al instante.</p>
       </div>
 
       <div class="mc-tabs-wrap">
         <div class="mc-tabs" role="tablist" aria-label="Historial del cliente">
           <button type="button" class="mc-tab-btn active" id="mcTabCitas" role="tab" aria-selected="true" onclick="switchMisCitasTab('citas');">
-            📅 Mis Citas <span class="mc-tab-badge" id="mcCountCitas">0</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Mis Citas <span class="mc-tab-badge" id="mcCountCitas">0</span>
           </button>
           <button type="button" class="mc-tab-btn" id="mcTabPedidos" role="tab" aria-selected="false" onclick="switchMisCitasTab('pedidos');">
-            🛍️ Mis Pedidos <span class="mc-tab-badge" id="mcCountPedidos">0</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Mis Pedidos <span class="mc-tab-badge" id="mcCountPedidos">0</span>
           </button>
         </div>
       </div>
@@ -6133,42 +7382,30 @@ textarea:focus-visible,
     <button class="auth-close" onclick="closeAuthModal();" aria-label="Cerrar ventana">✕</button>
     <div class="auth-header">
       <div class="brand-badge-circle">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2">
-          <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
-          <line x1="8" y1="8" x2="20" y2="18"/><line x1="8" y1="16" x2="20" y2="6"/>
-        </svg>
+        <img src="/logo.png?v=3" alt="Logo Chino Barbershop" />
       </div>
-      <span class="auth-eyebrow">CHINO BARBER SHOP · EST. 2020</span>
-      <h3 class="auth-title" id="authTitle">Bienvenido de nuevo</h3>
-      <p class="auth-sub" id="authSub">Accede para gestionar tus reservas, pedidos y sellos VIP</p>
+      <span class="auth-eyebrow">CHINO BARBERSHOP</span>
+      <h3 class="auth-title" id="authTitle">Iniciar sesión</h3>
     </div>
 
     <!-- Pestañas Segmentadas Login / Registro -->
     <div class="auth-tabs" role="tablist">
       <button class="auth-tab-btn active" id="tabBtnLogin" type="button" onclick="switchAuthTab('login');">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
         <span>Iniciar Sesión</span>
       </button>
       <button class="auth-tab-btn" id="tabBtnRegister" type="button" onclick="switchAuthTab('register');">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
         <span>Crear Cuenta</span>
       </button>
     </div>
 
     <div class="auth-body">
-      <!-- Acceso Social Compacto -->
-      <div class="social-buttons">
-        <button class="btn-social" type="button" onclick="loginWithSocial('Google');">
-          <svg viewBox="0 0 24 24" width="16" height="16"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.3l3.7 2.9C6.2 7.3 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.3 14.8c-.2-.7-.4-1.5-.4-2.8s.2-2.1.4-2.8L1.6 6.3C.6 8.3 0 10.6 0 13s.6 4.7 1.6 6.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.3-6.7-5.2L1.6 16C3.5 19.7 7.4 23 12 23z"/></svg>
-          <span>Google</span>
-        </button>
-        <button class="btn-social" type="button" onclick="loginWithSocial('Apple');">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.7 19.5c-.8 1.2-1.7 2.4-3 2.5-1.3.1-1.8-.7-3.3-.7s-2 .7-3.3.7c-1.3-.1-2.2-1.3-3.1-2.5-1.7-2.5-3-7-1.3-10 1-.8 2.2-1.4 3.5-1.4 1.3 0 2.2.7 3.1.7.9 0 2-.7 3.4-.7 1.2 0 2.3.5 3.1 1.4-2.7 1.6-2.3 5.5.4 6.7-.7 1.3-1.4 2.7-2.5 3.6zM15.5 6.5c.6-.8 1.1-1.9 1-3-.9.1-2.1.7-2.7 1.5-.6.7-1.1 1.8-1 2.9 1.1.1 2.1-.6 2.7-1.4z"/></svg>
-          <span>Apple</span>
-        </button>
-      </div>
+      <!-- Acceso directo con Google -->
+      <button class="btn-google-auth" type="button" id="googleLoginBtn" onclick="loginWithGoogle(this);">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.3l3.7 2.9C6.2 7.3 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/><path fill="#FBBC05" d="M5.3 14.8c-.2-.7-.4-1.5-.4-2.8s.2-2.1.4-2.8L1.6 6.3C.6 8.3 0 10.6 0 13s.6 4.7 1.6 6.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.3-6.7-5.2L1.6 16C3.5 19.7 7.4 23 12 23z"/></svg>
+        <span>Continuar con Google</span>
+      </button>
 
-      <div class="auth-separator">o con tus credenciales</div>
+      <div class="auth-separator">o continúa con tu correo</div>
 
       <!-- FORMULARIO: LOGIN -->
       <form id="formLogin" onsubmit="handleLoginSubmit(event);">
@@ -6178,11 +7415,11 @@ textarea:focus-visible,
             <span class="auth-input-icon">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             </span>
-            <input class="form-input" id="loginEmail" type="text" placeholder="nombre@correo.com o 987654321" required />
+            <input class="form-input" id="loginEmail" type="text" autocomplete="username" placeholder="tu@correo.com o 987654321" required />
           </div>
         </div>
         <div class="form-field">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.3rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.35rem;">
             <label class="form-label" for="loginPwd" style="margin:0;">Contraseña</label>
             <a href="#" style="font-size:0.74rem; font-weight:600; color:var(--gold);" onclick="openForgotPwd(event);">¿Olvidaste tu contraseña?</a>
           </div>
@@ -6190,29 +7427,20 @@ textarea:focus-visible,
             <span class="auth-input-icon">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </span>
-            <input class="form-input" id="loginPwd" type="password" placeholder="••••••••" required style="padding-right:40px;" />
+            <input class="form-input" id="loginPwd" type="password" autocomplete="current-password" placeholder="••••••••" required style="padding-right:40px;" />
             <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('loginPwd', this);" aria-label="Mostrar/ocultar contraseña">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
         </div>
-        <div class="form-field" style="display:flex; align-items:center; gap:0.45rem; margin-bottom:0.8rem;">
+        <div class="form-field" style="display:flex; align-items:center; gap:0.45rem; margin-bottom:0.95rem;">
           <input type="checkbox" id="loginRemember" style="accent-color: var(--gold); cursor:pointer; width:15px; height:15px;" checked />
           <label for="loginRemember" style="font-size:0.78rem; color:var(--text-dim); cursor:pointer;">Mantener mi sesión activa en este equipo</label>
         </div>
-        <button class="btn btn-primary btn-block" type="submit" id="loginSubmitBtn" style="justify-content:center; min-height:43px; font-weight:700; border-radius:11px; gap:0.5rem;">
+        <button class="btn btn-primary btn-block" type="submit" id="loginSubmitBtn">
           <span>Iniciar Sesión</span>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
-
-        <!-- Acceso Rápido Demo Elegante -->
-        <div class="demo-quick-pill" id="demoLoginPrompt" role="button" tabindex="0" onclick="fillDemoCreds('carlos@demo.com','OtraClave77');" title="Clic para autocompletar">
-          <div class="dqp-left">
-            <span class="dqp-tag">DEMO</span>
-            <span class="dqp-text">Cliente de prueba (carlos@demo.com)</span>
-          </div>
-          <span class="dqp-action">Autocompletar →</span>
-        </div>
 
         <div class="auth-switch-prompt">
           ¿Aún no tienes una cuenta? <a href="#" onclick="switchAuthTab('register');return false;">Crear cuenta gratis</a>
@@ -6227,7 +7455,7 @@ textarea:focus-visible,
             <span class="auth-input-icon">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </span>
-            <input class="form-input" id="regName" type="text" placeholder="Ej. Juan Pérez" required />
+            <input class="form-input" id="regName" type="text" autocomplete="name" placeholder="Ej. Juan Pérez" required />
           </div>
         </div>
         <div class="form-field">
@@ -6236,14 +7464,14 @@ textarea:focus-visible,
             <span class="auth-input-icon">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             </span>
-            <input class="form-input" id="regEmail" type="email" placeholder="juan@ejemplo.com" required />
+            <input class="form-input" id="regEmail" type="email" autocomplete="email" placeholder="juan@ejemplo.com" required />
           </div>
         </div>
         <div class="form-field">
           <label class="form-label" for="regCel">Celular (Perú) <span class="req">*</span></label>
-          <div class="phone-input-wrap" style="min-height:41px; border-radius:10px;">
+          <div class="phone-input-wrap">
             <span class="phone-prefix">+51</span>
-            <input id="regCel" type="tel" maxlength="9" placeholder="987654321" required />
+            <input id="regCel" type="tel" autocomplete="tel" maxlength="9" placeholder="987654321" required />
           </div>
         </div>
         <div class="form-field">
@@ -6252,7 +7480,7 @@ textarea:focus-visible,
             <span class="auth-input-icon">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </span>
-            <input class="form-input" id="regPwd" type="password" placeholder="Mínimo 6 caracteres" required oninput="evaluatePwdStrength(this.value);" style="padding-right:40px;" />
+            <input class="form-input" id="regPwd" type="password" autocomplete="new-password" placeholder="Mínimo 6 caracteres" required oninput="evaluatePwdStrength(this.value);" style="padding-right:40px;" />
             <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('regPwd', this);" aria-label="Mostrar/ocultar contraseña">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
@@ -6270,16 +7498,16 @@ textarea:focus-visible,
             <span class="auth-input-icon">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             </span>
-            <input class="form-input" id="regPwdConfirm" type="password" placeholder="Repite tu contraseña" required />
+            <input class="form-input" id="regPwdConfirm" type="password" autocomplete="new-password" placeholder="Repite tu contraseña" required />
           </div>
         </div>
         <div class="form-field" style="display:flex; align-items:flex-start; gap:0.5rem;">
           <input type="checkbox" id="regTerms" style="accent-color: var(--gold); margin-top:0.2rem; cursor:pointer;" required />
           <label for="regTerms" style="font-size:0.76rem; color:var(--text-dim); cursor:pointer;">
-            Acepto los términos de servicio y la política de privacidad de Chino Barber Shop.
+            Acepto los términos de servicio y la política de privacidad de Chino Barbershop.
           </label>
         </div>
-        <button class="btn btn-primary btn-block" type="submit" id="regSubmitBtn" style="justify-content:center; min-height:43px; font-weight:700; border-radius:11px;">
+        <button class="btn btn-primary btn-block" type="submit" id="regSubmitBtn">
           Crear Cuenta Gratuita →
         </button>
         <div class="auth-switch-prompt">
@@ -6479,7 +7707,7 @@ textarea:focus-visible,
 </nav>
 
 <!-- ==================== WHATSAPP DIRECT ==================== -->
-<a class="whatsapp-float" href="https://wa.me/51987654321?text=Hola%20Chino%20Barber%20Shop,%20deseo%20consultar%20sobre%20una%20reserva" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
+<a class="whatsapp-float" href="https://wa.me/51928192437?text=Hola%20Chino%20Barber%20Shop,%20deseo%20consultar%20sobre%20una%20reserva" target="_blank" rel="noopener" aria-label="Contactar por WhatsApp">
   <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3.2-.5 0-.2 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5a1 1 0 0 0-.7.3c-.6.6-.9 1.4-.9 2.3.1 1.5.8 2.9 1.8 4 1.9 2.3 4.4 3.3 5.4 3 .4-.1 1.1-.5 1.3-1 .1-.4.1-.7.1-.8-.1-.1-.2-.1-.4-.2z"/></svg>
 </a>
 
@@ -6505,13 +7733,10 @@ textarea:focus-visible,
       <div class="footer-brand">
         <a class="brand" href="#inicio" onclick="go('inicio');return false;">
           <div class="brand-badge">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
-              <line x1="8" y1="8" x2="20" y2="18"/><line x1="8" y1="16" x2="20" y2="6"/>
-            </svg>
+            <img src="/logo.png?v=3" alt="Logo Chino Barbershop" />
           </div>
           <div>
-            <div class="brand-title">CHINO <span>BARBER</span></div>
+            <div class="brand-title">CHINO <span>BARBERSHOP</span></div>
           </div>
         </a>
         <p>
@@ -6539,10 +7764,11 @@ textarea:focus-visible,
       <div class="footer-col">
         <h4>Atención</h4>
         <ul>
-          <li><span style="color:var(--text-dim)">Lunes a Sábado:</span></li>
-          <li><b style="color:#fff">10:00 am — 8:00 pm</b></li>
-          <li style="margin-top:0.5rem;"><span style="color:var(--text-dim)">Domingos:</span></li>
-          <li><span style="color:var(--err); font-weight:600;">Cerrado (Mantenimiento)</span></li>
+          <li><span style="color:var(--text-dim)">Lunes a Domingo:</span></li>
+          <li><b style="color:#fff">8:00 a. m. — 9:00 p. m.</b></li>
+          <li style="margin-top:0.5rem;"><span style="color:var(--text-dim)">Dirección:</span></li>
+          <li><span style="color:var(--gold); font-weight:600;">22845, Nueva Cajamarca 22846</span></li>
+          <li style="margin-top:0.4rem;"><span style="color:var(--text-dim)">WhatsApp: <b style="color:#fff;">928 192 437</b></span></li>
         </ul>
       </div>
 
@@ -6561,7 +7787,7 @@ textarea:focus-visible,
     </div>
 
     <div class="footer-bottom">
-      © <span id="yearVal"></span> Chino Barber Shop. Todos los derechos reservados. Diseñado para una experiencia de reserva premium.
+      © <span id="yearVal"></span> Chino Barbershop. Todos los derechos reservados. Diseñado para una experiencia de reserva premium.
     </div>
   </div>
 </footer>
@@ -6912,18 +8138,37 @@ async function loadCatalog() {
       SERVICIOS = resS.servicios.map(s => ({ id: s.id, cat: s.cat, nombre: s.nombre, desc: s.desc, dur: s.dur, precio: s.precio, foto: s.foto, activo: s.activo }));
     }
     if (Array.isArray(resB.barberos) && resB.barberos.length) {
-      BARBEROS = resB.barberos.map(b => ({ id: b.id, nombre: b.nombre, rol: b.rol, esp: b.esp, exp: b.exp, tags: Array.isArray(b.tags) ? b.tags : [], foto: b.foto, activo: b.activo }));
+      const cleanTag = t => String(t ?? '').replace(/[\[\]"']/g, '').trim();
+      BARBEROS = resB.barberos.map(b => ({
+        id: b.id,
+        nombre: b.nombre,
+        rol: b.rol,
+        esp: b.esp,
+        exp: b.exp,
+        tags: (Array.isArray(b.tags) ? b.tags : String(b.tags ?? '').split(',')).map(cleanTag).filter(Boolean),
+        foto: b.foto,
+        activo: b.activo,
+      }));
     }
     if (Array.isArray(resP.productos) && resP.productos.length) {
       const catMap = {
-        'Cabello & Styling': 'styling',
+        'Cabello & Styling': 'cabello',
+        'Cabello & Fijación': 'cabello',
+        'styling': 'cabello',
+        'cabello': 'cabello',
         'Cuidado de Barba': 'barba',
+        'barba': 'barba',
         'Afeitado & Cuidado': 'cuidado',
-        'Packs & Accesorios': 'accesorios',
+        'Rostro & Ducha': 'cuidado',
+        'cuidado': 'cuidado',
+        'Packs & Accesorios': 'packs',
+        'Packs & Regalos': 'packs',
+        'accesorios': 'packs',
+        'packs': 'packs',
       };
       PRODUCTOS.splice(0, PRODUCTOS.length, ...resP.productos.map(p => ({
         id: p.id,
-        cat: catMap[p.cat] || p.cat || 'styling',
+        cat: catMap[p.cat] || p.cat || 'cabello',
         marca: p.marca || 'Chino Barber Shop',
         nombre: p.nombre,
         presentacion: p.presentacion || 'Unidad',
@@ -7043,6 +8288,7 @@ const CBS_SYNC = {
 /* ESTADO GLOBAL DE LA APLICACIÓN */
 let state = {
   view: 'inicio',
+  viewHistory: [],
   step: 1,
   currentUser: null,          // se carga desde /api/auth/login (GET) al inicio
   reservation: resetReservationObj(),
@@ -7089,9 +8335,9 @@ function updateHeaderAuth() {
     slot.innerHTML = `
       <div class="user-menu-btn" id="userMenuBtn" role="button" tabindex="0" aria-haspopup="true" aria-label="Menú de usuario" onclick="toggleUserDropdown(event);">
         <div class="user-avatar">
-          ${state.currentUser.avatar ? `<img src="${state.currentUser.avatar}" alt="${state.currentUser.nombre}" />` : initials}
+          ${state.currentUser.avatar ? `<img src="${escapeHTML(state.currentUser.avatar)}" alt="${escapeHTML(state.currentUser.nombre)}" referrerpolicy="no-referrer" />` : escapeHTML(initials)}
         </div>
-        <span class="user-name-short">${state.currentUser.nombre.split(' ')[0]}</span>
+        <span class="user-name-short">${escapeHTML(state.currentUser.nombre.split(' ')[0])}</span>
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
       </div>
     `;
@@ -7107,11 +8353,11 @@ function updateHeaderAuth() {
         <div style="background:var(--bg-card); border:1px solid var(--line-gold); border-radius:var(--radius-sm); padding:0.85rem; margin-top:0.5rem;">
           <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.75rem;">
             <div class="user-avatar" style="width:36px; height:36px; font-size:0.9rem;">
-              ${state.currentUser.avatar ? `<img src="${state.currentUser.avatar}" alt="${state.currentUser.nombre}" />` : initials}
+              ${state.currentUser.avatar ? `<img src="${escapeHTML(state.currentUser.avatar)}" alt="${escapeHTML(state.currentUser.nombre)}" referrerpolicy="no-referrer" />` : escapeHTML(initials)}
             </div>
             <div>
-              <div style="font-weight:700; color:#fff; font-size:0.95rem;">${state.currentUser.nombre}</div>
-              <div style="font-size:0.75rem; color:var(--text-mut);">${state.currentUser.email || state.currentUser.celular}</div>
+              <div style="font-weight:700; color:#fff; font-size:0.95rem;">${escapeHTML(state.currentUser.nombre)}</div>
+              <div style="font-size:0.75rem; color:var(--text-mut);">${escapeHTML(state.currentUser.email || state.currentUser.celular)}</div>
             </div>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
@@ -7168,12 +8414,8 @@ function switchAuthTab(tab) {
   const fReg = $('#formRegister');
   if (fLogin) fLogin.style.display = isLogin ? 'block' : 'none';
   if (fReg) fReg.style.display = isLogin ? 'none' : 'block';
-  const dlp = $('#demoLoginPrompt');
-  if (dlp) dlp.style.display = isLogin ? 'flex' : 'none';
   const titleEl = $('#authTitle');
-  const subEl = $('#authSub');
-  if (titleEl) titleEl.textContent = isLogin ? 'Bienvenido de nuevo' : 'Crea tu cuenta VIP';
-  if (subEl) subEl.textContent = isLogin ? 'Accede para gestionar tus reservas, pedidos y sellos VIP' : 'Regístrate en segundos para reservar sin esperas';
+  if (titleEl) titleEl.textContent = isLogin ? 'Iniciar sesión' : 'Crear cuenta';
 }
 
 function togglePasswordVisibility(inputId, btn) {
@@ -7277,38 +8519,12 @@ async function handleRegisterSubmit(e) {
   if (pendingLoginAction) { const a = pendingLoginAction; pendingLoginAction = null; a(); }
 }
 
-/* Llena el formulario de login con las credenciales de prueba (clic en el bloque del modal) */
-async function fillDemoCreds(email, pwd) {
-  const emailInput = $('#loginEmail');
-  const pwdInput = $('#loginPwd');
-  if (emailInput) emailInput.value = email;
-  if (pwdInput) pwdInput.value = pwd;
-
-  showToast('Iniciando sesión...', 'ok');
-  const res = await API.post('/api/auth/login', { identifier: email, password: pwd });
-  if (res.error) {
-    showToast(res.error, 'err');
-    return;
+function loginWithGoogle(btn) {
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>Conectando con Google...</span>';
   }
-  setCurrentUser(res.user);
-  closeAuthModal();
-  showToast(`¡Bienvenido de vuelta, ${res.user.nombre}! 👋`, 'ok');
-  go('inicio');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function loginWithSocial(provider) {
-  const socialUser = {
-    id: 'usr_soc_' + Date.now(),
-    nombre: provider === 'Google' ? 'Carlos Mendoza' : 'Usuario Apple',
-    email: provider === 'Google' ? 'carlos.mendoza@gmail.com' : 'usuario@privaterelay.appleid.com',
-    celular: '987654321',
-    password: 'soc',
-    avatar: provider === 'Google' ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80' : null
-  };
-  setCurrentUser(socialUser);
-  closeAuthModal();
-  showToast(`Acceso exitoso con ${provider}`, 'ok');
+  window.location.href = '/api/auth/google';
 }
 
 function clearBookingConfirmation() {
@@ -7485,6 +8701,12 @@ function requireLogin(action) {
 }
 
 function go(viewName, opts = {}) {
+  if (state.view && state.view !== viewName && !opts.fromBack) {
+    state.viewHistory = state.viewHistory || [];
+    state.viewHistory.push(state.view);
+    if (state.viewHistory.length > 20) state.viewHistory.shift();
+  }
+  document.body.style.overflow = '';
   state.view = viewName;
   $$('.view').forEach(v => v.classList.remove('active'));
   const target = $('#view-' + viewName);
@@ -7521,6 +8743,11 @@ function go(viewName, opts = {}) {
   }
 
   history.replaceState(null, '', '#' + viewName);
+}
+
+function goBack() {
+  const prev = (state.viewHistory && state.viewHistory.length) ? state.viewHistory.pop() : 'inicio';
+  go(prev || 'inicio', { fromBack: true, keepStep: false });
 }
 
 window.addEventListener('hashchange', () => {
@@ -7677,9 +8904,8 @@ function renderServiceCard(s) {
     <article class="service-card">
       <div class="service-media" role="button" tabindex="0" onclick="openLightbox('${s.foto}');" title="Ver foto completa">
         <img src="${s.foto}" alt="${s.nombre}" loading="lazy" />
-        <span class="service-zoom-hint">🔍 Ver foto completa</span>
         <span class="service-dur-pill">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           ${s.dur} min
         </span>
       </div>
@@ -7689,7 +8915,7 @@ function renderServiceCard(s) {
         <div class="service-footer">
           <div class="service-price">${fmtPrice(s.precio)}</div>
           <button class="btn-card" onclick="startBookingWithService('${s.id}');">
-            Reservar Este Servicio
+            Reservar →
           </button>
         </div>
       </div>
@@ -7708,7 +8934,7 @@ function renderBarberCard(b) {
         <h3 class="barber-name">${b.nombre}</h3>
         <div class="barber-role">${b.rol}</div>
         <div class="barber-tags">
-          ${b.tags.map(t => `<span class="tag-pill">${t}</span>`).join('')}
+          ${(Array.isArray(b.tags) ? b.tags : []).map(t => String(t ?? '').replace(/[\[\]"']/g, '').trim()).filter(Boolean).map(t => `<span class="tag-pill">${escapeHTML(t)}</span>`).join('')}
         </div>
         <p style="font-size:0.86rem; color:var(--text-dim); margin-bottom:1.2rem;">${b.esp}</p>
         <button class="btn btn-dark btn-block btn-sm" onclick="startBookingWithBarber('${b.id}');">
@@ -7823,7 +9049,10 @@ function updateStepperButtons() {
     actionsBar.classList.toggle('unstick', state.step >= 3);
   }
 
-  prevBtn.style.visibility = state.step === 1 ? 'hidden' : 'visible';
+  prevBtn.style.visibility = 'visible';
+  prevBtn.textContent = state.step > 1 ? '← Paso anterior' : '← Volver';
+  const topBackBtn = $('#stepTopBackBtn');
+  if (topBackBtn) topBackBtn.style.display = state.step > 1 ? 'inline-flex' : 'none';
   nextBtn.disabled = false;
   nextBtn.setAttribute('aria-disabled', String(!valid));
   nextBtn.style.opacity = valid ? '1' : '0.78';
@@ -7917,11 +9146,22 @@ function goNextStep() {
   }
 }
 
-$('#stepPrevBtn').addEventListener('click', () => {
+function goPrevStep() {
   if (state.step > 1) {
     state.step--;
     renderReservationFlow();
+    const card = $('.reservar-card');
+    if (card) {
+      const top = card.getBoundingClientRect().top + window.scrollY - 90;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    }
+  } else {
+    goBack();
   }
+}
+
+$('#stepPrevBtn').addEventListener('click', () => {
+  goPrevStep();
 });
 
 $('#stepNextBtn').addEventListener('click', () => {
@@ -8054,7 +9294,6 @@ let calViewMonth = null;
 function getFirstBookableISO() {
   const dt = new Date();
   dt.setHours(0, 0, 0, 0);
-  if (dt.getDay() === 0) dt.setDate(dt.getDate() + 1);
   return toLocalDateISO(dt);
 }
 
@@ -8114,8 +9353,7 @@ function renderStep3Calendar(skipSlots = false) {
     dt.setHours(0, 0, 0, 0);
     const iso = toLocalDateISO(dt);
     const isPast = dt < today;
-    const isSunday = dt.getDay() === 0;
-    const disabled = isPast || isSunday;
+    const disabled = isPast;
     const isSel = state.reservation.date === iso;
     const isToday = toLocalDateISO(today) === iso;
 
@@ -8188,14 +9426,14 @@ function slotIsTaken(ocupados, t, barberFilter, horasBloqueadas = []) {
   return ocupados.some(o => o.hora === t && o.barbero === barberFilter);
 }
 
-/* Días reservables (próximos N, omitiendo domingos) */
+/* Días reservables (próximos N, lunes a domingo) */
 function getBookableDays(count = 14) {
   const days = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   let current = new Date(today);
   while (days.length < count) {
-    if (current.getDay() !== 0) days.push(new Date(current));
+    days.push(new Date(current));
     current.setDate(current.getDate() + 1);
   }
   return days;
@@ -8226,7 +9464,7 @@ async function renderSlots() {
   `;
 
   const allTimes = [];
-  for (let h = 10; h < 20; h++) {
+  for (let h = 8; h < 21; h++) {
     allTimes.push(`${String(h).padStart(2, '0')}:00`);
     allTimes.push(`${String(h).padStart(2, '0')}:30`);
   }
@@ -8321,7 +9559,7 @@ async function checkLoyaltyStatus(celular) {
           <div class="lv-shine"></div>
           <div class="lv-top">
             <div>
-              <span class="lv-eyebrow">Chino Barber · Club</span>
+              <span class="lv-eyebrow">Chino Barbershop · Club</span>
               <h4 class="lv-title">Tarjeta Fidelidad <em>VIP</em></h4>
             </div>
             <div class="lv-count">
@@ -8511,8 +9749,8 @@ function renderPaymentBody() {
             <div style="display:inline-block; background:${isYape ? '#7128b0' : '#00a3e0'}; color:#fff; font-size:0.75rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:12px; margin-bottom:0.4rem;">
               ${isYape ? 'YAPE OFICIAL' : 'PLIN OFICIAL'}
             </div>
-            <h4 style="color:var(--title); font-size:1.15rem; margin-bottom:0.2rem;">Chino Barber Shop E.I.R.L.</h4>
-            <div style="font-family:var(--font-display); font-size:1.8rem; color:var(--gold);">987 654 321</div>
+            <h4 style="color:var(--title); font-size:1.15rem; margin-bottom:0.2rem;">Chino Barbershop E.I.R.L.</h4>
+            <div style="font-family:var(--font-display); font-size:1.8rem; color:var(--gold);">928 192 437</div>
             <p style="font-size:0.85rem; color:var(--text-dim); margin:0.4rem 0;">
               Escanea el código QR o transfiere <b style="color:var(--title)">${fmtPrice(total)}</b>${addonTotal > 0 ? ` <small style="color:var(--gold);">(Servicio + Productos)</small>` : ''}. Luego ingresa los 6 dígitos del código de operación.
             </p>
@@ -8770,8 +10008,8 @@ function getGoogleCalendarUrl(cita) {
   
   const toUtcStr = dt => dt.toISOString().replace(/-|:|\.\d\d\d/g, '');
   const title = encodeURIComponent(`💈 Cita en Chino Barber: ${cita.serviceName || 'Corte'}`);
-  const details = encodeURIComponent(`Tu turno en Chino Barber Shop.\n\nServicio: ${cita.serviceName}\nBarbero: ${cita.barberName}\nCódigo: ${cita.opNum}\nTotal: ${fmtPrice(cita.total)}\nDirección: Av. Universitaria 1234, Lima\n¡Por favor llega 5 minutos antes!`);
-  const location = encodeURIComponent('Chino Barber Shop, Av. Universitaria 1234, Lima, Perú');
+  const details = encodeURIComponent(`Tu turno en Chino Barber Shop.\n\nServicio: ${cita.serviceName}\nBarbero: ${cita.barberName}\nCódigo: ${cita.opNum}\nTotal: ${fmtPrice(cita.total)}\nDirección: 22845, Nueva Cajamarca 22846 (Jr. Libertad S/N)\n¡Por favor llega 5 minutos antes!`);
+  const location = encodeURIComponent('Chino Barber Shop, 22845, Nueva Cajamarca 22846');
   return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${toUtcStr(start)}/${toUtcStr(end)}&details=${details}&location=${location}`;
 }
 
@@ -8801,7 +10039,7 @@ function downloadIcsCalendar(cita) {
     `DTEND:${toUtcStr(end)}`,
     `SUMMARY:💈 Chino Barber: ${cita.serviceName || 'Corte'}`,
     `DESCRIPTION:Cita con ${cita.barberName}. Código ${cita.opNum}`,
-    'LOCATION:Av. Universitaria 1234, Lima, Perú',
+    'LOCATION:22845, Nueva Cajamarca 22846',
     'STATUS:CONFIRMED',
     'END:VEVENT',
     'END:VCALENDAR'
@@ -8824,7 +10062,7 @@ function shareBookingWhatsApp(cita) {
   const prodsLine = (cita.addonItems && cita.addonItems.length)
     ? `\n🛍️ *Productos incluidos:* ${cita.addonItems.map(i => `${i.qty}x ${i.nombre} (${fmtPrice(i.subtotal)})`).join(', ')}`
     : '';
-  const msg = `💈 *¡Mi Cita en Chino Barber Shop!* 💈\n\n✂️ *Servicio:* ${cita.serviceName || 'Servicio'}${prodsLine}\n👤 *Barbero:* ${cita.barberName || 'Barbero'}\n📅 *Fecha & Hora:* ${fechaStr} · ${horaStr}\n💰 *Monto Total:* ${fmtPrice(cita.total)}\n🏷️ *Código:* ${cita.opNum || ''}\n📍 *Ubicación:* Av. Universitaria 1234\n\n¡Por favor confirmar mi asistencia!`;
+  const msg = `💈 *¡Mi Cita en Chino Barber Shop!* 💈\n\n✂️ *Servicio:* ${cita.serviceName || 'Servicio'}${prodsLine}\n👤 *Barbero:* ${cita.barberName || 'Barbero'}\n📅 *Fecha & Hora:* ${fechaStr} · ${horaStr}\n💰 *Monto Total:* ${fmtPrice(cita.total)}\n🏷️ *Código:* ${cita.opNum || ''}\n📍 *Ubicación:* 22845, Nueva Cajamarca 22846 (Plaza de la Cultura)\n\n¡Por favor confirmar mi asistencia!`;
   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
 }
 
@@ -8897,6 +10135,345 @@ function launchConfetti() {
   update();
 }
 
+function printHtmlDocument(title, bodyHtml) {
+  const styles = `
+    @page { size: A4 portrait; margin: 12mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Arial, sans-serif;
+      color: #111;
+      background: #fff;
+      padding: 8px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .sheet {
+      max-width: 480px;
+      margin: 0 auto;
+      border: 1.5px solid #18181b;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .head {
+      text-align: center;
+      padding: 18px 20px 14px;
+      background: #faf9f5;
+      border-bottom: 1.5px dashed #333;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #ecfdf3;
+      color: #046c4e;
+      border: 1px solid #86efac;
+      margin-bottom: 8px;
+    }
+    .brand {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: #09090b;
+    }
+    .shop-meta {
+      font-size: 11px;
+      color: #444;
+      margin-top: 3px;
+      line-height: 1.45;
+    }
+    .code-line {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .code-pill {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border: 1px solid #222;
+      border-radius: 6px;
+      background: #f4f4f5;
+    }
+    .status-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid #86efac;
+      background: #dcfce7;
+      color: #046c4e;
+    }
+    .status-tag.pending {
+      border-color: #fdba74;
+      background: #fff7ed;
+      color: #9a3412;
+    }
+    .schedule {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid #e4e4e7;
+      background: #fcfcfb;
+    }
+    .schedule > div {
+      padding: 11px 16px;
+    }
+    .schedule > div:first-child {
+      border-right: 1px solid #e4e4e7;
+    }
+    .sch-lbl {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #52525b;
+      margin-bottom: 2px;
+    }
+    .sch-val {
+      font-size: 13px;
+      font-weight: 700;
+      color: #09090b;
+    }
+    .section {
+      padding: 12px 18px;
+      border-bottom: 1px solid #e4e4e7;
+    }
+    .sec-title {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #52525b;
+      margin-bottom: 8px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      padding: 5px 0;
+      font-size: 12.5px;
+      border-bottom: 1px dotted #e4e4e7;
+    }
+    .row:last-child { border-bottom: none; }
+    .row span { color: #52525b; }
+    .row b { color: #09090b; text-align: right; }
+    .prod-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .prod-table th {
+      text-align: left;
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #52525b;
+      padding: 4px 0 6px;
+      border-bottom: 1px solid #d4d4d8;
+    }
+    .prod-table td {
+      padding: 6px 0;
+      border-bottom: 1px dotted #e4e4e7;
+      vertical-align: top;
+    }
+    .prod-table .num {
+      text-align: right;
+      font-family: ui-monospace, Menlo, monospace;
+      white-space: nowrap;
+    }
+    .total-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: #faf9f5;
+      border-top: 1.5px dashed #333;
+    }
+    .total-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #09090b; }
+    .total-sub { display: block; font-size: 10.5px; color: #52525b; margin-top: 2px; }
+    .total-val { font-family: ui-monospace, Menlo, monospace; font-size: 22px; font-weight: 800; color: #09090b; }
+    .foot {
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 10.5px;
+      color: #52525b;
+      border-top: 1px solid #e4e4e7;
+    }
+  `;
+
+  const fullDoc = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8" /><title>${escapeHTML(title)}</title><style>${styles}</style></head><body>${bodyHtml}</body></html>`;
+  const iframe = document.createElement('iframe');
+  iframe.setAttribute('aria-hidden', 'true');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  iframe.style.opacity = '0';
+  iframe.style.pointerEvents = 'none';
+  document.body.appendChild(iframe);
+
+  const cleanup = () => {
+    try { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); } catch {}
+  };
+
+  const win = iframe.contentWindow;
+  const doc = win && win.document;
+  if (!win || !doc) {
+    cleanup();
+    window.print();
+    return;
+  }
+
+  doc.open();
+  doc.write(fullDoc);
+  doc.close();
+
+  let done = false;
+  const runPrint = () => {
+    if (done) return;
+    done = true;
+    try {
+      win.focus();
+      win.print();
+    } catch {
+      window.print();
+    }
+    win.addEventListener('afterprint', cleanup, { once: true });
+    setTimeout(cleanup, 60000);
+  };
+  setTimeout(runPrint, 140);
+}
+
+function printBookingVoucher(cita) {
+  if (!cita) { showToast('No hay comprobante de reserva disponible.', 'err'); return; }
+  const fechaTexto = formatFechaLegible(cita.fecha || cita.date || (state.reservation && state.reservation.date));
+  const horaRaw = cita.hora || cita.time || (state.reservation && state.reservation.time) || '10:00';
+  const horaFin = addMinutesToTime(horaRaw, cita.dur || 35);
+  const isCash = cita.methodId === 'efectivo' || (!cita.paid && cita.methodName === 'Efectivo en Local');
+  const refBadge = cita.payRef && cita.payRef !== 'EFECTIVO' ? ` (Op. #${escapeHTML(String(cita.payRef).slice(-6))})` : '';
+  const code = `B001-${escapeHTML(String(cita.opNum || '').replace(/\D/g, '').padStart(6, '0'))}`;
+
+  const addonsRow = cita.addonItems && cita.addonItems.length
+    ? `<div class="row"><span>Productos adicionales</span><b>${cita.addonItems.map(i => `${i.qty}× ${escapeHTML(i.nombre)} (${fmtPrice(i.subtotal)})`).join('<br>')}</b></div>`
+    : '';
+
+  const html = `
+    <div class="sheet">
+      <div class="head">
+        <div class="badge">Comprobante Electrónico Válido</div>
+        <div class="brand">CHINO BARBERSHOP</div>
+        <div class="shop-meta">R.U.C. 10458923011 · 22845, Nueva Cajamarca 22846<br>Atención Lun–Dom · 8:00 a. m. – 9:00 p. m. · WhatsApp: +51 928 192 437</div>
+        <div class="code-line">
+          <span class="code-pill">${code}</span>
+          <span class="status-tag ${isCash ? 'pending' : ''}">${isCash ? 'Pago en Local' : 'Pago Registrado'}</span>
+        </div>
+      </div>
+      <div class="schedule">
+        <div>
+          <span class="sch-lbl">Fecha de la Cita</span>
+          <span class="sch-val">${escapeHTML(fechaTexto)}</span>
+        </div>
+        <div>
+          <span class="sch-lbl">Horario Reservado</span>
+          <span class="sch-val">${escapeHTML(formatHoraLegible(horaRaw))} – ${escapeHTML(formatHoraLegible(horaFin))}</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="row"><span>Servicio</span><b>${escapeHTML(cita.serviceName || 'Servicio')}${typeof cita.servicePrice === 'number' ? ` (${fmtPrice(cita.servicePrice)})` : ''}</b></div>
+        ${addonsRow}
+        <div class="row"><span>Duración estimada</span><b>${Number(cita.dur || 35)} minutos</b></div>
+        <div class="row"><span>Barbero asignado</span><b>${escapeHTML(cita.barberName || 'Barbero disponible')}</b></div>
+        <div class="row"><span>Cliente</span><b>${escapeHTML(cita.clientName || '')}</b></div>
+        <div class="row"><span>Teléfono</span><b>+51 ${escapeHTML(cita.clientCel || '')}</b></div>
+        <div class="row"><span>Medio de pago</span><b>${escapeHTML(cita.methodName || '')}${refBadge}</b></div>
+        <div class="row"><span>Estado del pago</span><b>${isCash ? 'Abonar en el Local' : 'Cancelado / Pagado'}</b></div>
+      </div>
+      <div class="total-box">
+        <div>
+          <span class="total-lbl">Importe Total</span>
+          <span class="total-sub">${isCash ? 'Se abona al finalizar tu corte' : 'Comprobante cancelado'}</span>
+        </div>
+        <span class="total-val">${fmtPrice(cita.total)}</span>
+      </div>
+      <div class="foot">Gracias por reservar en Chino Barbershop · Presenta este comprobante al llegar.</div>
+    </div>
+  `;
+  printHtmlDocument(`Comprobante ${code} — Chino Barbershop`, html);
+}
+
+function printShopReceipt(r) {
+  if (!r) { showToast('No hay boleta de compra disponible.', 'err'); return; }
+  const rows = (r.items || []).map(it => {
+    const qty = Number(it.qty) || 1;
+    const price = Number(it.precio) || 0;
+    return `
+      <tr>
+        <td><b>${escapeHTML(it.nombre)}</b>${it.marca ? `<br><span style="font-size:10.5px;color:#52525b;">${escapeHTML(it.marca)}</span>` : ''}</td>
+        <td class="num">${qty}</td>
+        <td class="num">${fmtPrice(price)}</td>
+        <td class="num"><b>${fmtPrice(price * qty)}</b></td>
+      </tr>
+    `;
+  }).join('');
+
+  const html = `
+    <div class="sheet">
+      <div class="head">
+        <div class="badge">Boleta Electrónica de Venta</div>
+        <div class="brand">CHINO BARBERSHOP</div>
+        <div class="shop-meta">R.U.C. 10458923011 · 22845, Nueva Cajamarca 22846<br>WhatsApp: +51 928 192 437</div>
+        <div class="code-line">
+          <span class="code-pill">ORDEN ${escapeHTML(r.codigo)}</span>
+          <span class="status-tag">${escapeHTML(r.estadoPago || 'REGISTRADO')}</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="sec-title">Productos Vendidos (${(r.items || []).reduce((a, i) => a + (Number(i.qty) || 1), 0)})</div>
+        <table class="prod-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th class="num">Cant.</th>
+              <th class="num">P. Unit.</th>
+              <th class="num">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="section">
+        <div class="row"><span>Cliente</span><b>${escapeHTML(r.cliente || '')}</b></div>
+        <div class="row"><span>Teléfono</span><b>+51 ${escapeHTML(r.celular || '')}</b></div>
+        <div class="row"><span>Fecha de emisión</span><b>${escapeHTML(r.fecha || '')}</b></div>
+        <div class="row"><span>Modalidad</span><b>${r.entregaModo === 'delivery' ? 'Delivery Local' : 'Recojo en Local (Nueva Cajamarca)'}</b></div>
+        ${r.entregaModo === 'delivery' && r.destino ? `<div class="row"><span>Dirección</span><b>${escapeHTML(r.destino)}</b></div>` : ''}
+        <div class="row"><span>Medio de pago</span><b>${escapeHTML(r.metodoDetalle || '')}</b></div>
+        <div class="row"><span>Envío</span><b>${Number(r.shipping) > 0 ? fmtPrice(r.shipping) : 'GRATIS'}</b></div>
+      </div>
+      <div class="total-box">
+        <div>
+          <span class="total-lbl">Total a Cancelar</span>
+          <span class="total-sub">Incluye IGV</span>
+        </div>
+        <span class="total-val">${fmtPrice(r.total)}</span>
+      </div>
+      <div class="foot">Gracias por tu compra en Chino Barbershop · Nueva Cajamarca.</div>
+    </div>
+  `;
+  printHtmlDocument(`Boleta ${r.codigo} — Chino Barbershop`, html);
+}
+
 function renderConfirmationView(cita) {
   $('.reservar-layout').style.display = 'none';
   const slot = $('#bookingConfirmationSlot');
@@ -8925,7 +10502,7 @@ function renderConfirmationView(cita) {
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <h3 class="rcp-title">¡Reserva Confirmada!</h3>
-          <p class="rcp-shop">CHINO BARBER SHOP · R.U.C. 10458923011<br>Av. Universitaria 1234, Lima · Atención Lun-Sáb 10-20h</p>
+          <p class="rcp-shop">CHINO BARBERSHOP · R.U.C. 10458923011<br>22845, Nueva Cajamarca 22846 · Atención Lun-Dom 8am-9pm</p>
           <div class="rcp-code-wrap">
             <span class="rcp-code">B001-${escapeHTML(cita.opNum || '').replace(/\D/g, '').padStart(6, '0')}</span>
             <span class="status-pill ${isCash ? 'pendiente' : 'pagado'}">
@@ -9001,8 +10578,9 @@ function renderConfirmationView(cita) {
           Enviar Comprobante por WhatsApp
         </button>
         <div class="rcp-sub-actions" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
-          <button class="btn btn-dark" onclick="window.print();">
-            🖨️ Imprimir
+          <button type="button" class="btn btn-dark" onclick="printBookingVoucher(state.lastConfirmedCita);">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Imprimir
           </button>
           <button class="btn btn-dark" onclick="downloadIcsCalendar(state.lastConfirmedCita);">
             📅 Calendario
@@ -9057,9 +10635,9 @@ function updateQuickRebookBanner() {
     if (lr && lr.serviceName) {
       box.style.display = 'block';
       box.innerHTML = `
-        <button type="button" class="btn btn-dark btn-block" style="border: 1px solid var(--gold); background: rgba(212,175,55,0.08); font-weight: 700;" onclick="quickRebookLastCut();">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
-          ⚡ Repetir mi corte habitual: ${escapeHTML(lr.serviceName)} con ${escapeHTML(lr.barberName || 'Barbero')} →
+        <button type="button" class="btn btn-dark btn-block" style="border: 1px solid var(--line-gold); background: rgba(201,162,74,0.08); font-weight: 700;" onclick="quickRebookLastCut();">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+          Repetir mi corte habitual: ${escapeHTML(lr.serviceName)} con ${escapeHTML(lr.barberName || 'Barbero')} →
         </button>
       `;
     } else {
@@ -9073,7 +10651,7 @@ function updateQuickRebookBanner() {
       slot.innerHTML = `
         <div class="quick-rebook-banner">
           <div class="qrb-content">
-            <span class="qrb-badge">⚡ Atajo Express</span>
+            <span class="qrb-badge"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Atajo Express</span>
             <span class="qrb-text">¿Lo de siempre, <b>${escapeHTML(clientName)}</b>? · <i>${escapeHTML(lr.serviceName)}</i> con <b>${escapeHTML(lr.barberName || 'tu barbero')}</b></span>
           </div>
           <button type="button" class="btn btn-primary btn-sm qrb-btn" onclick="quickRebookLastCut();">
@@ -9294,29 +10872,32 @@ async function renderAppointmentsView(opts = {}) {
                 </span>
               </div>
               ${avisos[a.estado] ? `<p class="cita-advice-text">${avisos[a.estado]}</p>` : ''}
-              ${a.notas ? `<p class="cita-notes-text">📝 ${escapeHTML(a.notas)}</p>` : ''}
+              ${a.notas ? `<p class="cita-notes-text"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;margin-right:5px;"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>${escapeHTML(a.notas)}</p>` : ''}
             </div>
 
             <!-- Acciones de la Cita -->
             <div class="cita-actions">
               ${!cerrada ? `
                 <button type="button" class="btn btn-gold-outline btn-sm" onclick="openRescheduleModal('${a.id}');">
-                  🔄 Reagendar
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+                  Reagendar
                 </button>
                 ${puedeCancelar
                   ? `<button type="button" class="btn btn-dark btn-sm cita-btn-cancel" onclick="cancelAppointmentPrompt('${a.id}', '${a.servicio}', ${total}, '${a.estado}');">
                       Cancelar Cita
                     </button>`
-                  : `<span class="cita-cancel-hint">ⓘ Cancelable hasta 2h antes</span>`}
+                  : `<span class="cita-cancel-hint"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;margin-right:3px;"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Cancelable hasta 2h antes</span>`}
                 <button type="button" class="btn btn-gold-outline btn-sm cita-btn-ws" onclick="clientWhatsApp('${a.id}');" title="Consultar por WhatsApp">
-                  💬 WhatsApp
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                  WhatsApp
                 </button>
               ` : `
                 <div class="cita-closed-bar">
                   <span class="cita-closed-label">Cita cerrada (${nombresEstado[a.estado] ?? a.estado})</span>
                   ${a.estado === 'completada' ? `
                     <button type="button" class="btn btn-primary btn-sm" onclick="openReviewModal('${a.id}', '${a.barbero}', '${a.servicio}');">
-                      ⭐ Calificar Experiencia
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                      Calificar Experiencia
                     </button>
                   ` : ''}
                 </div>
@@ -9342,7 +10923,7 @@ async function searchGuestAppointments() {
 
 
 /* WhatsApp del cliente: consulta/recuerdo de su cita — BLOQUE 6 */
-const WHATSAPP_BARBERIA = '999000111'; // número de la barbería
+const WHATSAPP_BARBERIA = '928192437'; // número real de la barbería
 
 function clientWhatsApp(apptId) {
   const a = (state.appointments || []).find(x => x.id === apptId);
@@ -9464,7 +11045,7 @@ async function renderReschSlots() {
   }
 
   const allTimes = [];
-  for (let h = 10; h < 20; h++) {
+  for (let h = 8; h < 21; h++) {
     allTimes.push(`${String(h).padStart(2, '0')}:00`);
     allTimes.push(`${String(h).padStart(2, '0')}:30`);
   }
@@ -9714,10 +11295,10 @@ function renderProductCard(p) {
   const stock = p.stock !== undefined ? Number(p.stock) : 15;
   const agotado = stock <= 0;
   const stockHtml = agotado
-    ? `<span class="product-stock-tag out">● Agotado temporalmente</span>`
+    ? `<span class="product-stock-tag out"><span class="stock-dot" aria-hidden="true"></span>Agotado temporalmente</span>`
     : stock <= 5
-      ? `<span class="product-stock-tag low">● ¡Últimas ${stock} unidades!</span>`
-      : `<span class="product-stock-tag">● En stock (${stock} disp.)</span>`;
+      ? `<span class="product-stock-tag low"><span class="stock-dot" aria-hidden="true"></span>Últimas ${stock} unidades</span>`
+      : `<span class="product-stock-tag"><span class="stock-dot" aria-hidden="true"></span>En stock (${stock} disp.)</span>`;
   return `
     <article class="product-card">
       <div class="product-media" role="button" tabindex="0" onclick="openLightbox('${p.foto}');" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox('${p.foto}');}" title="Ver imagen del producto">
@@ -9840,6 +11421,7 @@ function toggleCartDrawer(open) {
     cartDrawerStep = 'bag';
   }
   overlay.classList.toggle('open', shouldOpen);
+  document.body.style.overflow = shouldOpen ? 'hidden' : '';
   if (shouldOpen) renderCartDrawer();
 }
 
@@ -9859,6 +11441,10 @@ function setCartDrawerStep(step) {
     cartPayMethod = 'yape';
   }
   renderCartDrawer();
+  if (step === 'checkout') {
+    const b = $('#cartDrawerBody');
+    if (b) b.scrollTop = 0;
+  }
 }
 
 function setCartPayMethod(method) {
@@ -9902,7 +11488,7 @@ function renderCartDrawer() {
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.8"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
           <h3 class="rcp-title" style="font-size:1.25rem; margin-bottom:0.15rem;">¡Compra Confirmada!</h3>
-          <p class="rcp-shop" style="font-size:0.75rem; margin-bottom:0.55rem;">CHINO BARBER SHOP · R.U.C. 10458923011</p>
+          <p class="rcp-shop" style="font-size:0.75rem; margin-bottom:0.55rem;">CHINO BARBERSHOP · R.U.C. 10458923011</p>
           <div class="rcp-code-wrap" style="gap:0.45rem;">
             <span class="rcp-code" style="font-size:0.86rem; padding:0.25rem 0.65rem;">ORDEN ${escapeHTML(r.codigo)}</span>
             <span class="status-pill pagado" style="font-size:0.74rem;">${escapeHTML(r.estadoPago)}</span>
@@ -9964,7 +11550,7 @@ function renderCartDrawer() {
           </div>
           <div class="rcp-row">
             <span>Modalidad</span>
-            <b>${r.entregaModo === 'delivery' ? '🛵 Delivery Lima' : '🏪 Recojo en Local (Av. Larco 840)'}</b>
+            <b>${r.entregaModo === 'delivery' ? '🛵 Delivery a Domicilio' : '🏪 Recojo en Local (22845, Nueva Cajamarca)'}</b>
           </div>
           ${r.entregaModo === 'delivery' ? `
             <div class="rcp-row">
@@ -9987,8 +11573,9 @@ function renderCartDrawer() {
           Enviar Boleta por WhatsApp
         </button>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
-          <button type="button" class="btn btn-dark btn-block" style="justify-content:center; font-size:0.84rem;" onclick="window.print();">
-            🖨️ Imprimir Boleta
+          <button type="button" class="btn btn-dark btn-block" style="justify-content:center; font-size:0.84rem;" onclick="printShopReceipt(lastShopReceipt);">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Imprimir Boleta
           </button>
           <button type="button" class="btn btn-primary btn-block" style="justify-content:center; font-size:0.84rem;" onclick="cartDrawerStep='bag'; toggleCartDrawer(false);">
             ✓ Finalizar
@@ -10028,10 +11615,15 @@ function renderCartDrawer() {
   const total = subtotal + shipping;
   const totalUnits = items.reduce((acc, it) => acc + it.qty, 0);
 
-  // VISTA 2: CHECKOUT DE TIENDA (DATOS + MEDIO DE PAGO - DISEÑO EJECUTIVO)
+  // VISTA 2: CHECKOUT DE TIENDA (DATOS + MEDIO DE PAGO - DISEÑO MÓVIL Y DESKTOP)
   if (cartDrawerStep === 'checkout') {
     if (titleEl) {
-      titleEl.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Finalizar Compra`;
+      titleEl.innerHTML = `
+        <button type="button" class="cd-header-back" onclick="setCartDrawerStep('bag');" aria-label="Volver a la bolsa">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <span>Finalizar Compra</span>
+      `;
     }
 
     const user = state.currentUser;
@@ -10051,13 +11643,17 @@ function renderCartDrawer() {
       <!-- Selector de modalidad de entrega segmentado -->
       <div class="sc-segmented-control">
         <button type="button" class="sc-segment-btn ${cartDeliveryMode === 'pickup' ? 'active' : ''}" onclick="setCartDeliveryMode('pickup');">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span>Recojo en Sede</span>
+          <span class="sc-seg-top">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Recojo en Sede</span>
+          </span>
           <span class="sc-seg-tag free">Gratis</span>
         </button>
         <button type="button" class="sc-segment-btn ${cartDeliveryMode === 'delivery' ? 'active' : ''}" onclick="setCartDeliveryMode('delivery');">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-          <span>Delivery Lima</span>
+          <span class="sc-seg-top">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <span>Delivery Local</span>
+          </span>
           <span class="sc-seg-tag cost">+S/ 8</span>
         </button>
       </div>
@@ -10069,7 +11665,9 @@ function renderCartDrawer() {
             <span class="sc-step-badge">1</span>
             <span>Tus Datos y Entrega</span>
           </div>
-          <span class="sc-card-sub">${cartDeliveryMode === 'delivery' ? '🛵 Envío a Domicilio' : '🏪 Recojo en Sede'}</span>
+          <span class="sc-card-sub">${cartDeliveryMode === 'delivery'
+            ? '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Envío a Domicilio'
+            : '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Recojo en Sede'}</span>
         </div>
 
         ${user ? `
@@ -10092,29 +11690,31 @@ function renderCartDrawer() {
 
         <div class="sc-field">
           <label class="sc-label" for="cartCustName">Nombre y Apellidos *</label>
-          <input class="sc-input" id="cartCustName" type="text" placeholder="Ej. Carlos Mendoza" value="${escapeHTML(preName)}" />
+          <input class="sc-input" id="cartCustName" type="text" autocomplete="name" placeholder="Ej. Carlos Mendoza" value="${escapeHTML(preName)}" />
         </div>
 
         <div class="sc-field">
           <label class="sc-label" for="cartCustPhone">Celular / WhatsApp (9 dígitos) *</label>
-          <input class="sc-input" id="cartCustPhone" type="tel" maxlength="9" placeholder="987654321" value="${escapeHTML(prePhone)}" />
+          <input class="sc-input" id="cartCustPhone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="9" placeholder="987654321" value="${escapeHTML(prePhone)}" />
         </div>
 
         ${cartDeliveryMode === 'delivery' ? `
           <div class="sc-field">
-            <label class="sc-label" for="cartCustDistrict">Distrito (Lima Metropolitana) *</label>
-            <input class="sc-input" id="cartCustDistrict" type="text" placeholder="Ej. Miraflores, San Isidro, Surco..." value="${escapeHTML(cartCheckoutDraft.distrito)}" />
+            <label class="sc-label" for="cartCustDistrict">Zona / Sector (Nueva Cajamarca) *</label>
+            <input class="sc-input" id="cartCustDistrict" type="text" autocomplete="address-level2" placeholder="Ej. Centro, Plaza de la Cultura, San Juan..." value="${escapeHTML(cartCheckoutDraft.distrito)}" />
           </div>
           <div class="sc-field">
             <label class="sc-label" for="cartCustAddress">Dirección Exacta y Referencia *</label>
-            <input class="sc-input" id="cartCustAddress" type="text" placeholder="Ej. Av. Arequipa 1250 Dpto 302 (Frente al parque)" value="${escapeHTML(cartCheckoutDraft.direccion)}" />
+            <input class="sc-input" id="cartCustAddress" type="text" autocomplete="street-address" placeholder="Ej. Jr. Libertad 450 (Frente al parque)" value="${escapeHTML(cartCheckoutDraft.direccion)}" />
           </div>
         ` : `
           <div class="sc-store-banner">
-            <div class="sc-store-icon">📍</div>
+            <div class="sc-store-icon">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            </div>
             <div class="sc-store-info">
-              <b>Sede Principal Miraflores: Av. Larco 840</b>
-              <span>Atención Lun a Sáb de 9:00 AM a 9:00 PM</span>
+              <b>Sede Principal: 22845, Nueva Cajamarca 22846 (Plaza de la Cultura)</b>
+              <span>Atención Lunes a Domingo de 8:00 a. m. a 9:00 p. m.</span>
               <span class="sc-store-ready">✓ Tu pedido estará listo para retirar en 1 hora</span>
             </div>
           </div>
@@ -10128,7 +11728,10 @@ function renderCartDrawer() {
             <span class="sc-step-badge">2</span>
             <span>Elige tu Medio de Pago</span>
           </div>
-          <span class="sc-card-sub" style="color:#22c55e;">🔒 100% Seguro</span>
+          <span class="sc-card-sub" style="color:#22c55e;">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            100% Seguro
+          </span>
         </div>
 
         <div class="sc-payment-grid">
@@ -10172,54 +11775,54 @@ function renderCartDrawer() {
               </div>
               <div class="sc-yape-info">
                 <div class="sc-yape-amount">Transfiere el total de <b>${fmtPrice(total)}</b> al:</div>
-                <div class="sc-phone-chip" role="button" tabindex="0" onclick="navigator.clipboard?.writeText('987654321'); showToast('Número 987 654 321 copiado al portapapeles 📋', 'ok');" title="Clic para copiar">
-                  <span class="sc-phone-num">987 654 321</span>
+                <div class="sc-phone-chip" role="button" tabindex="0" onclick="navigator.clipboard?.writeText('928192437'); showToast('Número 928 192 437 copiado al portapapeles', 'ok');" title="Clic para copiar">
+                  <span class="sc-phone-num">928 192 437</span>
                   <span class="sc-copy-btn">Copiar</span>
                 </div>
-                <div class="sc-yape-titular">Titular: <b>Chino Barber Shop E.I.R.L.</b></div>
+                <div class="sc-yape-titular">Titular: <b>Chino Barbershop E.I.R.L.</b></div>
               </div>
             </div>
           </div>
           <div class="sc-field">
             <label class="sc-label" for="cartYapeCode">Código de Operación (Últimos dígitos) *</label>
-            <input class="sc-input" id="cartYapeCode" type="text" maxlength="10" placeholder="Ej. 482910" value="${escapeHTML(cartCheckoutDraft.yapeCode)}" />
+            <input class="sc-input" id="cartYapeCode" type="text" inputmode="numeric" maxlength="10" placeholder="Ej. 482910" value="${escapeHTML(cartCheckoutDraft.yapeCode)}" />
           </div>
         ` : cartPayMethod === 'card' ? `
           <div class="sc-field">
             <label class="sc-label" for="cartCardNum">Número de Tarjeta (Crédito o Débito) *</label>
-            <input class="sc-input" id="cartCardNum" type="text" maxlength="19" placeholder="4557 8800 1234 5678" value="${escapeHTML(cartCheckoutDraft.cardNum)}" oninput="formatCartCardInput(this);" />
+            <input class="sc-input" id="cartCardNum" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="4557 8800 1234 5678" value="${escapeHTML(cartCheckoutDraft.cardNum)}" oninput="formatCartCardInput(this);" />
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:0.75rem;">
             <div>
               <label class="sc-label" for="cartCardExp">Vencimiento *</label>
-              <input class="sc-input" id="cartCardExp" type="text" maxlength="5" placeholder="MM/AA" value="${escapeHTML(cartCheckoutDraft.cardExp)}" oninput="formatCartExpInput(this);" />
+              <input class="sc-input" id="cartCardExp" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/AA" value="${escapeHTML(cartCheckoutDraft.cardExp)}" oninput="formatCartExpInput(this);" />
             </div>
             <div>
               <label class="sc-label" for="cartCardCvv">CVV *</label>
-              <input class="sc-input" id="cartCardCvv" type="password" maxlength="4" placeholder="123" value="${escapeHTML(cartCheckoutDraft.cardCvv)}" />
+              <input class="sc-input" id="cartCardCvv" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" value="${escapeHTML(cartCheckoutDraft.cardCvv)}" />
             </div>
           </div>
           <div class="sc-field">
             <label class="sc-label" for="cartCardHolder">Nombre del Titular de la Tarjeta *</label>
-            <input class="sc-input" id="cartCardHolder" type="text" placeholder="Como figura en la tarjeta" value="${escapeHTML(cartCheckoutDraft.cardHolder || preName)}" />
+            <input class="sc-input" id="cartCardHolder" type="text" autocomplete="cc-name" placeholder="Como figura en la tarjeta" value="${escapeHTML(cartCheckoutDraft.cardHolder || preName)}" />
           </div>
         ` : `
-          <div style="padding:0.95rem 1rem; border-radius:12px; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.25); font-size:0.82rem; color:var(--text); line-height:1.45;">
-            💵 <b style="color:#22c55e;">Pago en Tienda al Recoger:</b> Tus productos quedarán reservados a tu nombre por <b>24 horas</b>. Podrás cancelar los <b>${fmtPrice(total)}</b> con efectivo, Yape, Plin o tarjeta en el mostrador.
+          <div style="padding:0.95rem 1rem; border-radius:12px; background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.25); font-size:0.82rem; color:var(--text); line-height:1.45; display:flex; gap:0.6rem; align-items:flex-start;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#22c55e" stroke-width="2" style="flex-shrink:0; margin-top:2px;"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
+            <div><b style="color:#22c55e;">Pago en Tienda al Recoger:</b> Tus productos quedarán reservados a tu nombre por <b>24 horas</b>. Podrás cancelar los <b>${fmtPrice(total)}</b> con efectivo, Yape, Plin o tarjeta en el mostrador.</div>
           </div>
         `}
       </div>
-    `;
 
-    footer.innerHTML = `
-      <div class="sc-footer-bar">
-        <div class="sc-footer-breakdown">
+      <!-- 3. Resumen del Pedido dentro del área desplazable -->
+      <div class="sc-card sc-summary-card">
+        <div class="sc-footer-breakdown" style="margin-bottom:0.5rem;">
           <div class="sc-fb-row">
             <span>Subtotal Productos (${totalUnits})</span>
             <b>${fmtPrice(subtotal)}</b>
           </div>
           <div class="sc-fb-row">
-            <span>Costo de Envío (${cartDeliveryMode === 'delivery' ? 'Delivery Lima' : 'Recojo en Sede'})</span>
+            <span>Costo de Envío (${cartDeliveryMode === 'delivery' ? 'Delivery Local' : 'Recojo en Sede'})</span>
             <b style="${shipping === 0 ? 'color:#22c55e;' : ''}">${shipping === 0 ? 'GRATIS' : fmtPrice(shipping)}</b>
           </div>
           <div class="sc-fb-total">
@@ -10227,14 +11830,19 @@ function renderCartDrawer() {
             <b class="sc-fb-amount">${fmtPrice(total)}</b>
           </div>
         </div>
+        <div class="sc-secure-note" style="margin-top:0.55rem;">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Compra 100% protegida · Garantía Chino Barbershop
+        </div>
+      </div>
+    `;
+
+    footer.innerHTML = `
+      <div class="sc-checkout-sticky-cta">
         <button type="button" class="btn btn-primary sc-confirm-btn" onclick="processCartCheckout();">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           Confirmar Compra · ${fmtPrice(total)}
         </button>
-        <div class="sc-secure-note">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Compra 100% protegida · Garantía Chino Barber Shop
-        </div>
       </div>
     `;
     return;
@@ -10261,28 +11869,34 @@ function renderCartDrawer() {
   `).join('');
 
   footer.innerHTML = `
-    <div class="sc-segmented-control" style="margin-bottom:0.85rem;">
+    <div class="sc-segmented-control" style="margin-bottom:0.8rem;">
       <button type="button" class="sc-segment-btn ${cartDeliveryMode === 'pickup' ? 'active' : ''}" onclick="setCartDeliveryMode('pickup');">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span>Recojo en Sede</span>
+        <span class="sc-seg-top">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Recojo en Sede</span>
+        </span>
         <span class="sc-seg-tag free">Gratis</span>
       </button>
       <button type="button" class="sc-segment-btn ${cartDeliveryMode === 'delivery' ? 'active' : ''}" onclick="setCartDeliveryMode('delivery');">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-        <span>Delivery Lima</span>
+        <span class="sc-seg-top">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          <span>Delivery Local</span>
+        </span>
         <span class="sc-seg-tag cost">+S/ 8</span>
       </button>
     </div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
-      <span style="font-size:0.84rem; color:var(--text-dim); font-weight:600; text-transform:uppercase;">Total Pedido</span>
-      <b style="font-family:var(--font-display); font-size:1.95rem; color:var(--title); line-height:1;">${fmtPrice(total)}</b>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+      <span style="font-size:0.8rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:0.04em;">Total Pedido</span>
+      <b style="font-family:var(--font-sans); font-weight:800; font-size:1.4rem; color:var(--title); line-height:1; font-variant-numeric:tabular-nums;">${fmtPrice(total)}</b>
     </div>
     <div style="display:flex; flex-direction:column; gap:0.5rem;">
       <button type="button" class="btn btn-primary btn-block" style="justify-content:center;" onclick="setCartDrawerStep('checkout');">
-        💳 Continuar al Pago (Solo Productos) →
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Continuar al Pago →
       </button>
       <button type="button" class="btn btn-dark btn-block btn-sm cd-book-addon-btn" onclick="importCartToBooking();">
-        💈 Agendar Cita + Llevar estos Productos →
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="8" y1="8" x2="20" y2="18"/><line x1="8" y1="16" x2="20" y2="6"/></svg>
+        Agendar Cita + Productos →
       </button>
     </div>
   `;
@@ -10383,7 +11997,7 @@ async function processCartCheckout() {
     cliente: nombre,
     celular,
     entregaModo: cartDeliveryMode,
-    destino: cartDeliveryMode === 'delivery' ? `${direccion} (${distrito})` : 'Av. Larco 840, Miraflores',
+    destino: cartDeliveryMode === 'delivery' ? `${direccion} (${distrito})` : '22845, Nueva Cajamarca 22846',
     metodoDetalle,
     estadoPago,
     items,
@@ -10882,7 +12496,7 @@ async function renderOrdersView(opts = {}) {
             <div class="cita-card-top">
               <div>
                 <div style="font-size:0.72rem; font-weight:700; letter-spacing:0.08em; color:var(--text-mut); text-transform:uppercase;">Orden de Tienda</div>
-                <b style="font-family:var(--font-serif); font-size:1.05rem; color:var(--title);">${escapeHTML(p.id)}</b>
+                <b style="font-family:var(--font-sans); font-size:1.05rem; color:var(--title);">${escapeHTML(p.id)}</b>
               </div>
               <div class="cita-top-meta">
                 <span class="status-pill ${stClass}">${nombresEstado[p.estado] ?? p.estado}</span>
@@ -10891,14 +12505,14 @@ async function renderOrdersView(opts = {}) {
             </div>
 
             <div class="cita-card-body">
-              ${p.cita_id ? `<div class="order-linked-tag">🔗 Incluido con tu cita (entrega en local)</div>` : ''}
+              ${p.cita_id ? `<div class="order-linked-tag"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Incluido con tu cita (entrega en local)</div>` : ''}
               <div class="cita-chips-row">
-                <span class="cita-chip">🕒 ${escapeHTML(formatOrderTimestamp(p.created_at))}</span>
-                <span class="cita-chip">${p.entrega === 'delivery' ? '🛵 Delivery' : '🏪 Recojo en Local'}</span>
-                <span class="cita-chip">💳 ${escapeHTML((p.metodo_pago || 'efectivo').toUpperCase())}</span>
+                <span class="cita-chip"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${escapeHTML(formatOrderTimestamp(p.created_at))}</span>
+                <span class="cita-chip">${p.entrega === 'delivery' ? '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Delivery' : '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Recojo en Local'}</span>
+                <span class="cita-chip"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>${escapeHTML((p.metodo_pago || 'efectivo').toUpperCase())}</span>
               </div>
 
-              ${p.direccion ? `<p class="cita-notes-text">📍 ${escapeHTML(p.direccion)}</p>` : ''}
+              ${p.direccion ? `<p class="cita-notes-text"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" style="vertical-align:-2px;margin-right:4px;"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${escapeHTML(p.direccion)}</p>` : ''}
 
               <div class="order-items-box">
                 <div style="font-size:0.74rem; font-weight:700; color:var(--text-mut); text-transform:uppercase; letter-spacing:0.05em;">
@@ -10927,10 +12541,12 @@ async function renderOrdersView(opts = {}) {
 
             <div class="cita-actions">
               <button type="button" class="btn btn-gold-outline btn-sm" onclick="openOrderReceipt('${escapeHTML(p.id)}');">
-                🧾 Ver / Imprimir Boleta
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Ver / Imprimir Boleta
               </button>
               <button type="button" class="btn btn-dark btn-sm cita-btn-ws" onclick="clientOrderWhatsApp('${escapeHTML(p.id)}');">
-                💬 WhatsApp
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                WhatsApp
               </button>
             </div>
           </div>
@@ -10951,7 +12567,7 @@ function openOrderReceipt(orderId) {
     cliente: p.cliente,
     celular: p.telefono,
     entregaModo: p.entrega || 'recojo',
-    destino: p.direccion || (p.entrega === 'delivery' ? 'Dirección registrada' : 'Av. Universitaria 1234, Lima'),
+    destino: p.direccion || (p.entrega === 'delivery' ? 'Dirección registrada' : '22845, Nueva Cajamarca 22846'),
     items: items.map(it => {
       const prodCatalog = PRODUCTOS.find(x => x.id === it.id || x.nombre === it.name);
       return {
@@ -11055,6 +12671,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   updateHeaderAuth();
   updateQuickRebookBanner();
+
+  const hasGoogleLogin = qs.get('google_login') === '1';
+  const authError = qs.get('auth_error');
+  if (hasGoogleLogin && state.currentUser) {
+    showToast(`¡Bienvenido, ${escapeHTML(state.currentUser.nombre)}!`, 'ok');
+  } else if (authError) {
+    const authErrMsgs = {
+      google_not_configured: 'Falta configurar GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET en .env para activar Google.',
+      google_cancelled: 'Inicio de sesión con Google cancelado.',
+      google_state: 'La sesión con Google expiró. Inténtalo de nuevo.',
+    };
+    showToast(authErrMsgs[authError] || 'No se pudo completar el acceso con Google. Inténtalo nuevamente.', 'err');
+  }
+  if (hasGoogleLogin || authError) {
+    qs.delete('google_login');
+    qs.delete('auth_error');
+    const cleanSearch = qs.toString();
+    const cleanUrl = `${location.pathname}${cleanSearch ? '?' + cleanSearch : ''}${location.hash}`;
+    history.replaceState(null, '', cleanUrl);
+  }
 
   /* Sincronización en Tiempo Real: escuchar cambios del admin y actualizar Mis Citas y Mis Pedidos sin recargar */
   const refreshMisCitasSilent = () => {

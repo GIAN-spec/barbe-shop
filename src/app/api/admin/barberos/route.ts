@@ -9,6 +9,19 @@ import { requireAdmin } from '@/lib/auth'
 
 const slug = (s: string) => s.toLowerCase().replace(/\s+/g, '_').replace(/[^\w-]/g, '').slice(0, 24)
 
+function parseCleanTags(tags: unknown): string[] {
+  const clean = (t: unknown) => String(t ?? '').replace(/[\[\]"']/g, '').trim()
+  if (Array.isArray(tags)) return tags.map(clean).filter(Boolean)
+  if (typeof tags === 'string') {
+    try {
+      const parsed = JSON.parse(tags)
+      if (Array.isArray(parsed)) return parsed.map(clean).filter(Boolean)
+    } catch {}
+    return tags.split(',').map(clean).filter(Boolean)
+  }
+  return []
+}
+
 const SELECT_BARBERO = `
   SELECT id, nombre, rol, esp, exp, tags, foto, activo,
          COALESCE(comision, 50) AS comision,
@@ -44,9 +57,7 @@ export async function POST(request: Request) {
     id = slug(String(nombre)) + '_' + (++n)
   }
 
-  let tagsArr: string[] = []
-  if (Array.isArray(tags)) tagsArr = tags.map((t: unknown) => String(t).trim()).filter(Boolean)
-  else if (typeof tags === 'string') tagsArr = String(tags).split(',').map(t => t.trim()).filter(Boolean)
+  const tagsArr = parseCleanTags(tags)
 
   const comPct = Math.max(0, Math.min(100, Number(comision) || 50))
 
@@ -116,9 +127,7 @@ export async function PATCH(request: Request) {
     }
   }
   if (tags !== undefined) {
-    let tagsArr: string[] = []
-    if (Array.isArray(tags)) tagsArr = tags.map((t: unknown) => String(t).trim()).filter(Boolean)
-    else if (typeof tags === 'string') tagsArr = tags.split(',').map(t => t.trim()).filter(Boolean)
+    const tagsArr = parseCleanTags(tags)
     updates.push('tags = ?'); values.push(JSON.stringify(tagsArr))
   }
   if (activo !== undefined) {

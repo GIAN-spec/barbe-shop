@@ -20,11 +20,19 @@ function rowToPlain<T = Record<string, unknown>>(row: Record<string, unknown>): 
 }
 
 function createLibsqlClient(): Client {
-  const tursoUrl = process.env.TURSO_DATABASE_URL?.trim()
+  const tursoUrl = (
+    process.env.TURSO_DATABASE_URL ||
+    (process.env.DATABASE_URL?.startsWith('libsql://') || process.env.DATABASE_URL?.startsWith('https://')
+      ? process.env.DATABASE_URL
+      : undefined)
+  )?.trim()
+
+  const authToken = (process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN)?.trim()
+
   if (tursoUrl) {
     return createClient({
       url: tursoUrl,
-      authToken: process.env.TURSO_AUTH_TOKEN?.trim(),
+      authToken: authToken,
     })
   }
   const localPath = path.resolve(process.cwd(), 'db', 'custom.db')
@@ -33,7 +41,7 @@ function createLibsqlClient(): Client {
   })
 }
 
-const SCHEMA_VERSION = 5
+const SCHEMA_VERSION = 6
 const globalForDb = globalThis as unknown as {
   __libsqlClient?: Client
   __libsqlInitPromise?: Promise<void>
@@ -84,14 +92,6 @@ async function initSchema(client: Client) {
       leida       INTEGER NOT NULL DEFAULT 1,
       created_at  TEXT NOT NULL DEFAULT (datetime('now')),
       FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS sesiones (
-      token       TEXT PRIMARY KEY,
-      usuario_id  TEXT NOT NULL,
-      expires_at  TEXT NOT NULL,
-      created_at  TEXT NOT NULL DEFAULT (datetime('now')),
-      FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
     );
 
     CREATE TABLE IF NOT EXISTS password_resets (
@@ -231,6 +231,8 @@ async function initSchema(client: Client) {
   await execSafe(client, `ALTER TABLE pedidos ADD COLUMN cita_id TEXT`)
   await execSafe(client, `CREATE INDEX IF NOT EXISTS idx_pedidos_usuario ON pedidos(usuario_id)`)
   await execSafe(client, `CREATE INDEX IF NOT EXISTS idx_pedidos_tel ON pedidos(telefono)`)
+  await execSafe(client, `DROP INDEX IF EXISTS idx_reset_user`)
+  await execSafe(client, `DROP TABLE IF EXISTS sesiones`)
 }
 
 async function seedDemoData(client: Client) {
@@ -360,30 +362,57 @@ async function seedDemoData(client: Client) {
   }
 
   // 8. Ajustes
-  const ajRes = await client.execute({ sql: 'SELECT clave FROM ajustes WHERE clave = ?', args: ['negocio'] })
+  const ajRes = await client.execute({ sql: 'SELECT clave, valor FROM ajustes WHERE clave = ?', args: ['negocio'] })
+  const defaultAjustes = {
+    nombre: 'Chino Barbershop',
+    telefono: '928 192 437',
+    whatsapp: '51928192437',
+    direccion: '22845, Nueva Cajamarca 22846 (Plaza de la Cultura)',
+    horarioApertura: '08:00',
+    horarioCierre: '21:00',
+    diasAtencion: 'Lunes a Domingo (8:00 a. m. – 9:00 p. m.)',
+    yapeNumero: '928 192 437',
+    yapeTitular: 'Chino Barbershop',
+    yapeQrUrl: '',
+    aceptaYape: true,
+    aceptaTarjeta: true,
+    aceptaEfectivo: true,
+    deliveryActivo: true,
+    deliveryTarifa: 8,
+    metaSellosVip: 5,
+  }
   if (ajRes.rows.length === 0) {
-    const defaultAjustes = {
-      nombre: 'Chino Barber Shop',
-      telefono: '987 654 321',
-      whatsapp: '51987654321',
-      direccion: 'Av. Principal 450, Lima, Perú',
-      horarioApertura: '09:00',
-      horarioCierre: '21:00',
-      diasAtencion: 'Lunes a Sábado (Domingos previa cita)',
-      yapeNumero: '987 654 321',
-      yapeTitular: 'Chino Barber Shop SAC',
-      yapeQrUrl: '',
-      aceptaYape: true,
-      aceptaTarjeta: true,
-      aceptaEfectivo: true,
-      deliveryActivo: true,
-      deliveryTarifa: 8,
-      metaSellosVip: 5,
-    }
     await client.execute({
       sql: 'INSERT OR IGNORE INTO ajustes (clave, valor) VALUES (?, ?)',
       args: ['negocio', JSON.stringify(defaultAjustes)],
     })
+  } else {
+    const valStr = String(ajRes.rows[0]?.valor ?? '')
+    if (valStr.includes('987 654 321') || valStr.includes('Av. Principal 450')) {
+      await client.execute({
+        sql: 'UPDATE ajustes SET valor = ? WHERE clave = ?',
+        args: [JSON.stringify(defaultAjustes), 'negocio'],
+      })
+    }
+  }
+
+  // 9. Normalizar citas históricas con barbero = 'any' sin violar el índice único de slot
+  const anyCitas = await client.execute("SELECT id, fecha, hora FROM citas WHERE barbero = 'any'")
+  if (anyCitas.rows.length > 0) {
+    const barIdsRes = await client.execute('SELECT id FROM barberos ORDER BY rowid ASC')
+    const barIds = barIdsRes.rows.map(r => String(r.id)).filter(Boolean)
+    for (const row of anyCitas.rows) {
+      for (const candidate of (barIds.length ? barIds : ['chino'])) {
+        const busy = await client.execute({
+          sql: "SELECT id FROM citas WHERE fecha = ? AND hora = ? AND barbero = ? AND estado != 'cancelada'",
+          args: [row.fecha, row.hora, candidate],
+        })
+        if (busy.rows.length === 0) {
+          await client.execute({ sql: 'UPDATE citas SET barbero = ? WHERE id = ?', args: [candidate, row.id] })
+          break
+        }
+      }
+    }
   }
 }
 

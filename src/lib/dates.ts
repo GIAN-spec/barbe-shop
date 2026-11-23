@@ -52,6 +52,31 @@ export function isTodayLima(fechaISO: string): boolean {
 }
 
 /**
+ * Convierte un timestamp UTC guardado por SQLite datetime('now') ("YYYY-MM-DD HH:MM:SS" o ISO)
+ * a la fecha YYYY-MM-DD en zona horaria America/Lima.
+ */
+export function utcSqliteToFechaLima(sqliteTimestamp?: string | null): string {
+  const ts = String(sqliteTimestamp ?? '').trim()
+  if (!ts) return ''
+  if (/^\d{4}-\d{2}-\d{2}$/.test(ts)) return ts
+  const normalized = ts.includes('T')
+    ? (/(Z|[+-]\d{2}:\d{2})$/i.test(ts) ? ts : `${ts}Z`)
+    : `${ts.replace(' ', 'T')}Z`
+  const parsed = new Date(normalized)
+  if (Number.isNaN(parsed.getTime())) return ts.slice(0, 10)
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: TIMEZONE_BARBERIA,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(parsed)
+  } catch {
+    return ts.slice(0, 10)
+  }
+}
+
+/**
  * Formatea una fecha YYYY-MM-DD a texto legible en español (ej: "Viernes, 6 de Noviembre").
  */
 export function formatFechaLarga(fechaISO: string): string {

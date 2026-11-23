@@ -7,17 +7,18 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Chino Barber Shop | Reservas en línea",
-  description: "Chino Barber Shop — Sistema de reservas en línea. Tu mejor corte, sin esperas. Proyecto académico de Interacción Humano-Computador (UCSS).",
-  keywords: ["barbería", "reservas", "Chino Barber Shop", "UCSS", "IHC", "corte de cabello"],
-  authors: [{ name: "Chino Barber Shop" }],
+  title: "Chino Barbershop | Reservas en línea",
+  description: "Chino Barbershop — Sistema de reservas en línea. Tu mejor corte, sin esperas. Proyecto académico de Interacción Humano-Computador (UCSS).",
+  keywords: ["barbería", "reservas", "Chino Barbershop", "UCSS", "IHC", "corte de cabello"],
+  authors: [{ name: "Chino Barbershop" }],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/logo.png?v=3",
+    apple: "/logo.png?v=3",
   },
   openGraph: {
-    title: "Chino Barber Shop | Reservas en línea",
+    title: "Chino Barbershop | Reservas en línea",
     description: "Tu mejor corte, sin esperas. Reserva tu cita en línea.",
-    siteName: "Chino Barber Shop",
+    siteName: "Chino Barbershop",
     type: "website",
   },
 };

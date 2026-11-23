@@ -92,11 +92,60 @@ export async function POST(request: Request) {
     const status = String(estado ?? 'completada')
     const payment = String(metodo_pago ?? 'efectivo')
     const note = String(notas ?? '').trim() || 'Atendido en local (Walk-in)'
+    const barbId = String(barbero).trim()
+    const fechaNorm = String(fecha).trim()
+    const horaNorm = String(hora).trim()
 
-    await db.run(`
-      INSERT INTO citas (id, usuario_id, nombre, celular, servicio, barbero, fecha, hora, metodo_pago, ref_pago, estado, notas, leida)
-      VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, 1)
-    `, id, clientName, clientPhone, servicio, barbero, fecha, hora, payment, status, note)
+    const barbRow = barbId && barbId !== 'any'
+      ? await db.get<{ id: string }>('SELECT id FROM barberos WHERE id = ?', barbId)
+      : undefined
+    if (!barbRow) {
+      return NextResponse.json({ error: 'Barbero inválido. Selecciona un barbero del equipo.' }, { status: 400 })
+    }
+
+    const bloqueos = await db.all<{ hora: string | null; motivo: string }>(
+      'SELECT hora, motivo FROM bloqueos WHERE fecha = ?',
+      fechaNorm
+    )
+    const diaCerrado = bloqueos.find(b => b.hora === null)
+    if (diaCerrado) {
+      return NextResponse.json(
+        { error: `Agenda bloqueada para ${fechaNorm} (${diaCerrado.motivo}).` },
+        { status: 409 }
+      )
+    }
+    const horaCerrada = bloqueos.find(b => b.hora === horaNorm)
+    if (horaCerrada) {
+      return NextResponse.json(
+        { error: `Horario ${horaNorm} bloqueado (${horaCerrada.motivo}).` },
+        { status: 409 }
+      )
+    }
+
+    const createdId = await db.transaction(async (tx) => {
+      if (status !== 'cancelada' && status !== 'rechazada') {
+        const occupied = await tx.get<{ id: string }>(
+          `SELECT id FROM citas
+           WHERE fecha = ? AND hora = ? AND barbero = ? AND estado NOT IN ('cancelada', 'rechazada')`,
+          fechaNorm,
+          horaNorm,
+          barbId
+        )
+        if (occupied) return null
+      }
+      await tx.run(`
+        INSERT INTO citas (id, usuario_id, nombre, celular, servicio, barbero, fecha, hora, metodo_pago, ref_pago, estado, notas, leida)
+        VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, 1)
+      `, id, clientName, clientPhone, servicio, barbId, fechaNorm, horaNorm, payment, status, note)
+      return id
+    })
+
+    if (!createdId) {
+      return NextResponse.json(
+        { error: 'Este barbero ya tiene una cita registrada en ese horario.' },
+        { status: 409 }
+      )
+    }
 
     const creada = await db.get(`
       SELECT c.*,
@@ -104,7 +153,7 @@ export async function POST(request: Request) {
       FROM citas c
       LEFT JOIN servicios s ON s.id = c.servicio
       WHERE c.id = ?
-    `, id)
+    `, createdId)
 
     return NextResponse.json({ ok: true, cita: creada }, { status: 201 })
   } catch (err: unknown) {

@@ -320,6 +320,15 @@ export type IconName =
   | 'Pencil'
   | 'Clock'
   | 'Eye'
+  | 'LogOut'
+  | 'Printer'
+  | 'Download'
+  | 'MessageCircle'
+  | 'Lock'
+  | 'AlertTriangle'
+  | 'TrendingUp'
+  | 'TrendingDown'
+  | 'Columns'
 
 export function ModIcon({ name, className = 'h-4 w-4' }: { name: IconName; className?: string }) {
   const p = {
@@ -390,6 +399,24 @@ export function ModIcon({ name, className = 'h-4 w-4' }: { name: IconName; class
       return <svg {...p}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
     case 'Eye':
       return <svg {...p}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+    case 'LogOut':
+      return <svg {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
+    case 'Printer':
+      return <svg {...p}><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect width="12" height="8" x="6" y="14" /></svg>
+    case 'Download':
+      return <svg {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
+    case 'MessageCircle':
+      return <svg {...p}><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>
+    case 'Lock':
+      return <svg {...p}><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+    case 'AlertTriangle':
+      return <svg {...p}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+    case 'TrendingUp':
+      return <svg {...p}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></svg>
+    case 'TrendingDown':
+      return <svg {...p}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7" /><polyline points="16 17 22 17 22 11" /></svg>
+    case 'Columns':
+      return <svg {...p}><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M9 3v18M15 3v18" /></svg>
   }
 }
 
@@ -917,8 +944,8 @@ export function TicketTermicoModal({
       >
         <div className="flex items-center justify-between border-b pb-3 mb-4 border-slate-200 no-print">
           <div className="flex items-center gap-2">
-            <span className="text-lg">🖨️</span>
-            <h3 className="font-bold text-sm text-slate-900">Impresión de Ticket Térmico</h3>
+            <ModIcon name="Printer" className="h-4 w-4 text-slate-700" />
+            <h3 className="font-bold text-sm text-slate-900">Ticket Térmico (80mm)</h3>
           </div>
           <button
             type="button"
@@ -933,10 +960,10 @@ export function TicketTermicoModal({
         {/* CONTENEDOR FÍSICO DEL TICKET (80mm) */}
         <div className="a-ticket-print-wrapper rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 font-mono text-xs text-slate-800 space-y-2">
           <div className="text-center space-y-0.5">
-            <p className="font-extrabold text-sm tracking-wider uppercase text-slate-900">CHINO BARBER SHOP</p>
+            <p className="font-extrabold text-sm tracking-wider uppercase text-slate-900">CHINO BARBERSHOP</p>
             <p className="text-[11px] text-slate-600">Tu mejor corte, sin esperas</p>
-            <p className="text-[10px] text-slate-500">RUC: 10458923412 · Lima, Perú</p>
-            <p className="text-[10px] text-slate-500">WhatsApp: +51 987 654 321</p>
+            <p className="text-[10px] text-slate-500">22845, Nueva Cajamarca 22846</p>
+            <p className="text-[10px] text-slate-500">WhatsApp: +51 928 192 437</p>
           </div>
 
           <div className="border-t border-dashed border-slate-400 my-2 pt-2 text-[11px] space-y-1">
@@ -1008,12 +1035,12 @@ export function TicketTermicoModal({
           <div className="border-t border-dashed border-slate-400 my-2 pt-2 text-center text-[10px] space-y-0.5 text-slate-600">
             <p className="font-bold text-slate-900">PROGRAMA DE FIDELIZACIÓN VIP</p>
             <p>¡Gracias por acumular sellos VIP!</p>
-            <p>6 sellos = 1 corte clásico totalmente GRATIS.</p>
+            <p>5 sellos = 1 corte clásico GRATIS.</p>
           </div>
 
           <div className="border-t border-dashed border-slate-400 pt-2 text-center text-[10px] text-slate-500">
             <p>¡Gracias por tu preferencia!</p>
-            <p className="font-semibold text-slate-700">chinobarber.vercel.app</p>
+            <p className="font-semibold text-slate-700">chinobarbershop.pe</p>
           </div>
         </div>
 
@@ -1021,10 +1048,10 @@ export function TicketTermicoModal({
         <div className="mt-4 flex gap-2 no-print">
           <button
             type="button"
-            onClick={() => window.print()}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2.5 text-xs shadow-md transition-colors cursor-pointer"
+            onClick={() => printTicketCita(cita)}
+            className={`${T.btnPrimary} flex-1`}
           >
-            <span className="text-sm">🖨️</span>
+            <ModIcon name="Printer" className="h-4 w-4" />
             <span>Imprimir Ticket</span>
           </button>
           <button
@@ -1033,6 +1060,503 @@ export function TicketTermicoModal({
             className="rounded-xl border border-slate-300 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ==========================================================================
+   MOTOR DE IMPRESIÓN DEDICADO (IFRAME OCULTO — 80mm TÉRMICO Y A4 EJECUTIVO)
+   Garantiza impresión nítida en blanco y negro sin depender de modales ni tema
+   ========================================================================== */
+function escapePrintHtml(v: unknown): string {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+export function printDocumentHtml(title: string, bodyHtml: string, paper: '80mm' | 'a4' = '80mm') {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return
+
+  const isThermal = paper === '80mm'
+  const styles = isThermal
+    ? `
+      @page { size: 80mm auto; margin: 3mm; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        width: 74mm;
+        margin: 0 auto;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 11.5px;
+        line-height: 1.38;
+        color: #000;
+        background: #fff;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .center { text-align: center; }
+      .brand { font-size: 15px; font-weight: 800; letter-spacing: 0.06em; }
+      .sub { font-size: 10.5px; color: #222; }
+      .hr { border-top: 1px dashed #111; margin: 8px 0; }
+      .row { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
+      .row b { text-align: right; }
+      .items-head { display: flex; justify-content: space-between; font-weight: 800; border-bottom: 1px solid #111; padding-bottom: 3px; margin-bottom: 4px; font-size: 10.5px; }
+      .total-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 900; border-top: 1.5px solid #000; padding-top: 5px; margin-top: 4px; }
+      .vip-box { text-align: center; font-size: 10px; margin-top: 6px; }
+    `
+    : `
+      @page { size: A4 portrait; margin: 12mm; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Arial, sans-serif;
+        font-size: 12px;
+        line-height: 1.45;
+        color: #111;
+        background: #fff;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #111; padding-bottom: 10px; margin-bottom: 14px; }
+      .brand { font-size: 18px; font-weight: 800; letter-spacing: 0.03em; }
+      .meta { font-size: 11px; color: #444; margin-top: 2px; }
+      .meta-right { text-align: right; font-size: 11px; color: #333; }
+      .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+      .kpi { border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; background: #f8fafc; }
+      .kpi-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #475569; }
+      .kpi-val { font-size: 16px; font-weight: 800; margin-top: 2px; font-family: ui-monospace, Menlo, monospace; }
+      .kpi-sub { font-size: 10px; color: #64748b; margin-top: 2px; }
+      .sec-title { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin: 14px 0 6px; color: #111; }
+      .methods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+      .method { border: 1px solid #e2e8f0; border-radius: 6px; padding: 7px 10px; }
+      .method span { font-size: 10.5px; color: #475569; display: block; }
+      .method b { font-size: 13.5px; font-family: ui-monospace, Menlo, monospace; }
+      table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 11.5px; }
+      th { text-align: left; background: #f1f5f9; color: #1e293b; font-weight: 700; text-transform: uppercase; font-size: 10px; padding: 7px 8px; border-bottom: 1.5px solid #94a3b8; }
+      td { padding: 7px 8px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+      .num { text-align: right; font-family: ui-monospace, Menlo, monospace; }
+      tfoot td { font-weight: 800; background: #f8fafc; border-top: 1.5px solid #334155; }
+      .footer-note { margin-top: 24px; padding-top: 10px; border-top: 1px dashed #94a3b8; display: flex; justify-content: space-between; font-size: 10.5px; color: #475569; }
+    `
+
+  const fullDoc = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>${escapePrintHtml(title)}</title>
+  <style>${styles}</style>
+</head>
+<body>${bodyHtml}</body>
+</html>`
+
+  const iframe = document.createElement('iframe')
+  iframe.setAttribute('aria-hidden', 'true')
+  iframe.style.position = 'fixed'
+  iframe.style.right = '0'
+  iframe.style.bottom = '0'
+  iframe.style.width = '0'
+  iframe.style.height = '0'
+  iframe.style.border = '0'
+  iframe.style.opacity = '0'
+  iframe.style.pointerEvents = 'none'
+  document.body.appendChild(iframe)
+
+  const cleanup = () => {
+    try {
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe)
+    } catch {}
+  }
+
+  const win = iframe.contentWindow
+  const doc = win?.document
+  if (!win || !doc) {
+    cleanup()
+    window.print()
+    return
+  }
+
+  doc.open()
+  doc.write(fullDoc)
+  doc.close()
+
+  let printed = false
+  const triggerPrint = () => {
+    if (printed) return
+    printed = true
+    try {
+      win.focus()
+      win.print()
+    } catch {
+      window.print()
+    }
+    win.addEventListener('afterprint', cleanup, { once: true })
+    setTimeout(cleanup, 60000)
+  }
+
+  setTimeout(triggerPrint, 140)
+}
+
+export function printTicketCita(cita: Cita) {
+  const ex = parseCitaExtras(cita)
+  const ticketNum = cita.id.replace(/\D/g, '').slice(-5) || '00142'
+  const igv = (ex.grandTotal * 0.18) / 1.18
+  const subtotal = ex.grandTotal - igv
+
+  const body = `
+    <div class="center">
+      <div class="brand">CHINO BARBERSHOP</div>
+      <div class="sub">Tu mejor corte, sin esperas</div>
+      <div class="sub">22845, Nueva Cajamarca 22846</div>
+      <div class="sub">WhatsApp: +51 928 192 437</div>
+    </div>
+    <div class="hr"></div>
+    <div class="row"><span>COMPROBANTE:</span><b>#TK-${escapePrintHtml(ticketNum)}</b></div>
+    <div class="row"><span>Fecha / Hora:</span><span>${escapePrintHtml(fechaLarga(cita.fecha))} ${escapePrintHtml(formatHora12(cita.hora))}</span></div>
+    <div class="row"><span>Cliente:</span><b>${escapePrintHtml(cita.nombre)}</b></div>
+    <div class="row"><span>Teléfono:</span><span>${escapePrintHtml(cita.celular)}</span></div>
+    <div class="row"><span>Barbero:</span><b>${escapePrintHtml(cita.barbero)}</b></div>
+    <div class="hr"></div>
+    <div class="items-head"><span>DESCRIPCIÓN</span><span>TOTAL</span></div>
+    <div class="row"><span>${escapePrintHtml(cita.servicioNombre ?? cita.servicio)}</span><b>${escapePrintHtml(money(ex.serviceTotal))}</b></div>
+    ${ex.productsText ? `<div class="row"><span>+ ${escapePrintHtml(ex.productsText)}</span><b>${escapePrintHtml(money(ex.productsTotal))}</b></div>` : ''}
+    <div class="hr"></div>
+    <div class="row"><span>Op. Gravada:</span><span>${escapePrintHtml(money(subtotal))}</span></div>
+    <div class="row"><span>I.G.V. (18%):</span><span>${escapePrintHtml(money(igv))}</span></div>
+    <div class="total-row"><span>TOTAL A PAGAR</span><span>${escapePrintHtml(money(ex.grandTotal))}</span></div>
+    <div class="row" style="margin-top:4px;"><span>Medio de pago:</span><b>${escapePrintHtml(formatPaymentInfo(cita.metodo_pago, cita.ref_pago))}</b></div>
+    <div class="row"><span>Estado:</span><b>${escapePrintHtml(String(cita.estado).toUpperCase())}</b></div>
+    <div class="hr"></div>
+    <div class="vip-box">
+      <b>PROGRAMA DE FIDELIZACIÓN VIP</b><br/>
+      5 sellos = 1 corte clásico GRATIS.<br/>
+      ¡Gracias por tu preferencia!
+    </div>
+  `
+  printDocumentHtml(`Ticket #TK-${ticketNum} — Chino Barbershop`, body, '80mm')
+}
+
+export function printComprobantePedido(pedido: Pedido) {
+  let items: Array<{ name: string; qty: number; price: number }> = []
+  try {
+    const parsed = JSON.parse(pedido.items_json || '[]')
+    if (Array.isArray(parsed)) items = parsed
+  } catch {}
+
+  const fechaEmision = utcToFechaLimaClient(pedido.created_at) || getFechaHoy()
+  const itemsHtml = items
+    .map(
+      it =>
+        `<div class="row"><span>${Number(it.qty) || 1}x ${escapePrintHtml(it.name)}</span><b>${escapePrintHtml(
+          money((Number(it.price) || 0) * (Number(it.qty) || 1))
+        )}</b></div>`
+    )
+    .join('')
+
+  const body = `
+    <div class="center">
+      <div class="brand">CHINO BARBERSHOP</div>
+      <div class="sub">TIENDA OFICIAL · R.U.C. 10458923011</div>
+      <div class="sub">22845, Nueva Cajamarca 22846</div>
+      <div class="sub">WhatsApp: +51 928 192 437</div>
+    </div>
+    <div class="hr"></div>
+    <div class="row"><span>ORDEN:</span><b>${escapePrintHtml(pedido.id)}</b></div>
+    <div class="row"><span>Fecha:</span><span>${escapePrintHtml(fechaLarga(fechaEmision))}</span></div>
+    <div class="row"><span>Cliente:</span><b>${escapePrintHtml(pedido.cliente)}</b></div>
+    <div class="row"><span>Teléfono:</span><span>${escapePrintHtml(pedido.telefono)}</span></div>
+    <div class="row"><span>Entrega:</span><b>${pedido.entrega === 'delivery' ? 'Delivery Local' : 'Recojo en Local'}</b></div>
+    ${pedido.direccion ? `<div class="row"><span>Dirección:</span><span>${escapePrintHtml(pedido.direccion)}</span></div>` : ''}
+    <div class="hr"></div>
+    <div class="items-head"><span>PRODUCTOS</span><span>SUBTOTAL</span></div>
+    ${itemsHtml || '<div class="row"><span>Detalle de tienda</span><b>—</b></div>'}
+    <div class="hr"></div>
+    <div class="row"><span>Subtotal:</span><span>${escapePrintHtml(money(pedido.subtotal || pedido.total))}</span></div>
+    <div class="row"><span>Envío:</span><span>${Number(pedido.envio) > 0 ? escapePrintHtml(money(pedido.envio)) : 'GRATIS'}</span></div>
+    <div class="total-row"><span>TOTAL</span><span>${escapePrintHtml(money(pedido.total))}</span></div>
+    <div class="row" style="margin-top:4px;"><span>Medio de pago:</span><b>${escapePrintHtml(formatPaymentInfo(pedido.metodo_pago, pedido.ref_pago))}</b></div>
+    <div class="row"><span>Estado:</span><b>${escapePrintHtml(String(pedido.estado).toUpperCase())}</b></div>
+    <div class="hr"></div>
+    <div class="vip-box">Comprobante de entrega · ¡Gracias por tu compra!</div>
+  `
+  printDocumentHtml(`Pedido ${pedido.id} — Chino Barbershop`, body, '80mm')
+}
+
+export function printReporteCaja(params: {
+  subTab: 'liquidacion' | 'pagos'
+  periodoLabel: string
+  resumen: {
+    ingresosServicios: number
+    ingresosTienda: number
+    pedidosPagados: number
+    totalRecaudado: number
+    totalComisiones: number
+    gananciaBarberia: number
+    porMetodoPago: { efectivo: number; yape: number; plin: number; tarjeta: number }
+  }
+  barberos: Array<{
+    barberoNombre: string
+    comisionPct: number
+    atendidas: number
+    totalCobrado: number
+    pagoBarbero: number
+    gananciaLocal: number
+  }>
+  pagos: Array<{
+    rawId: string
+    fecha: string
+    cliente: string
+    concepto: string
+    metodo: string
+    refPago: string
+    monto: number
+    estado: string
+  }>
+}) {
+  const ahora = new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' })
+  const { subTab, periodoLabel, resumen, barberos, pagos } = params
+
+  if (subTab === 'liquidacion') {
+    const totalCortes = barberos.reduce((a, b) => a + b.atendidas, 0)
+    const totalServ = barberos.reduce((a, b) => a + b.totalCobrado, 0)
+    const totalCom = barberos.reduce((a, b) => a + b.pagoBarbero, 0)
+    const totalNetoServ = barberos.reduce((a, b) => a + b.gananciaLocal, 0)
+
+    const rowsHtml = barberos
+      .map(
+        b => `
+        <tr>
+          <td><b>${escapePrintHtml(b.barberoNombre)}</b></td>
+          <td class="num">${b.atendidas}</td>
+          <td class="num">${b.comisionPct}%</td>
+          <td class="num">${escapePrintHtml(money(b.totalCobrado))}</td>
+          <td class="num"><b>${escapePrintHtml(money(b.pagoBarbero))}</b></td>
+          <td class="num">${escapePrintHtml(money(b.gananciaLocal))}</td>
+        </tr>`
+      )
+      .join('')
+
+    const body = `
+      <div class="header">
+        <div>
+          <div class="brand">CHINO BARBERSHOP</div>
+          <div class="meta">Cierre de Caja y Liquidación de Comisiones · Nueva Cajamarca</div>
+        </div>
+        <div class="meta-right">
+          <div><b>Período:</b> ${escapePrintHtml(periodoLabel)}</div>
+          <div><b>Emitido:</b> ${escapePrintHtml(ahora)}</div>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-lbl">Total Caja</div>
+          <div class="kpi-val">${escapePrintHtml(money(resumen.totalRecaudado))}</div>
+          <div class="kpi-sub">Serv. ${escapePrintHtml(money(resumen.ingresosServicios))} + Tnd. ${escapePrintHtml(money(resumen.ingresosTienda))}</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-lbl">Comisiones Equipo</div>
+          <div class="kpi-val">${escapePrintHtml(money(resumen.totalComisiones))}</div>
+          <div class="kpi-sub">${totalCortes} cortes atendidos</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-lbl">Margen Neto Local</div>
+          <div class="kpi-val">${escapePrintHtml(money(resumen.gananciaBarberia))}</div>
+          <div class="kpi-sub">Servicios netos + Tienda</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-lbl">Ventas Tienda</div>
+          <div class="kpi-val">${escapePrintHtml(money(resumen.ingresosTienda))}</div>
+          <div class="kpi-sub">${resumen.pedidosPagados} pedidos cobrados</div>
+        </div>
+      </div>
+
+      <div class="sec-title">Arqueo por Método de Pago</div>
+      <div class="methods">
+        <div class="method"><span>Efectivo</span><b>${escapePrintHtml(money(resumen.porMetodoPago.efectivo))}</b></div>
+        <div class="method"><span>Yape</span><b>${escapePrintHtml(money(resumen.porMetodoPago.yape))}</b></div>
+        <div class="method"><span>Plin</span><b>${escapePrintHtml(money(resumen.porMetodoPago.plin))}</b></div>
+        <div class="method"><span>Tarjeta</span><b>${escapePrintHtml(money(resumen.porMetodoPago.tarjeta))}</b></div>
+      </div>
+
+      <div class="sec-title">Liquidación por Barbero</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Barbero</th>
+            <th class="num">Cortes</th>
+            <th class="num">% Com.</th>
+            <th class="num">Facturado</th>
+            <th class="num">Pago Barbero</th>
+            <th class="num">Neto Local</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml || '<tr><td colspan="6" style="text-align:center;color:#64748b;">Sin movimientos en el período</td></tr>'}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>TOTAL SERVICIOS</td>
+            <td class="num">${totalCortes}</td>
+            <td class="num">—</td>
+            <td class="num">${escapePrintHtml(money(totalServ))}</td>
+            <td class="num">${escapePrintHtml(money(totalCom))}</td>
+            <td class="num">${escapePrintHtml(money(totalNetoServ))}</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="footer-note">
+        <span>Chino Barbershop · Gestión del Estudio</span>
+        <span>Firma de conformidad: ___________________________</span>
+      </div>
+    `
+    printDocumentHtml(`Cierre de Caja (${periodoLabel}) — Chino Barbershop`, body, 'a4')
+    return
+  }
+
+  const totalPagos = pagos.reduce((a, p) => a + (Number(p.monto) || 0), 0)
+  const rowsPagos = pagos
+    .map(
+      p => `
+      <tr>
+        <td>${escapePrintHtml(p.fecha.slice(0, 10))}</td>
+        <td><b>${escapePrintHtml(p.cliente)}</b><br/><span style="font-size:10px;color:#64748b;">${escapePrintHtml(p.concepto)}</span></td>
+        <td>${escapePrintHtml(formatPaymentInfo(p.metodo, p.refPago))}</td>
+        <td>${escapePrintHtml(String(p.estado).toUpperCase())}</td>
+        <td class="num"><b>${escapePrintHtml(money(p.monto))}</b></td>
+      </tr>`
+    )
+    .join('')
+
+  const body = `
+    <div class="header">
+      <div>
+        <div class="brand">CHINO BARBERSHOP</div>
+        <div class="meta">Auditoría de Pagos y Movimientos de Caja</div>
+      </div>
+      <div class="meta-right">
+        <div><b>Registros:</b> ${pagos.length}</div>
+        <div><b>Emitido:</b> ${escapePrintHtml(ahora)}</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Cliente / Concepto</th>
+          <th>Método / Op.</th>
+          <th>Estado</th>
+          <th class="num">Monto</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsPagos || '<tr><td colspan="5" style="text-align:center;color:#64748b;">Sin movimientos para los filtros seleccionados</td></tr>'}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">TOTAL LISTADO</td>
+          <td class="num">${escapePrintHtml(money(totalPagos))}</td>
+        </tr>
+      </tfoot>
+    </table>
+  `
+  printDocumentHtml('Auditoría de Pagos — Chino Barbershop', body, 'a4')
+}
+
+export function utcToFechaLimaClient(iso?: string | null): string {
+  const ts = String(iso ?? '').trim()
+  if (!ts) return ''
+  if (/^\d{4}-\d{2}-\d{2}$/.test(ts)) return ts
+  const normalized = ts.includes('T')
+    ? (/(Z|[+-]\d{2}:\d{2})$/i.test(ts) ? ts : `${ts}Z`)
+    : `${ts.replace(' ', 'T')}Z`
+  const d = new Date(normalized)
+  if (Number.isNaN(d.getTime())) return ts.slice(0, 10)
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Lima',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(d)
+  } catch {
+    return ts.slice(0, 10)
+  }
+}
+
+export function ConfirmDialog({
+  open,
+  title,
+  message,
+  confirmLabel = 'Confirmar',
+  cancelLabel = 'Cancelar',
+  danger = true,
+  onConfirm,
+  onCancel,
+}: {
+  open: boolean
+  title: string
+  message: string
+  confirmLabel?: string
+  cancelLabel?: string
+  danger?: boolean
+  onConfirm: () => void | Promise<void>
+  onCancel: () => void
+}) {
+  useEffect(() => {
+    if (!open) return
+    const h = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel()
+    }
+    window.addEventListener('keydown', h)
+    return () => window.removeEventListener('keydown', h)
+  }, [open, onCancel])
+
+  if (!open) return null
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      onClick={onCancel}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="w-full max-w-sm rounded-2xl border p-5 shadow-2xl space-y-4 a-fade"
+        style={{ background: 'var(--panel)', borderColor: 'var(--line)' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-start gap-3">
+          <div
+            className="grid size-9 shrink-0 place-items-center rounded-xl border"
+            style={{
+              background: danger ? 'var(--danger-bg)' : 'var(--gold-soft)',
+              borderColor: danger ? 'var(--danger-line)' : 'var(--gold-line)',
+              color: danger ? 'var(--danger)' : 'var(--gold)',
+            }}
+          >
+            <ModIcon name={danger ? 'AlertTriangle' : 'AlertCircle'} className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-sm font-bold a-txt">{title}</h3>
+            <p className="mt-1 text-xs leading-relaxed a-muted">{message}</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-end gap-2 pt-1">
+          <button type="button" onClick={onCancel} className={T.btnGhost}>
+            {cancelLabel}
+          </button>
+          <button
+            type="button"
+            onClick={() => void onConfirm()}
+            className={danger ? T.btnDanger : T.btnPrimary}
+          >
+            {confirmLabel}
           </button>
         </div>
       </div>

@@ -12,6 +12,7 @@ import {
   T,
   ModIcon,
   Drawer,
+  ConfirmDialog,
   RowMenu,
   AccordionSection,
   EmptyState,
@@ -47,6 +48,7 @@ export function TabServicios() {
   const [catFiltro, setCatFiltro] = useState('todas')
   const [vista, setVista] = useState<'tarjetas' | 'tabla'>('tarjetas')
   const [editing, setEditing] = useState<Servicio | null>(null)
+  const [confirmDelId, setConfirmDelId] = useState<string | null>(null)
   const [isNew, setIsNew] = useState(false)
   const [msg, setMsg] = useState('')
   const [tone, setTone] = useState<'ok' | 'err'>('ok')
@@ -93,8 +95,14 @@ export function TabServicios() {
     }
   }
 
-  async function eliminar(id: string) {
-    if (!window.confirm('¿Eliminar este servicio definitivamente?')) return
+  function eliminar(id: string) {
+    setConfirmDelId(id)
+  }
+
+  async function confirmarEliminarServicio() {
+    if (!confirmDelId) return
+    const id = confirmDelId
+    setConfirmDelId(null)
     const r = await fetch(`/api/admin/servicios?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
     if (r.ok) {
       notify('Servicio eliminado')
@@ -421,6 +429,15 @@ export function TabServicios() {
           </form>
         )}
       </Drawer>
+
+      <ConfirmDialog
+        open={!!confirmDelId}
+        title="Eliminar servicio"
+        message="¿Eliminar este servicio definitivamente del catálogo?"
+        confirmLabel="Eliminar servicio"
+        onConfirm={confirmarEliminarServicio}
+        onCancel={() => setConfirmDelId(null)}
+      />
     </div>
   )
 }
@@ -434,6 +451,7 @@ export function TabProductos() {
   const [catFiltro, setCatFiltro] = useState('todas')
   const [vista, setVista] = useState<'tarjetas' | 'tabla'>('tarjetas')
   const [editing, setEditing] = useState<Producto | null>(null)
+  const [confirmDelId, setConfirmDelId] = useState<string | null>(null)
   const [isNew, setIsNew] = useState(false)
   const [msg, setMsg] = useState('')
   const [tone, setTone] = useState<'ok' | 'err'>('ok')
@@ -487,8 +505,14 @@ export function TabProductos() {
     await cargar()
   }
 
-  async function eliminar(id: string) {
-    if (!window.confirm('¿Eliminar este producto del catálogo?')) return
+  function eliminar(id: string) {
+    setConfirmDelId(id)
+  }
+
+  async function confirmarEliminarProducto() {
+    if (!confirmDelId) return
+    const id = confirmDelId
+    setConfirmDelId(null)
     await fetch(`/api/admin/saas?mod=producto&id=${encodeURIComponent(id)}`, { method: 'DELETE' })
     notify('Producto eliminado')
     setEditing(null)
@@ -859,6 +883,15 @@ export function TabProductos() {
           </form>
         )}
       </Drawer>
+
+      <ConfirmDialog
+        open={!!confirmDelId}
+        title="Eliminar producto"
+        message="¿Eliminar este producto del catálogo de la tienda?"
+        confirmLabel="Eliminar producto"
+        onConfirm={confirmarEliminarProducto}
+        onCancel={() => setConfirmDelId(null)}
+      />
     </div>
   )
 }
@@ -869,6 +902,7 @@ export function TabProductos() {
 export function TabBarberos() {
   const [items, setItems] = useState<Barbero[]>([])
   const [editing, setEditing] = useState<Barbero | null>(null)
+  const [confirmDelId, setConfirmDelId] = useState<string | null>(null)
   const [isNew, setIsNew] = useState(false)
   const [msg, setMsg] = useState('')
   const [tone, setTone] = useState<'ok' | 'err'>('ok')
@@ -911,8 +945,14 @@ export function TabBarberos() {
     await cargar()
   }
 
-  async function eliminar(id: string) {
-    if (!window.confirm('¿Eliminar a este barbero del equipo?')) return
+  function eliminar(id: string) {
+    setConfirmDelId(id)
+  }
+
+  async function confirmarEliminarBarbero() {
+    if (!confirmDelId) return
+    const id = confirmDelId
+    setConfirmDelId(null)
     await fetch(`/api/admin/barberos?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
     notify('Barbero eliminado')
     setEditing(null)
@@ -920,11 +960,12 @@ export function TabBarberos() {
   }
 
   const parseTags = (raw: string): string[] => {
+    const clean = (s: unknown) => String(s ?? '').replace(/[\[\]"']/g, '').trim()
     try {
       const p = JSON.parse(raw)
-      return Array.isArray(p) ? p : []
+      return Array.isArray(p) ? p.map(clean).filter(Boolean) : []
     } catch {
-      return raw ? raw.split(',').map(s => s.trim()).filter(Boolean) : []
+      return raw ? raw.split(',').map(clean).filter(Boolean) : []
     }
   }
 
@@ -950,8 +991,8 @@ export function TabBarberos() {
               foto: '/barberos/chino.jpg',
               activo: 1,
               comision: 50,
-              horario: 'Lun - Sáb · 09:00 - 21:00',
-              dias_libres: 'Domingo',
+              horario: 'Lun - Dom · 08:00 - 21:00',
+              dias_libres: 'Rotativo',
             })
           },
         }}
@@ -1018,7 +1059,7 @@ export function TabBarberos() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="a-muted">Horario</span>
-                    <span className="font-semibold a-txt">{b.horario || 'Lun - Sáb · 09:00 - 21:00'}</span>
+                    <span className="font-semibold a-txt">{b.horario || 'Lun - Dom · 08:00 - 21:00'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="a-muted">Día libre</span>
@@ -1162,7 +1203,7 @@ export function TabBarberos() {
                 <label className={T.label}>Horario semanal</label>
                 <input
                   className={T.input}
-                  value={editing.horario ?? 'Lun - Sáb · 09:00 - 21:00'}
+                  value={editing.horario ?? 'Lun - Dom · 08:00 - 21:00'}
                   onChange={e => setEditing({ ...editing, horario: e.target.value })}
                 />
               </div>
@@ -1191,6 +1232,15 @@ export function TabBarberos() {
           </form>
         )}
       </Drawer>
+
+      <ConfirmDialog
+        open={!!confirmDelId}
+        title="Eliminar barbero"
+        message="¿Eliminar a este barbero del equipo del estudio?"
+        confirmLabel="Eliminar barbero"
+        onConfirm={confirmarEliminarBarbero}
+        onCancel={() => setConfirmDelId(null)}
+      />
     </div>
   )
 }
@@ -1201,6 +1251,7 @@ export function TabBarberos() {
 export function TabGaleria() {
   const [fotos, setFotos] = useState<FotoGaleria[]>([])
   const [editing, setEditing] = useState<FotoGaleria | null>(null)
+  const [confirmDelId, setConfirmDelId] = useState<string | null>(null)
   const [isNew, setIsNew] = useState(false)
   const [msg, setMsg] = useState('')
   const [tone, setTone] = useState<'ok' | 'err'>('ok')
@@ -1243,8 +1294,14 @@ export function TabGaleria() {
     await cargar()
   }
 
-  async function eliminar(id: string) {
-    if (!window.confirm('¿Eliminar esta foto del Lookbook?')) return
+  function eliminar(id: string) {
+    setConfirmDelId(id)
+  }
+
+  async function confirmarEliminarFoto() {
+    if (!confirmDelId) return
+    const id = confirmDelId
+    setConfirmDelId(null)
     await fetch(`/api/admin/saas?mod=galeria&id=${encodeURIComponent(id)}`, { method: 'DELETE' })
     notify('Foto eliminada')
     setEditing(null)
@@ -1392,6 +1449,15 @@ export function TabGaleria() {
           </form>
         )}
       </Drawer>
+
+      <ConfirmDialog
+        open={!!confirmDelId}
+        title="Eliminar fotografía"
+        message="¿Eliminar esta fotografía del Lookbook de Chino Barbershop?"
+        confirmLabel="Eliminar foto"
+        onConfirm={confirmarEliminarFoto}
+        onCancel={() => setConfirmDelId(null)}
+      />
     </div>
   )
 }

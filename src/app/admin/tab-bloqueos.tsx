@@ -24,15 +24,15 @@ import {
 } from './ui'
 
 const DEFAULT_AJUSTES: NegocioAjustes = {
-  nombre: 'Chino Barber Shop',
-  telefono: '987 654 321',
-  whatsapp: '51987654321',
-  direccion: 'Av. Principal 450, Lima, Perú',
-  horarioApertura: '09:00',
+  nombre: 'Chino Barbershop',
+  telefono: '928 192 437',
+  whatsapp: '51928192437',
+  direccion: '22845, Nueva Cajamarca 22846 (Plaza de la Cultura)',
+  horarioApertura: '08:00',
   horarioCierre: '21:00',
-  diasAtencion: 'Lunes a Sábado',
-  yapeNumero: '987 654 321',
-  yapeTitular: 'Chino Barber Shop SAC',
+  diasAtencion: 'Lunes a Domingo',
+  yapeNumero: '928 192 437',
+  yapeTitular: 'Chino Barbershop',
   yapeQrUrl: '',
   aceptaYape: true,
   aceptaTarjeta: true,
@@ -291,7 +291,7 @@ export default function TabNegocio() {
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label className={T.label}>
-              Tarifa Delivery Lima (S/) <Hint text="Costo que se suma al carrito cuando el cliente elige Delivery." />
+              Tarifa Delivery Local (S/) <Hint text="Costo que se suma al carrito cuando el cliente elige Delivery." />
             </label>
             <input
               type="number"

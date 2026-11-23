@@ -25,6 +25,8 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
     nombre: string
     celular: string
     fecha: string
+    hora: string
+    barbero: string
     estado: string
   }>('SELECT * FROM citas WHERE id = ?', id)
 
@@ -35,6 +37,10 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
   // Restricción de negocio: no se puede verificar/aprobar pago ni marcar como atendida una cita de fecha futura
   const hoy = getFechaLima(0)
   const fechaEfectiva = (fecha !== undefined && String(fecha).trim()) ? String(fecha).trim() : cita.fecha
+  const horaEfectiva = (hora !== undefined && String(hora).trim()) ? String(hora).trim() : cita.hora
+  const barberoEfectivo = (barbero !== undefined && String(barbero).trim()) ? String(barbero).trim() : cita.barbero
+  const estadoEfectivo = estado !== undefined ? String(estado) : cita.estado
+
   const intentaAprobarOAtender = estado === 'pagado' || estado === 'completada' || Boolean(body.verificarPago)
   if (intentaAprobarOAtender && fechaEfectiva > hoy) {
     return NextResponse.json(
@@ -45,16 +51,61 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
     )
   }
 
+  if (estado !== undefined && !ESTADOS_VALIDOS.has(estado)) {
+    return NextResponse.json(
+      { error: `Estado inválido. Usa: ${[...ESTADOS_VALIDOS].join(', ')}.` },
+      { status: 400 }
+    )
+  }
+
+  const cambiaHorario =
+    fechaEfectiva !== cita.fecha ||
+    horaEfectiva !== cita.hora ||
+    barberoEfectivo !== cita.barbero
+  const reactivando =
+    ['cancelada', 'rechazada'].includes(cita.estado) &&
+    !['cancelada', 'rechazada'].includes(estadoEfectivo)
+
+  if ((cambiaHorario || reactivando) && !['cancelada', 'rechazada'].includes(estadoEfectivo)) {
+    const bloqueos = await db.all<{ hora: string | null; motivo: string }>(
+      'SELECT hora, motivo FROM bloqueos WHERE fecha = ?',
+      fechaEfectiva
+    )
+    const diaCerrado = bloqueos.find(b => b.hora === null)
+    if (diaCerrado) {
+      return NextResponse.json(
+        { error: `Fecha bloqueada (${diaCerrado.motivo}). Elige otro día.` },
+        { status: 409 }
+      )
+    }
+    const horaCerrada = bloqueos.find(b => b.hora === horaEfectiva)
+    if (horaCerrada) {
+      return NextResponse.json(
+        { error: `Horario ${horaEfectiva} bloqueado (${horaCerrada.motivo}).` },
+        { status: 409 }
+      )
+    }
+
+    const conflict = await db.get<{ id: string }>(
+      `SELECT id FROM citas
+       WHERE id != ? AND fecha = ? AND hora = ? AND barbero = ? AND estado NOT IN ('cancelada', 'rechazada')`,
+      id,
+      fechaEfectiva,
+      horaEfectiva,
+      barberoEfectivo
+    )
+    if (conflict) {
+      return NextResponse.json(
+        { error: 'Este barbero ya tiene una cita ocupando ese horario.' },
+        { status: 409 }
+      )
+    }
+  }
+
   const updates: string[] = ['leida = 1']
   const values: unknown[] = []
 
   if (estado !== undefined) {
-    if (!ESTADOS_VALIDOS.has(estado)) {
-      return NextResponse.json(
-        { error: `Estado inválido. Usa: ${[...ESTADOS_VALIDOS].join(', ')}.` },
-        { status: 400 }
-      )
-    }
     updates.push('estado = ?')
     values.push(estado)
   }
@@ -85,7 +136,29 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
   }
 
   values.push(id)
-  await db.run(`UPDATE citas SET ${updates.join(', ')} WHERE id = ?`, ...values)
+  try {
+    await db.transaction(async (tx) => {
+      if ((cambiaHorario || reactivando) && !['cancelada', 'rechazada'].includes(estadoEfectivo)) {
+        const doubleCheck = await tx.get<{ id: string }>(
+          `SELECT id FROM citas
+           WHERE id != ? AND fecha = ? AND hora = ? AND barbero = ? AND estado NOT IN ('cancelada', 'rechazada')`,
+          id,
+          fechaEfectiva,
+          horaEfectiva,
+          barberoEfectivo
+        )
+        if (doubleCheck) {
+          throw new Error('SLOT_CONFLICT')
+        }
+      }
+      await tx.run(`UPDATE citas SET ${updates.join(', ')} WHERE id = ?`, ...values)
+    })
+  } catch (err) {
+    if (err instanceof Error && err.message === 'SLOT_CONFLICT') {
+      return NextResponse.json({ error: 'Este barbero ya tiene una cita ocupando ese horario.' }, { status: 409 })
+    }
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'No se pudo actualizar la cita.' }, { status: 409 })
+  }
 
   // Si la cita pasa a 'completada' (Atendida) y antes no lo estaba, sumar +1 sello VIP al cliente
   let selloSumado = false

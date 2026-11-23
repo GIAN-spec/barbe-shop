@@ -12,10 +12,16 @@ export async function GET() {
     ORDER BY exp DESC
   `)
 
-  // tags viene como JSON string en SQLite
+  // tags viene como JSON string en SQLite; limpiamos cualquier corchete o comilla residual
+  const cleanTag = (t: unknown) => String(t ?? '').replace(/[\[\]"']/g, '').trim()
   const withTags = barberos.map(b => {
     let parsed: string[] = []
-    try { parsed = JSON.parse(b.tags) } catch { parsed = [] }
+    try {
+      const raw = JSON.parse(b.tags)
+      parsed = Array.isArray(raw) ? raw.map(cleanTag).filter(Boolean) : String(b.tags ?? '').split(',').map(cleanTag).filter(Boolean)
+    } catch {
+      parsed = String(b.tags ?? '').split(',').map(cleanTag).filter(Boolean)
+    }
     return { ...b, tags: parsed }
   })
 

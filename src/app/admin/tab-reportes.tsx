@@ -1,9 +1,10 @@
 'use client'
 
 /**
- * MÓDULO 4: PAGOS, CAJA Y LIQUIDACIÓN DE COMISIONES (SaaS)
- * - Pestaña 1: Liquidación de Barberos & Comisiones (Filtros por período, barbero, detalle de cortes, WhatsApp e impresión)
- * - Pestaña 2: Auditoría de Pagos & Caja (Paginación limpia, verificación de transferencias Yape / Plin / POS)
+ * MÓDULO 4: CIERRE DE CAJA, AUDITORÍA DE PAGOS Y LIQUIDACIÓN DE BARBEROS
+ * - Usa 100% los tokens CSS de admin.css (compatible con modo claro y oscuro)
+ * - Cierre unificado: Servicios + Tienda y desglose por Efectivo / Yape / Plin / Tarjeta
+ * - Exportación CSV UTF-8, WhatsApp de liquidación y auditoría paginada
  */
 import { useEffect, useState } from 'react'
 import {
@@ -24,6 +25,8 @@ import {
   formatHora12,
   syncBus,
   descargarCSV,
+  utcToFechaLimaClient,
+  printReporteCaja,
   type Cita,
   type Pedido,
 } from './ui'
@@ -61,6 +64,7 @@ type ReporteCita = {
   celular: string
   servicioNombre: string
   servicioPrecio: number
+  servicioTotal?: number
   barbero: string
   barberoNombre: string
   barberoComision: number
@@ -69,17 +73,39 @@ type ReporteCita = {
   estado: string
 }
 
+type ResumenCaja = {
+  ingresosServicios: number
+  ingresosTienda: number
+  pedidosPagados: number
+  totalRecaudado: number
+  totalComisiones: number
+  gananciaBarberia: number
+  porMetodoPago: {
+    efectivo: number
+    yape: number
+    plin: number
+    tarjeta: number
+  }
+}
+
 export default function TabPagos() {
-  // Pestañas principales superiores (para no tener que scrollear hasta el fondo)
   const [subTab, setSubTab] = useState<'liquidacion' | 'pagos'>('liquidacion')
 
-  // Datos globales
   const [pagos, setPagos] = useState<PagoItem[]>([])
   const [barberosLiq, setBarberosLiq] = useState<BarberoStat[]>([])
   const [reporteCitas, setReporteCitas] = useState<ReporteCita[]>([])
+  const [resumenCaja, setResumenCaja] = useState<ResumenCaja>({
+    ingresosServicios: 0,
+    ingresosTienda: 0,
+    pedidosPagados: 0,
+    totalRecaudado: 0,
+    totalComisiones: 0,
+    gananciaBarberia: 0,
+    porMetodoPago: { efectivo: 0, yape: 0, plin: 0, tarjeta: 0 },
+  })
   const [loading, setLoading] = useState(false)
 
-  // Filtros de Liquidación
+  // Filtros de Liquidación y Cierre
   const [periodoTipo, setPeriodoTipo] = useState<'mes' | 'mes_anterior' | 'semana' | 'hoy'>('mes')
   const [mesSeleccionado, setMesSeleccionado] = useState(() => getFechaHoy().slice(0, 7))
   const [filtroBarbero, setFiltroBarbero] = useState('todos')
@@ -93,7 +119,6 @@ export default function TabPagos() {
   const [pagoPage, setPagoPage] = useState(1)
   const ITEMS_PER_PAGE = 15
 
-  // Drawer de verificación de pagos
   const [selectedPago, setSelectedPago] = useState<PagoItem | null>(null)
   const [editRef, setEditRef] = useState('')
   const [msg, setMsg] = useState('')
@@ -101,10 +126,9 @@ export default function TabPagos() {
 
   const notify = (m: string, t: 'ok' | 'err' = 'ok') => {
     setMsg(m); setTone(t)
-    setTimeout(() => setMsg(''), 1800)
+    setTimeout(() => setMsg(''), 2200)
   }
 
-  // Cargar liquidación según el período seleccionado
   async function cargarLiquidacion() {
     const hoy = getFechaHoy()
     let urlRep = `/api/admin/reportes?tipo=mensual&mes=${mesSeleccionado}`
@@ -114,9 +138,8 @@ export default function TabPagos() {
     } else if (periodoTipo === 'hoy') {
       urlRep = `/api/admin/reportes?tipo=diario&fecha=${hoy}`
     } else if (periodoTipo === 'mes_anterior') {
-      const prevDate = new Date(hoy + 'T12:00:00')
-      prevDate.setMonth(prevDate.getMonth() - 1)
-      const prevMes = prevDate.toISOString().slice(0, 7)
+      const [yNum, mNum] = hoy.slice(0, 7).split('-').map(Number)
+      const prevMes = mNum === 1 ? `${yNum - 1}-12` : `${yNum}-${String(mNum - 1).padStart(2, '0')}`
       urlRep = `/api/admin/reportes?tipo=mensual&mes=${prevMes}`
     }
 
@@ -127,15 +150,30 @@ export default function TabPagos() {
         const data = await res.json()
         setBarberosLiq(data.barberos ?? [])
         setReporteCitas(data.citas ?? [])
+        if (data.resumen) {
+          setResumenCaja({
+            ingresosServicios: Number(data.resumen.ingresosServicios) || 0,
+            ingresosTienda: Number(data.resumen.ingresosTienda) || 0,
+            pedidosPagados: Number(data.resumen.pedidosPagados) || 0,
+            totalRecaudado: Number(data.resumen.totalRecaudado) || 0,
+            totalComisiones: Number(data.resumen.totalComisiones) || 0,
+            gananciaBarberia: Number(data.resumen.gananciaBarberia) || 0,
+            porMetodoPago: {
+              efectivo: Number(data.resumen.porMetodoPago?.efectivo) || 0,
+              yape: Number(data.resumen.porMetodoPago?.yape) || 0,
+              plin: Number(data.resumen.porMetodoPago?.plin) || 0,
+              tarjeta: Number(data.resumen.porMetodoPago?.tarjeta) || 0,
+            },
+          })
+        }
       }
     } catch {
-      notify('Error al cargar liquidación de barberos', 'err')
+      notify('Error al cargar liquidación y cierre de caja', 'err')
     } finally {
       setLoading(false)
     }
   }
 
-  // Cargar lista de pagos para auditoría
   async function cargarPagos() {
     const hoy = getFechaHoy()
     const desde = shiftFecha(hoy, -60)
@@ -172,11 +210,12 @@ export default function TabPagos() {
       if (rPed.ok) {
         const pedidos: Pedido[] = (await rPed.json()).pedidos ?? []
         for (const p of pedidos) {
+          const fechaLima = utcToFechaLimaClient(p.created_at)
           lista.push({
             uid: `ped_${p.id}`,
             origen: 'pedido',
             rawId: p.id,
-            fecha: (p.created_at || '').slice(0, 16),
+            fecha: fechaLima || (p.created_at || '').slice(0, 16),
             cliente: p.cliente,
             telefono: p.telefono,
             concepto: `Tienda: ${p.id}`,
@@ -191,7 +230,7 @@ export default function TabPagos() {
       lista.sort((a, b) => b.fecha.localeCompare(a.fecha))
       setPagos(lista)
     } catch {
-      notify('Error al cargar pagos', 'err')
+      notify('Error al cargar auditoría de pagos', 'err')
     }
   }
 
@@ -211,7 +250,7 @@ export default function TabPagos() {
         void cargarLiquidacion()
         void cargarPagos()
       }
-    }, 4000)
+    }, 15000)
 
     const onFocus = () => {
       void cargarLiquidacion()
@@ -262,7 +301,7 @@ export default function TabPagos() {
         body: JSON.stringify({ mod: 'pedido', id: item.rawId, estado: nuevoEstado, ref_pago: editRef || item.refPago }),
       })
       if (r.ok) {
-        notify(accion === 'verificar' ? 'Pago de tienda verificado' : 'Pago rechazado')
+        notify(accion === 'verificar' ? 'Pago de tienda verificado' : 'Pago rechazado (stock repuesto)')
         setSelectedPago(null)
         syncBus.emit('pago_updated')
         syncBus.emit('pedido_updated', { id: item.rawId, estado: nuevoEstado })
@@ -271,7 +310,6 @@ export default function TabPagos() {
     }
   }
 
-  // Enviar liquidación por WhatsApp al barbero
   function enviarWhatsAppBarbero(b: BarberoStat) {
     const periodoLabel =
       periodoTipo === 'mes'
@@ -282,21 +320,19 @@ export default function TabPagos() {
             ? 'Esta Semana'
             : 'Hoy'
 
-    const msg = `💈 *LIQUIDACIÓN DE COMISIONES — CHINO BARBER SHOP* 💈\n\n👤 *Barbero:* ${b.barberoNombre}\n📅 *Período:* ${periodoLabel}\n✂️ *Cortes Atendidos:* ${b.atendidas}\n💰 *Total Facturado:* ${money(b.totalCobrado)}\n💵 *Tu Comisión a Cobrar (${b.comisionPct}%):* ${money(b.pagoBarbero)}\n🏦 *Neto Barbería:* ${money(b.gananciaLocal)}\n\n¡Gracias por tu compromiso y excelente atención a nuestros clientes!`
-
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener')
+    const msgWa = `💈 *LIQUIDACIÓN DE COMISIONES — CHINO BARBERSHOP* 💈\n\n👤 *Barbero:* ${b.barberoNombre}\n📅 *Período:* ${periodoLabel}\n✂️ *Cortes Atendidos:* ${b.atendidas}\n💰 *Total Facturado:* ${money(b.totalCobrado)}\n💵 *Tu Comisión (${b.comisionPct}%):* ${money(b.pagoBarbero)}\n🏦 *Neto Barbería:* ${money(b.gananciaLocal)}`
+    window.open(`https://wa.me/?text=${encodeURIComponent(msgWa)}`, '_blank', 'noopener')
   }
 
-  // Exportar datos a Excel / CSV con compatibilidad Windows UTF-8
   function exportarReporteActual() {
     if (subTab === 'liquidacion') {
       const columnas = [
         'Barbero',
         'Cortes Atendidos',
-        'Total Facturado (S/)',
+        'Total Facturado Servicios (S/)',
         'Comisión (%)',
         'Pago a Barbero (S/)',
-        'Ganancia Local (S/)',
+        'Ganancia Servicios Local (S/)',
       ]
       const filas = barberosFiltrados.map(b => [
         b.barberoNombre,
@@ -307,20 +343,27 @@ export default function TabPagos() {
         b.gananciaLocal.toFixed(2),
       ])
       filas.push([
-        'TOTAL GENERAL',
+        'TOTAL SERVICIOS',
         totalCortesLiq,
         totalRecaudadoLiq.toFixed(2),
         '—',
         totalComisionesLiq.toFixed(2),
-        totalNetoLocalLiq.toFixed(2),
+        totalNetoServLiq.toFixed(2),
       ])
-      descargarCSV(`liquidacion_comisiones_${periodoTipo}_${getFechaHoy()}`, columnas, filas)
-      notify('Reporte de liquidación exportado en Excel (CSV) con éxito')
+      filas.push([
+        'VENTAS TIENDA',
+        resumenCaja.pedidosPagados,
+        resumenCaja.ingresosTienda.toFixed(2),
+        '—',
+        '0.00',
+        resumenCaja.ingresosTienda.toFixed(2),
+      ])
+      descargarCSV(`cierre_caja_comisiones_${periodoTipo}_${getFechaHoy()}`, columnas, filas)
+      notify('Cierre de caja exportado en CSV')
     } else {
       const columnas = [
         'ID Transacción',
         'Fecha',
-        'Hora',
         'Tipo',
         'Cliente',
         'Teléfono',
@@ -333,7 +376,6 @@ export default function TabPagos() {
       const filas = pagosFiltrados.map(p => [
         p.rawId,
         p.fecha.slice(0, 10),
-        p.fecha.slice(11, 16) || '—',
         p.origen === 'cita' ? 'Cita Presencial' : 'Venta Tienda',
         p.cliente,
         p.telefono,
@@ -344,11 +386,10 @@ export default function TabPagos() {
         p.estado.toUpperCase(),
       ])
       descargarCSV(`auditoria_pagos_caja_${getFechaHoy()}`, columnas, filas)
-      notify('Auditoría de caja exportada en Excel (CSV) con éxito')
+      notify('Auditoría de pagos exportada en CSV')
     }
   }
 
-  // Filtrado de barberos para liquidación
   const barberosFiltrados = barberosLiq.filter(b => {
     const okBarbero = filtroBarbero === 'todos' || b.barberoId === filtroBarbero || b.barberoNombre === filtroBarbero
     const q = busquedaBarbero.trim().toLowerCase()
@@ -356,13 +397,15 @@ export default function TabPagos() {
     return okBarbero && okTxt
   })
 
-  // Totales de Liquidación en el período
   const totalRecaudadoLiq = barberosFiltrados.reduce((acc, b) => acc + b.totalCobrado, 0)
   const totalComisionesLiq = barberosFiltrados.reduce((acc, b) => acc + b.pagoBarbero, 0)
-  const totalNetoLocalLiq = barberosFiltrados.reduce((acc, b) => acc + b.gananciaLocal, 0)
+  const totalNetoServLiq = barberosFiltrados.reduce((acc, b) => acc + b.gananciaLocal, 0)
   const totalCortesLiq = barberosFiltrados.reduce((acc, b) => acc + b.atendidas, 0)
 
-  // Filtrado y paginación de pagos
+  const sinFiltroBarbero = filtroBarbero === 'todos' && !busquedaBarbero.trim()
+  const totalCajaPeriodo = sinFiltroBarbero ? resumenCaja.totalRecaudado : totalRecaudadoLiq
+  const netoLocalPeriodo = sinFiltroBarbero ? resumenCaja.gananciaBarberia : totalNetoServLiq
+
   const pagosFiltrados = pagos.filter(p => {
     const okMet =
       filtroMetodo === 'todos' ||
@@ -383,7 +426,6 @@ export default function TabPagos() {
   const totalPaginasPagos = Math.max(1, Math.ceil(pagosFiltrados.length / ITEMS_PER_PAGE))
   const pagosPaginados = pagosFiltrados.slice((pagoPage - 1) * ITEMS_PER_PAGE, pagoPage * ITEMS_PER_PAGE)
 
-  // Citas del barbero seleccionado en el Drawer de detalle
   const citasDelBarbero = barberoSeleccionadoDetalle
     ? reporteCitas.filter(c =>
         ['completada', 'pagado'].includes(c.estado) &&
@@ -396,132 +438,115 @@ export default function TabPagos() {
       <Toast msg={msg} tone={tone} />
 
       <ScreenHeader
-        title="Liquidación y Control de Pagos"
-        sub="Calcula las comisiones de tu equipo de barberos y audita las transferencias de caja en un solo lugar"
+        title="Caja, Pagos y Liquidación"
+        sub="Cierre consolidado de servicios y tienda por método de pago, comisiones del equipo y auditoría"
+        extraRight={
+          <button type="button" onClick={exportarReporteActual} className={T.btnGhost}>
+            <ModIcon name="Download" className="h-4 w-4" />
+            <span>Exportar CSV</span>
+          </button>
+        }
         primaryAction={{
-          label: 'Imprimir Reporte',
-          onClick: () => window.print(),
+          label: 'Imprimir cierre',
+          icon: 'Printer',
+          onClick: () => {
+            const periodoLabel =
+              periodoTipo === 'mes'
+                ? `Mes ${mesSeleccionado}`
+                : periodoTipo === 'mes_anterior'
+                  ? 'Mes anterior'
+                  : periodoTipo === 'semana'
+                    ? 'Esta semana'
+                    : `Hoy (${getFechaHoy()})`
+            printReporteCaja({
+              subTab,
+              periodoLabel,
+              resumen: resumenCaja,
+              barberos: barberosFiltrados,
+              pagos: pagosFiltrados,
+            })
+          },
         }}
       />
 
-      {/* Sub-navegación Superior (Para ir directo a la liquidación sin scrollear al final) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3" style={{ borderColor: 'var(--line)' }}>
-        <div className="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-slate-800 border" style={{ borderColor: 'var(--line)' }}>
+      {/* Sub-navegación */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="a-seg">
           <button
             type="button"
             onClick={() => setSubTab('liquidacion')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-              subTab === 'liquidacion'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm border border-amber-500/30'
-                : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-            }`}
+            className={`a-seg-btn ${subTab === 'liquidacion' ? 'active' : ''}`}
           >
-            <span className="text-sm">💈</span>
-            <span>Liquidación de Barberos & Comisiones</span>
+            <ModIcon name="Scissors" className="h-3.5 w-3.5" />
+            <span>Cierre y Liquidación</span>
           </button>
           <button
             type="button"
             onClick={() => setSubTab('pagos')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-              subTab === 'pagos'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm border border-amber-500/30'
-                : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
-            }`}
+            className={`a-seg-btn ${subTab === 'pagos' ? 'active' : ''}`}
           >
-            <span className="text-sm">💳</span>
-            <span>Auditoría de Pagos & Caja</span>
+            <ModIcon name="CreditCard" className="h-3.5 w-3.5" />
+            <span>Auditoría de Pagos</span>
             {totalPorVerificar > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950">
+              <span
+                className="ml-1 inline-flex items-center justify-center rounded-full px-1.5 py-0.5 font-mono text-[11px] font-bold"
+                style={{ background: 'var(--warn-bg)', color: 'var(--warn)', border: '1px solid var(--warn-line)' }}
+              >
                 {totalPorVerificar}
               </span>
             )}
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={exportarReporteActual}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-emerald-600/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold transition-all shadow-sm cursor-pointer"
-            title="Descargar datos en formato Excel compatible (.csv UTF-8)"
-          >
-            <span className="text-sm">📥</span>
-            <span>Exportar a Excel (CSV)</span>
-          </button>
-          <div className="hidden sm:block text-xs a-muted font-medium">
-            {subTab === 'liquidacion' ? (
-              <span>Período: <b className="a-txt capitalize">{periodoTipo.replace('_', ' ')}</b></span>
-            ) : (
-              <span><b className="a-txt">{pagosFiltrados.length}</b> registros</span>
-            )}
-          </div>
-        </div>
+        <span className="text-xs a-muted font-medium">
+          {subTab === 'liquidacion' ? (
+            <>Período activo: <b className="a-txt capitalize">{periodoTipo.replace('_', ' ')}</b></>
+          ) : (
+            <><b className="a-txt">{pagosFiltrados.length}</b> movimientos</>
+          )}
+        </span>
       </div>
 
-      {/* =========================================================
-          VISTA 1: LIQUIDACIÓN DE BARBEROS Y COMISIONES (ACCESO INMEDIATO)
-          ========================================================= */}
+      {/* VISTA 1: CIERRE DE CAJA Y LIQUIDACIÓN */}
       {subTab === 'liquidacion' && (
         <div className="space-y-4 a-fade">
-          {/* Barra de Filtros de Período y Búsqueda de Barbero */}
-          <div className="rounded-2xl border p-4 bg-white dark:bg-slate-900 shadow-sm space-y-3" style={{ borderColor: 'var(--line)' }}>
+          {/* Filtros de Período y Barbero */}
+          <div className={`${T.panel} p-4 space-y-3`}>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              {/* Chips Rápidos de Período */}
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-xs font-bold uppercase tracking-wider a-muted mr-1">Período:</span>
+              <div className="a-seg">
                 <button
                   type="button"
                   onClick={() => setPeriodoTipo('mes')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    periodoTipo === 'mes'
-                      ? 'bg-amber-500 text-slate-950 shadow-sm'
-                      : 'border text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
-                  style={{ borderColor: 'var(--line)' }}
+                  className={`a-seg-btn ${periodoTipo === 'mes' ? 'active' : ''}`}
                 >
-                  📅 Este Mes
+                  <ModIcon name="Calendar" className="h-3.5 w-3.5" />
+                  Este mes
                 </button>
                 <button
                   type="button"
                   onClick={() => setPeriodoTipo('mes_anterior')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    periodoTipo === 'mes_anterior'
-                      ? 'bg-amber-500 text-slate-950 shadow-sm'
-                      : 'border text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
-                  style={{ borderColor: 'var(--line)' }}
+                  className={`a-seg-btn ${periodoTipo === 'mes_anterior' ? 'active' : ''}`}
                 >
-                  Mes Pasado
+                  Mes pasado
                 </button>
                 <button
                   type="button"
                   onClick={() => setPeriodoTipo('semana')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    periodoTipo === 'semana'
-                      ? 'bg-amber-500 text-slate-950 shadow-sm'
-                      : 'border text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
-                  style={{ borderColor: 'var(--line)' }}
+                  className={`a-seg-btn ${periodoTipo === 'semana' ? 'active' : ''}`}
                 >
-                  Esta Semana
+                  Esta semana
                 </button>
                 <button
                   type="button"
                   onClick={() => setPeriodoTipo('hoy')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    periodoTipo === 'hoy'
-                      ? 'bg-amber-500 text-slate-950 shadow-sm'
-                      : 'border text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
-                  style={{ borderColor: 'var(--line)' }}
+                  className={`a-seg-btn ${periodoTipo === 'hoy' ? 'active' : ''}`}
                 >
                   Hoy
                 </button>
               </div>
 
-              {/* Selector de Mes Específico */}
               <div className="flex items-center gap-2">
-                <span className="text-xs a-muted font-medium">Elegir mes:</span>
+                <span className="text-xs a-muted font-medium">Mes:</span>
                 <input
                   type="month"
                   value={mesSeleccionado}
@@ -529,73 +554,116 @@ export default function TabPagos() {
                     setMesSeleccionado(e.target.value)
                     setPeriodoTipo('mes')
                   }}
-                  className={`${T.input} !w-auto !py-1 text-xs font-medium`}
+                  className={`${T.input} !w-auto !min-h-[36px] !py-1 text-xs font-medium`}
                 />
               </div>
             </div>
 
-            {/* Búsqueda por Barbero y Filtro Dropdown */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t" style={{ borderColor: 'var(--line)' }}>
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t" style={{ borderColor: 'var(--line)' }}>
               <div className="a-search-box max-w-xs flex-1">
                 <span className="a-search-icon">
                   <ModIcon name="Search" className="h-4 w-4" />
                 </span>
                 <input
                   type="text"
-                  placeholder="Filtrar por nombre de barbero..."
+                  placeholder="Filtrar por barbero..."
                   value={busquedaBarbero}
                   onChange={e => setBusquedaBarbero(e.target.value)}
-                  className={`${T.input} a-search-input text-xs`}
+                  className={`${T.input} a-search-input !min-h-[38px] text-xs`}
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <select
-                  value={filtroBarbero}
-                  onChange={e => setFiltroBarbero(e.target.value)}
-                  className={`${T.input} !w-auto text-xs`}
-                >
-                  <option value="todos">Todos los barberos ({barberosLiq.length})</option>
-                  {barberosLiq.map(b => (
-                    <option key={b.barberoId} value={b.barberoId}>
-                      {b.barberoNombre} ({b.comisionPct}%)
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <select
+                value={filtroBarbero}
+                onChange={e => setFiltroBarbero(e.target.value)}
+                className={`${T.input} !w-auto !min-h-[38px] text-xs`}
+              >
+                <option value="todos">Todos los barberos ({barberosLiq.length})</option>
+                {barberosLiq.map(b => (
+                  <option key={b.barberoId} value={b.barberoId}>
+                    {b.barberoNombre} ({b.comisionPct}%)
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* Tarjetas KPI de Cierre de Liquidación */}
-          <div className="grid gap-3 sm:grid-cols-4">
-            <div className="rounded-xl border p-4 bg-white dark:bg-slate-900" style={{ borderColor: 'var(--line)' }}>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Facturado</span>
-              <p className="mt-1 font-mono text-2xl font-black text-slate-900 dark:text-white">{money(totalRecaudadoLiq)}</p>
-              <span className="text-xs text-slate-400">En servicios completados</span>
+          {/* 4 KPIs de Cierre */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className={T.kpiCard}>
+              <span className="text-xs font-semibold uppercase tracking-wider a-muted">Total Caja</span>
+              <p className="mt-1.5 font-mono text-2xl font-bold a-txt">{money(totalCajaPeriodo)}</p>
+              <span className="text-xs a-muted">
+                {sinFiltroBarbero
+                  ? `Serv. ${money(resumenCaja.ingresosServicios)} + Tnd. ${money(resumenCaja.ingresosTienda)}`
+                  : `${totalCortesLiq} servicios del barbero`}
+              </span>
             </div>
-            <div className="rounded-xl border p-4 bg-emerald-50/60 dark:bg-emerald-950/20" style={{ borderColor: 'rgba(16, 185, 129, 0.3)' }}>
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Comisiones a Barberos</span>
-              <p className="mt-1 font-mono text-2xl font-black text-emerald-600 dark:text-emerald-400">{money(totalComisionesLiq)}</p>
-              <span className="text-xs text-emerald-600/70">Monto total a liquidar</span>
+
+            <div className={T.kpiCard}>
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--ok)' }}>
+                Comisiones Equipo
+              </span>
+              <p className="mt-1.5 font-mono text-2xl font-bold" style={{ color: 'var(--ok)' }}>
+                {money(totalComisionesLiq)}
+              </p>
+              <span className="text-xs a-muted">{totalCortesLiq} cortes liquidables</span>
             </div>
-            <div className="rounded-xl border p-4 bg-amber-50/60 dark:bg-amber-950/20" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
-              <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Margen Neto Barbería</span>
-              <p className="mt-1 font-mono text-2xl font-black text-amber-600 dark:text-amber-400">{money(totalNetoLocalLiq)}</p>
-              <span className="text-xs text-amber-600/70">Ganancia neta del local</span>
+
+            <div className={T.kpiCard}>
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--gold)' }}>
+                Margen Neto Local
+              </span>
+              <p className="mt-1.5 font-mono text-2xl font-bold" style={{ color: 'var(--gold)' }}>
+                {money(netoLocalPeriodo)}
+              </p>
+              <span className="text-xs a-muted">Después de comisiones</span>
             </div>
-            <div className="rounded-xl border p-4 bg-white dark:bg-slate-900" style={{ borderColor: 'var(--line)' }}>
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Cortes Atendidos</span>
-              <p className="mt-1 font-mono text-2xl font-black text-slate-900 dark:text-white">{totalCortesLiq}</p>
-              <span className="text-xs text-slate-400">En el período consultado</span>
+
+            <div className={T.kpiCard}>
+              <span className="text-xs font-semibold uppercase tracking-wider a-muted">Ventas Tienda</span>
+              <p className="mt-1.5 font-mono text-2xl font-bold a-txt">{money(resumenCaja.ingresosTienda)}</p>
+              <span className="text-xs a-muted">{resumenCaja.pedidosPagados} pedidos pagados/entregados</span>
+            </div>
+          </div>
+
+          {/* Desglose por Método de Pago (Servicios + Tienda) */}
+          <div className={`${T.panel} p-4`}>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider a-muted">
+                Cierre por método de pago (Servicios + Tienda)
+              </h3>
+              <span className="text-xs font-mono font-semibold a-txt">
+                Total arqueo: {money(resumenCaja.totalRecaudado)}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {(
+                [
+                  ['Efectivo', resumenCaja.porMetodoPago.efectivo],
+                  ['Yape', resumenCaja.porMetodoPago.yape],
+                  ['Plin', resumenCaja.porMetodoPago.plin],
+                  ['Tarjeta', resumenCaja.porMetodoPago.tarjeta],
+                ] as const
+              ).map(([label, amount]) => (
+                <div
+                  key={label}
+                  className="rounded-xl border px-3.5 py-2.5"
+                  style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}
+                >
+                  <span className="text-xs a-muted block">{label}</span>
+                  <span className="font-mono text-base font-bold a-txt">{money(amount)}</span>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Tabla Ejecutiva de Liquidación por Barbero */}
-          <div className={`${T.panel} overflow-hidden shadow-sm`}>
+          <div className={`${T.panel} overflow-hidden`}>
             {loading ? (
               <div className="p-8 text-center text-sm a-muted">Cargando liquidaciones del período...</div>
             ) : barberosFiltrados.length === 0 ? (
-              <EmptyState text="No hay registros de liquidación para el período o barbero seleccionado." />
+              <EmptyState text="No hay registros de liquidación para el período seleccionado." />
             ) : (
               <div className="overflow-x-auto">
                 <table className="a-table">
@@ -603,57 +671,59 @@ export default function TabPagos() {
                     <tr>
                       <th>Barbero</th>
                       <th>Cortes Atendidos</th>
-                      <th>Total Recaudado</th>
+                      <th>Facturado Servicios</th>
                       <th>Comisión Barbero</th>
                       <th>Neto Barbería</th>
-                      <th className="text-right">Acciones Rápidas</th>
+                      <th className="text-right">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     {barberosFiltrados.map(b => (
-                      <tr key={b.barberoId} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/50">
-                        <td>
+                      <tr key={b.barberoId}>
+                        <td data-label="Barbero">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center font-bold text-amber-600 text-xs flex-shrink-0">
+                            <div
+                              className="size-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 border"
+                              style={{ background: 'var(--gold-soft)', borderColor: 'var(--gold-line)', color: 'var(--gold)' }}
+                            >
                               {b.barberoNombre.charAt(0).toUpperCase()}
                             </div>
                             <div>
                               <p className="font-bold a-txt text-sm leading-tight">{b.barberoNombre}</p>
-                              <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                                Comisión: {b.comisionPct}%
-                              </span>
+                              <span className="a-chip mt-0.5">Comisión: {b.comisionPct}%</span>
                             </div>
                           </div>
                         </td>
-                        <td className="font-mono text-sm font-semibold">{b.atendidas} citas</td>
-                        <td className="font-mono text-sm">{money(b.totalCobrado)}</td>
-                        <td>
-                          <span className="font-mono text-base font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                        <td data-label="Cortes" className="font-mono text-sm font-semibold">{b.atendidas} citas</td>
+                        <td data-label="Facturado" className="font-mono text-sm">{money(b.totalCobrado)}</td>
+                        <td data-label="Comisión">
+                          <span
+                            className="inline-block font-mono text-sm font-bold px-2.5 py-1 rounded-lg border"
+                            style={{ color: 'var(--ok)', background: 'var(--ok-bg)', borderColor: 'var(--ok-line)' }}
+                          >
                             {money(b.pagoBarbero)}
                           </span>
                         </td>
-                        <td className="font-mono text-sm a-muted">{money(b.gananciaLocal)}</td>
-                        <td className="text-right">
+                        <td data-label="Neto local" className="font-mono text-sm a-muted">{money(b.gananciaLocal)}</td>
+                        <td data-label="" className="text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               type="button"
                               onClick={() => setBarberoSeleccionadoDetalle(b)}
-                              className="px-2.5 py-1.5 rounded-lg text-xs font-bold border hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5"
-                              style={{ borderColor: 'var(--line)' }}
+                              className={`${T.btnGhost} !min-h-[34px] !py-1.5 !px-2.5 !text-xs`}
                               title="Ver el detalle de cada corte realizado"
                             >
                               <ModIcon name="Search" className="h-3.5 w-3.5" />
-                              <span>Ver Cortes</span>
+                              <span>Ver cortes</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => enviarWhatsAppBarbero(b)}
-                              className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all flex items-center gap-1.5"
+                              className={`${T.btnGhost} !min-h-[34px] !py-1.5 !px-2.5 !text-xs`}
+                              style={{ color: 'var(--ok)', borderColor: 'var(--ok-line)' }}
                               title="Enviar comprobante de liquidación por WhatsApp"
                             >
-                              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-                                <path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3.2-.5 0-.2 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5a1 1 0 0 0-.7.3c-.6.6-.9 1.4-.9 2.3.1 1.5.8 2.9 1.8 4 1.9 2.3 4.4 3.3 5.4 3 .4-.1 1.1-.5 1.3-1 .1-.4.1-.7.1-.8-.1-.1-.2-.1-.4-.2z"/>
-                              </svg>
+                              <ModIcon name="MessageCircle" className="h-3.5 w-3.5" />
                               <span>WhatsApp</span>
                             </button>
                           </div>
@@ -668,12 +738,9 @@ export default function TabPagos() {
         </div>
       )}
 
-      {/* =========================================================
-          VISTA 2: AUDITORÍA DE PAGOS, CAJA Y TRANSFERENCIAS (CON PAGINACIÓN)
-          ========================================================= */}
+      {/* VISTA 2: AUDITORÍA DE PAGOS Y CAJA */}
       {subTab === 'pagos' && (
         <div className="space-y-4 a-fade">
-          {/* Búsqueda y Filtros */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="a-search-box max-w-xs flex-1">
               <span className="a-search-icon">
@@ -681,7 +748,7 @@ export default function TabPagos() {
               </span>
               <input
                 type="text"
-                placeholder="Buscar cliente, servicio o N.º de operación..."
+                placeholder="Buscar cliente, concepto u operación..."
                 value={busquedaPago}
                 onChange={e => {
                   setBusquedaPago(e.target.value)
@@ -722,8 +789,7 @@ export default function TabPagos() {
             </div>
           </div>
 
-          {/* Tabla Paginada de Transacciones */}
-          <div className={`${T.panel} overflow-hidden shadow-sm`}>
+          <div className={`${T.panel} overflow-hidden`}>
             {pagosPaginados.length === 0 ? (
               <EmptyState text="No se encontraron pagos para los filtros seleccionados." />
             ) : (
@@ -744,17 +810,17 @@ export default function TabPagos() {
                       <tr
                         key={p.uid}
                         onClick={() => { setSelectedPago(p); setEditRef(p.refPago) }}
-                        className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                        className="cursor-pointer"
                       >
-                        <td className="font-mono text-xs a-txt-2">{fechaLarga(p.fecha.slice(0, 10))}</td>
-                        <td>
+                        <td data-label="Fecha" className="font-mono text-xs a-txt-2">{fechaLarga(p.fecha.slice(0, 10))}</td>
+                        <td data-label="Cliente">
                           <p className="font-medium a-txt">{p.cliente}</p>
                           <p className="text-[11px] a-muted truncate max-w-[200px]">{p.concepto}</p>
                         </td>
-                        <td className="text-xs font-medium">{formatPaymentInfo(p.metodo, p.refPago)}</td>
-                        <td className="font-mono font-semibold">{money(p.monto)}</td>
-                        <td><Pill estado={p.estado} /></td>
-                        <td className="text-right">
+                        <td data-label="Método" className="text-xs font-medium">{formatPaymentInfo(p.metodo, p.refPago)}</td>
+                        <td data-label="Monto" className="font-mono font-semibold">{money(p.monto)}</td>
+                        <td data-label="Estado"><Pill estado={p.estado} /></td>
+                        <td data-label="" className="text-right">
                           <RowMenu
                             actions={[
                               { label: 'Revisar operación', onClick: () => { setSelectedPago(p); setEditRef(p.refPago) } },
@@ -778,9 +844,8 @@ export default function TabPagos() {
               </div>
             )}
 
-            {/* Paginador Inferior */}
             {pagosFiltrados.length > ITEMS_PER_PAGE && (
-              <div className="flex items-center justify-between px-4 py-3 border-t bg-slate-50/50 dark:bg-slate-900/50" style={{ borderColor: 'var(--line)' }}>
+              <div className="flex items-center justify-between px-4 py-3 border-t" style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}>
                 <span className="text-xs a-muted font-medium">
                   Página <b className="a-txt">{pagoPage}</b> de <b className="a-txt">{totalPaginasPagos}</b> ({pagosFiltrados.length} pagos)
                 </span>
@@ -789,8 +854,7 @@ export default function TabPagos() {
                     type="button"
                     disabled={pagoPage === 1}
                     onClick={() => setPagoPage(p => Math.max(1, p - 1))}
-                    className="px-3 py-1 rounded-lg text-xs font-bold border disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-slate-800"
-                    style={{ borderColor: 'var(--line)' }}
+                    className={`${T.btnGhost} !min-h-[32px] !px-3 !py-1 !text-xs`}
                   >
                     ← Anterior
                   </button>
@@ -798,8 +862,7 @@ export default function TabPagos() {
                     type="button"
                     disabled={pagoPage >= totalPaginasPagos}
                     onClick={() => setPagoPage(p => Math.min(totalPaginasPagos, p + 1))}
-                    className="px-3 py-1 rounded-lg text-xs font-bold border disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white dark:hover:bg-slate-800"
-                    style={{ borderColor: 'var(--line)' }}
+                    className={`${T.btnGhost} !min-h-[32px] !px-3 !py-1 !text-xs`}
                   >
                     Siguiente →
                   </button>
@@ -810,69 +873,67 @@ export default function TabPagos() {
         </div>
       )}
 
-      {/* =========================================================
-          DRAWER 1: DETALLE DE CORTES ATENDIDOS POR BARBERO
-          ========================================================= */}
+      {/* DRAWER DETALLE DE CORTES DEL BARBERO */}
       <Drawer
         open={!!barberoSeleccionadoDetalle}
         onClose={() => setBarberoSeleccionadoDetalle(null)}
         title={barberoSeleccionadoDetalle ? `Cortes de ${barberoSeleccionadoDetalle.barberoNombre}` : 'Detalle de Cortes'}
-        sub={barberoSeleccionadoDetalle ? `Comisión pactada: ${barberoSeleccionadoDetalle.comisionPct}% · Total citas: ${citasDelBarbero.length}` : ''}
+        sub={barberoSeleccionadoDetalle ? `Comisión pactada: ${barberoSeleccionadoDetalle.comisionPct}% · ${citasDelBarbero.length} citas` : ''}
         footer={
           barberoSeleccionadoDetalle && (
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => enviarWhatsAppBarbero(barberoSeleccionadoDetalle)}
-                className="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center justify-center gap-2"
-              >
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1 1 12 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.7c-.1-.2 0-.4.1-.5l.4-.5c.1-.2.1-.3.2-.5 0-.2 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5a1 1 0 0 0-.7.3c-.6.6-.9 1.4-.9 2.3.1 1.5.8 2.9 1.8 4 1.9 2.3 4.4 3.3 5.4 3 .4-.1 1.1-.5 1.3-1 .1-.4.1-.7.1-.8-.1-.1-.2-.1-.4-.2z"/>
-                </svg>
-                Enviar Resumen por WhatsApp
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => enviarWhatsAppBarbero(barberoSeleccionadoDetalle)}
+              className={`${T.btnPrimary} w-full`}
+            >
+              <ModIcon name="MessageCircle" className="h-4 w-4" />
+              Enviar resumen por WhatsApp
+            </button>
           )
         }
       >
         {barberoSeleccionadoDetalle && (
           <div className="space-y-4">
-            {/* Resumen compacto del barbero */}
-            <div className="grid grid-cols-2 gap-2 p-3 rounded-xl border bg-slate-50/70 dark:bg-slate-800/40 text-xs" style={{ borderColor: 'var(--line)' }}>
+            <div className="grid grid-cols-2 gap-2.5 p-3.5 rounded-xl border text-xs" style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}>
               <div>
                 <span className="a-muted block">Total Facturado</span>
                 <b className="font-mono text-sm a-txt">{money(barberoSeleccionadoDetalle.totalCobrado)}</b>
               </div>
               <div>
                 <span className="a-muted block">Comisión a Pagar</span>
-                <b className="font-mono text-sm text-emerald-600 dark:text-emerald-400">{money(barberoSeleccionadoDetalle.pagoBarbero)}</b>
+                <b className="font-mono text-sm" style={{ color: 'var(--ok)' }}>
+                  {money(barberoSeleccionadoDetalle.pagoBarbero)}
+                </b>
               </div>
             </div>
 
             <div className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider a-muted">Citas Atendidas en el Período</span>
+              <span className="text-xs font-bold uppercase tracking-wider a-muted">Citas atendidas en el período</span>
               {citasDelBarbero.length === 0 ? (
                 <p className="text-xs a-muted text-center py-6">No hay citas registradas para este barbero en el período.</p>
               ) : (
                 <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
                   {citasDelBarbero.map(c => {
-                    const comisionCita = (Number(c.servicioPrecio || 0) * (barberoSeleccionadoDetalle.comisionPct || 50)) / 100
+                    const montoBase = Number(c.servicioTotal ?? c.servicioPrecio ?? 0)
+                    const comisionCita = (montoBase * (barberoSeleccionadoDetalle.comisionPct || 50)) / 100
                     return (
                       <div
                         key={c.id}
-                        className="p-3 rounded-xl border bg-white dark:bg-slate-900 text-xs space-y-1.5 shadow-xs"
-                        style={{ borderColor: 'var(--line)' }}
+                        className="p-3 rounded-xl border text-xs space-y-1.5"
+                        style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}
                       >
-                        <div className="flex items-center justify-between">
-                          <b className="a-txt text-sm">{c.servicioNombre}</b>
-                          <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">+{money(comisionCita)}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <b className="a-txt text-sm truncate">{c.servicioNombre}</b>
+                          <span className="font-mono font-bold shrink-0" style={{ color: 'var(--ok)' }}>
+                            +{money(comisionCita)}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between a-muted text-[11px]">
                           <span>Cliente: <b className="a-txt">{c.nombre}</b></span>
                           <span>{fechaLarga(c.fecha)} · {formatHora12(c.hora)}</span>
                         </div>
-                        <div className="flex items-center justify-between text-[11px] pt-1 border-t" style={{ borderColor: 'var(--line)' }}>
-                          <span>Cobro: {money(c.servicioPrecio)}</span>
+                        <div className="flex items-center justify-between text-[11px] pt-1.5 border-t" style={{ borderColor: 'var(--line)' }}>
+                          <span>Cobro: {money(montoBase)}</span>
                           <span className="uppercase">{c.metodo_pago}</span>
                         </div>
                       </div>
@@ -885,9 +946,7 @@ export default function TabPagos() {
         )}
       </Drawer>
 
-      {/* =========================================================
-          DRAWER 2: VERIFICAR O RECHAZAR PAGO (AUDITORÍA DE CAJA)
-          ========================================================= */}
+      {/* DRAWER VERIFICAR / RECHAZAR PAGO */}
       <Drawer
         open={!!selectedPago}
         onClose={() => setSelectedPago(null)}
@@ -898,10 +957,11 @@ export default function TabPagos() {
             <div className="flex flex-col gap-2">
               {esCitaFutura(selectedPago) && (
                 <div
-                  className="rounded-lg border px-3 py-2 text-xs font-medium"
+                  className="flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium"
                   style={{ borderColor: 'var(--warn-line)', background: 'var(--warn-bg)', color: 'var(--warn)' }}
                 >
-                  🔒 Cita programada para el <strong>{selectedPago.fecha.slice(0, 10)}</strong>. Solo se puede verificar y aprobar el pago el mismo día de la cita o fechas anteriores.
+                  <ModIcon name="Lock" className="h-4 w-4 shrink-0" />
+                  <span>Cita programada para el <strong>{selectedPago.fecha.slice(0, 10)}</strong>. Disponible solo el día de la cita.</span>
                 </div>
               )}
               <button
@@ -911,7 +971,7 @@ export default function TabPagos() {
                 className={`${T.btnPrimary} w-full disabled:opacity-45 disabled:cursor-not-allowed`}
               >
                 <ModIcon name="Check" className="h-4 w-4" />
-                {esCitaFutura(selectedPago) ? 'Disponible el día de la cita' : 'Verificar y Aprobar Pago'}
+                {esCitaFutura(selectedPago) ? 'Disponible el día de la cita' : 'Verificar y aprobar pago'}
               </button>
               <button
                 type="button"
@@ -928,7 +988,7 @@ export default function TabPagos() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Pill estado={selectedPago.estado} />
-              <span className="font-mono text-xl font-black a-txt">{money(selectedPago.monto)}</span>
+              <span className="font-mono text-xl font-bold a-txt">{money(selectedPago.monto)}</span>
             </div>
 
             <div className="rounded-xl border p-4 space-y-2 text-xs" style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}>

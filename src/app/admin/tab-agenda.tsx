@@ -1,10 +1,10 @@
 'use client'
 
 /**
- * MÓDULO 2: AGENDA (SaaS)
- * - Vistas: Lista (máx. 5 columnas), Día (horario) y Semana
- * - Filtros arriba: Búsqueda, Barbero y Estado
- * - Crear, Reprogramar, Cancelar y Marcar Atendida (+1 sello VIP) en Drawer lateral
+ * MÓDULO 2: AGENDA DEL ESTUDIO
+ * - Vistas: Lista · Día por Columnas de Barbero · Semana
+ * - Filtros: Búsqueda, Barbero y Estado
+ * - Crear, Reprogramar, WhatsApp, Ticket Térmico y Marcar Atendida (+1 sello VIP)
  */
 import { useEffect, useState } from 'react'
 import {
@@ -34,7 +34,7 @@ import {
 } from './ui'
 
 const HORAS_DIA = [
-  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
   '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
   '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
   '18:00', '18:30', '19:00', '19:30', '20:00', '20:30',
@@ -72,7 +72,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
 
   const notify = (m: string, t: 'ok' | 'err' = 'ok') => {
     setMsg(m); setTone(t)
-    setTimeout(() => setMsg(''), 1400)
+    setTimeout(() => setMsg(''), 2200)
   }
 
   async function cargarCatalogos() {
@@ -81,12 +81,12 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
       fetch('/api/admin/servicios', { cache: 'no-store' }),
     ])
     if (rB.ok) {
-      const b = (await rB.json()).barberos ?? []
+      const b = ((await rB.json()).barberos ?? []).filter((x: Barbero) => x.activo !== 0)
       setBarberos(b)
       if (!nBarbero && b[0]) setNBarbero(b[0].id)
     }
     if (rS.ok) {
-      const s = (await rS.json()).servicios ?? []
+      const s = ((await rS.json()).servicios ?? []).filter((x: Servicio) => x.activo !== 0)
       setServicios(s)
       if (!nServicio && s[0]) setNServicio(s[0].id)
     }
@@ -110,7 +110,6 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
   useEffect(() => {
     void cargarCitas()
 
-    // Sincronización instantánea cross-tab y auto-refresco en segundo plano
     const unsub = syncBus.subscribe((ev) => {
       if (['cita_created', 'cita_updated', 'cita_deleted', 'pago_updated'].includes(ev)) {
         void cargarCitas()
@@ -121,7 +120,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
       if (document.visibilityState === 'visible') {
         void cargarCitas()
       }
-    }, 4000)
+    }, 12000)
 
     const onFocus = () => void cargarCitas()
     window.addEventListener('focus', onFocus)
@@ -142,6 +141,10 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
     const okTxt = !q || c.nombre.toLowerCase().includes(q) || c.celular.includes(q)
     return okBarb && okEst && okTxt
   })
+
+  const barberosColumnas = barberos.filter(b =>
+    barberoEfectivo === 'todos' ? true : b.id === barberoEfectivo
+  )
 
   function abrirDetalle(c: Cita) {
     setSelectedCita(c)
@@ -191,12 +194,14 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
       syncBus.emit('cita_created')
       await cargarCitas()
     } else {
-      notify('No se pudo registrar la cita', 'err')
+      const j = await r.json().catch(() => ({}))
+      notify(j.error ?? 'No se pudo registrar la cita', 'err')
     }
   }
 
   const nombreBarbero = (id: string) => barberos.find(b => b.id === id)?.nombre.split(' ')[0] ?? id
   const diasSemana = Array.from({ length: 7 }, (_, i) => shiftFecha(fecha, i))
+  const hoyLima = getFechaHoy()
 
   return (
     <div className="a-fade space-y-5">
@@ -204,6 +209,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
 
       <ScreenHeader
         title="Agenda"
+        sub="Vista en lista, columnas simultáneas por barbero y calendario semanal"
         primaryAction={{
           label: 'Nueva cita',
           icon: 'Plus',
@@ -263,7 +269,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
             <button
               type="button"
               onClick={() => setFecha(shiftFecha(fecha, vista === 'semana' ? -7 : -1))}
-              className="grid size-7 place-items-center rounded hover:bg-[var(--hover)]"
+              className="grid size-7 place-items-center rounded hover:bg-[var(--hover)] cursor-pointer"
               aria-label="Día anterior"
             >
               <ModIcon name="ChevronLeft" className="h-4 w-4" />
@@ -271,14 +277,14 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
             <button
               type="button"
               onClick={() => setFecha(getFechaHoy())}
-              className="px-2.5 text-xs font-semibold a-txt capitalize"
+              className="px-2.5 text-xs font-semibold a-txt capitalize cursor-pointer"
             >
-              {fecha === getFechaHoy() ? `Hoy, ${fechaLarga(fecha)}` : fechaLarga(fecha)}
+              {fecha === hoyLima ? `Hoy, ${fechaLarga(fecha)}` : fechaLarga(fecha)}
             </button>
             <button
               type="button"
               onClick={() => setFecha(shiftFecha(fecha, vista === 'semana' ? 7 : 1))}
-              className="grid size-7 place-items-center rounded hover:bg-[var(--hover)]"
+              className="grid size-7 place-items-center rounded hover:bg-[var(--hover)] cursor-pointer"
               aria-label="Día siguiente"
             >
               <ModIcon name="ChevronRight" className="h-4 w-4" />
@@ -290,7 +296,8 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
               Lista
             </button>
             <button type="button" onClick={() => setVista('dia')} className={`a-seg-btn ${vista === 'dia' ? 'active' : ''}`}>
-              Día
+              <ModIcon name="Columns" className="h-3.5 w-3.5" />
+              Sillones
             </button>
             <button type="button" onClick={() => setVista('semana')} className={`a-seg-btn ${vista === 'semana' ? 'active' : ''}`}>
               Semana
@@ -299,7 +306,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
         </div>
       </div>
 
-      {/* VISTA 1: LISTA (Máximo 5 columnas + menú ⋯) */}
+      {/* VISTA 1: LISTA */}
       {vista === 'lista' && (
         <div className={`${T.panel} overflow-hidden`}>
           {citasFiltradas.length === 0 ? (
@@ -324,20 +331,20 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                 <tbody>
                   {citasFiltradas.map(c => (
                     <tr key={c.id} onClick={() => abrirDetalle(c)} className="cursor-pointer">
-                      <td className="font-mono font-semibold">{formatHora12(c.hora)}</td>
-                      <td className="font-medium">{c.nombre}</td>
-                      <td className="a-txt-2">{c.servicioNombre ?? c.servicio}</td>
-                      <td className="a-txt-2">{nombreBarbero(c.barbero)}</td>
-                      <td><Pill estado={c.estado} /></td>
-                      <td className="text-right">
+                      <td data-label="Hora" className="font-mono font-semibold">{formatHora12(c.hora)}</td>
+                      <td data-label="Cliente" className="font-medium">{c.nombre}</td>
+                      <td data-label="Servicio" className="a-txt-2">{c.servicioNombre ?? c.servicio}</td>
+                      <td data-label="Barbero" className="a-txt-2">{nombreBarbero(c.barbero)}</td>
+                      <td data-label="Estado"><Pill estado={c.estado} /></td>
+                      <td data-label="" className="text-right">
                         <RowMenu
                           actions={[
                             { label: 'Ver / Reprogramar', onClick: () => abrirDetalle(c) },
-                            { label: '🖨️ Imprimir ticket térmico', onClick: () => setTicketCita(c) },
-                            { label: '📲 Recordatorio WhatsApp', onClick: () => abrirWhatsAppRecordatorio(c, 'recordatorio') },
+                            { label: 'Imprimir ticket térmico', onClick: () => setTicketCita(c) },
+                            { label: 'Recordatorio WhatsApp', onClick: () => abrirWhatsAppRecordatorio(c, 'recordatorio') },
                             {
-                              label: c.fecha > getFechaHoy() ? 'Atendida (solo el día de la cita)' : 'Marcar atendida (+1 VIP)',
-                              disabled: c.estado === 'completada' || c.fecha > getFechaHoy(),
+                              label: c.fecha > hoyLima ? 'Atendida (solo el día de la cita)' : 'Marcar atendida (+1 VIP)',
+                              disabled: c.estado === 'completada' || c.fecha > hoyLima,
                               onClick: () => actualizarCita(c.id, { estado: 'completada' }, 'Cita atendida'),
                             },
                             {
@@ -363,55 +370,110 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
         </div>
       )}
 
-      {/* VISTA 2: DÍA (Bloques horarios) */}
+      {/* VISTA 2: SILLONES EN PARALELO (Columnas por Barbero) */}
       {vista === 'dia' && (
-        <div className={`${T.panel} divide-y overflow-hidden`} style={{ borderColor: 'var(--line)' }}>
-          {HORAS_DIA.map(h => {
-            const enHora = citasFiltradas.filter(c => c.hora === h)
-            return (
-              <div key={h} className="flex items-start gap-4 px-5 py-3">
-                <span className="w-14 shrink-0 pt-1 font-mono text-xs font-semibold a-muted">{h}</span>
-                <div className="flex flex-1 flex-wrap gap-2">
-                  {enHora.length === 0 ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNFecha(fecha)
-                        setNHora(h)
-                        setOpenNew(true)
-                      }}
-                      className="text-xs a-muted hover:underline"
-                    >
-                      + Disponible
-                    </button>
-                  ) : (
-                    enHora.map(c => (
-                      <div
-                        key={c.id}
-                        onClick={() => abrirDetalle(c)}
-                        className="flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-xs transition hover:bg-[var(--hover)]"
-                        style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}
-                      >
-                        <span className="font-semibold a-txt">{c.nombre}</span>
-                        <span className="a-muted">· {c.servicioNombre ?? c.servicio}</span>
-                        <span className="a-muted">({nombreBarbero(c.barbero)})</span>
-                        <Pill estado={c.estado} />
-                      </div>
-                    ))
-                  )}
+        <div className={`${T.panel} overflow-x-auto`}>
+          {barberosColumnas.length === 0 ? (
+            <EmptyState text="No hay barberos activos para mostrar." />
+          ) : (
+            <div className="a-cal-grid">
+              {/* Cabecera de columnas */}
+              <div
+                className="grid border-b"
+                style={{
+                  gridTemplateColumns: `84px repeat(${barberosColumnas.length}, minmax(190px, 1fr))`,
+                  borderColor: 'var(--line)',
+                  background: 'var(--panel-2)',
+                }}
+              >
+                <div className="px-3 py-3 text-xs font-bold uppercase tracking-wider a-muted flex items-center">
+                  Hora
                 </div>
+                {barberosColumnas.map(b => {
+                  const totalDiaBarb = citasFiltradas.filter(
+                    c => c.barbero === b.id && c.estado !== 'cancelada' && c.estado !== 'rechazada'
+                  ).length
+                  return (
+                    <div
+                      key={b.id}
+                      className="flex items-center justify-between gap-2 border-l px-3.5 py-3"
+                      style={{ borderColor: 'var(--line)' }}
+                    >
+                      <span className="text-xs font-bold a-txt truncate">{b.nombre}</span>
+                      <span className="a-chip">{totalDiaBarb} citas</span>
+                    </div>
+                  )
+                })}
               </div>
-            )
-          })}
+
+              {/* Filas horarias */}
+              <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
+                {HORAS_DIA.map(h => (
+                  <div
+                    key={h}
+                    className="grid items-stretch"
+                    style={{ gridTemplateColumns: `84px repeat(${barberosColumnas.length}, minmax(190px, 1fr))` }}
+                  >
+                    <div className="px-3 py-2.5 flex items-center font-mono text-xs font-semibold a-muted">
+                      {formatHora12(h)}
+                    </div>
+                    {barberosColumnas.map(b => {
+                      const slotCitas = citasFiltradas.filter(c => c.hora === h && c.barbero === b.id)
+                      return (
+                        <div
+                          key={b.id}
+                          className="border-l p-1.5 flex flex-col gap-1.5 justify-center"
+                          style={{ borderColor: 'var(--line)' }}
+                        >
+                          {slotCitas.length === 0 ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNFecha(fecha)
+                                setNHora(h)
+                                setNBarbero(b.id)
+                                setOpenNew(true)
+                              }}
+                              className="a-cal-slot-btn"
+                              title={`Agendar a las ${formatHora12(h)} con ${b.nombre}`}
+                            >
+                              + Libre
+                            </button>
+                          ) : (
+                            slotCitas.map(c => (
+                              <button
+                                key={c.id}
+                                type="button"
+                                onClick={() => abrirDetalle(c)}
+                                className="a-cal-card space-y-1"
+                              >
+                                <div className="flex items-center justify-between gap-1.5">
+                                  <span className="font-semibold text-xs a-txt truncate">{c.nombre}</span>
+                                  <Pill estado={c.estado} />
+                                </div>
+                                <p className="text-[11px] a-muted truncate">
+                                  {c.servicioNombre ?? c.servicio}
+                                </p>
+                              </button>
+                            ))
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* VISTA 3: SEMANA (7 días) */}
+      {/* VISTA 3: SEMANA */}
       {vista === 'semana' && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
           {diasSemana.map(iso => {
             const delDia = citasFiltradas.filter(c => c.fecha === iso)
-            const esHoy = iso === getFechaHoy()
+            const esHoy = iso === hoyLima
             return (
               <div key={iso} className={`${T.panel} p-3 flex flex-col gap-2 min-h-[220px]`}>
                 <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: 'var(--line)' }}>
@@ -447,7 +509,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
         </div>
       )}
 
-      {/* DRAWER LATERAL: DETALLE Y REPROGRAMACIÓN DE CITA */}
+      {/* DRAWER DETALLE Y REPROGRAMACIÓN */}
       <Drawer
         open={!!selectedCita}
         onClose={() => setSelectedCita(null)}
@@ -458,22 +520,23 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
             <div className="flex flex-col gap-2">
               {selectedCita.estado !== 'completada' && selectedCita.estado !== 'cancelada' && (
                 <>
-                  {selectedCita.fecha > getFechaHoy() && (
+                  {selectedCita.fecha > hoyLima && (
                     <div
-                      className="rounded-lg border px-3 py-2 text-xs font-medium"
+                      className="flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium"
                       style={{ borderColor: 'var(--warn-line)', background: 'var(--warn-bg)', color: 'var(--warn)' }}
                     >
-                      🔒 Cita futura ({selectedCita.fecha}). Solo se puede marcar como atendida o aprobar pago el mismo día.
+                      <ModIcon name="Lock" className="h-4 w-4 shrink-0" />
+                      <span>Cita futura ({selectedCita.fecha}). Solo se puede atender o aprobar pago el mismo día.</span>
                     </div>
                   )}
                   <button
                     type="button"
-                    disabled={selectedCita.fecha > getFechaHoy()}
+                    disabled={selectedCita.fecha > hoyLima}
                     onClick={() => actualizarCita(selectedCita.id, { estado: 'completada' }, 'Cita atendida')}
                     className={`${T.btnPrimary} w-full disabled:opacity-45 disabled:cursor-not-allowed`}
                   >
                     <ModIcon name="Check" className="h-4 w-4" />
-                    {selectedCita.fecha > getFechaHoy() ? 'Disponible el día de la cita' : 'Marcar como Atendida (+1 sello VIP)'}
+                    {selectedCita.fecha > hoyLima ? 'Disponible el día de la cita' : 'Marcar como Atendida (+1 sello VIP)'}
                   </button>
                 </>
               )}
@@ -481,19 +544,15 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                 <div className="flex flex-col gap-2">
                   <div
                     className="flex items-center justify-between rounded-lg border px-3.5 py-2.5 text-xs font-medium"
-                    style={{ borderColor: 'var(--line)', background: 'var(--panel)' }}
+                    style={{ borderColor: 'var(--ok-line)', background: 'var(--ok-bg)', color: 'var(--ok)' }}
                   >
-                    <span className="font-semibold text-emerald-500 flex items-center gap-1.5">
+                    <span className="font-semibold flex items-center gap-1.5">
                       <ModIcon name="Check" className="h-4 w-4" />
                       Atención completada con éxito
                     </span>
-                    <span className="a-muted font-mono text-[11px]">+1 sello VIP</span>
+                    <span className="font-mono text-[11px]">+1 sello VIP</span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCita(null)}
-                    className={`${T.btnGhost} w-full`}
-                  >
+                  <button type="button" onClick={() => setSelectedCita(null)} className={`${T.btnGhost} w-full`}>
                     Volver a la agenda
                   </button>
                 </div>
@@ -501,16 +560,13 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
               {selectedCita.estado === 'cancelada' && (
                 <div className="flex flex-col gap-2">
                   <div
-                    className="rounded-lg border px-3.5 py-2.5 text-xs font-medium text-rose-500"
-                    style={{ borderColor: 'var(--line)', background: 'var(--panel)' }}
+                    className="flex items-center gap-2 rounded-lg border px-3.5 py-2.5 text-xs font-medium"
+                    style={{ borderColor: 'var(--danger-line)', background: 'var(--danger-bg)', color: 'var(--danger)' }}
                   >
-                    ❌ Esta cita se encuentra cancelada.
+                    <ModIcon name="AlertCircle" className="h-4 w-4 shrink-0" />
+                    <span>Esta cita se encuentra cancelada.</span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCita(null)}
-                    className={`${T.btnGhost} w-full`}
-                  >
+                  <button type="button" onClick={() => setSelectedCita(null)} className={`${T.btnGhost} w-full`}>
                     Volver a la agenda
                   </button>
                 </div>
@@ -586,34 +642,32 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                 </div>
               </div>
 
-              {/* Notificaciones y recordatorios por WhatsApp con 1 Clic */}
+              {/* Avisos por WhatsApp */}
               <div className="rounded-xl border p-3.5 space-y-2.5" style={{ borderColor: 'var(--line)', background: 'var(--panel-2)' }}>
                 <div className="flex items-center justify-between text-xs font-semibold a-txt">
                   <span className="flex items-center gap-1.5">
-                    <span>📲</span>
+                    <ModIcon name="MessageCircle" className="h-3.5 w-3.5" />
                     <span>Avisos por WhatsApp</span>
                   </span>
-                  <span className="text-[10px] a-muted font-normal">1 Clic</span>
+                  <span className="text-[11px] a-muted font-normal">1 clic</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => abrirWhatsAppRecordatorio(selectedCita, 'recordatorio')}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs font-medium hover:bg-[var(--hover)] a-txt transition-colors cursor-pointer"
-                    style={{ borderColor: 'var(--line)' }}
+                    className={`${T.btnGhost} !min-h-[36px] !text-xs`}
                     title="Enviar recordatorio de fecha y hora"
                   >
-                    <span>🔔</span>
+                    <ModIcon name="Clock" className="h-3.5 w-3.5" />
                     <span>Recordatorio</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => abrirWhatsAppRecordatorio(selectedCita, 'confirmacion')}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs font-medium hover:bg-[var(--hover)] a-txt transition-colors cursor-pointer"
-                    style={{ borderColor: 'var(--line)' }}
+                    className={`${T.btnGhost} !min-h-[36px] !text-xs`}
                     title="Confirmar reserva al cliente"
                   >
-                    <span>✅</span>
+                    <ModIcon name="Check" className="h-3.5 w-3.5" />
                     <span>Confirmación</span>
                   </button>
                 </div>
@@ -621,26 +675,27 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                   <button
                     type="button"
                     onClick={() => abrirWhatsAppRecordatorio(selectedCita, 'agradecimiento')}
-                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-[var(--hover)] transition-colors cursor-pointer"
-                    style={{ borderColor: 'var(--line)' }}
+                    className={`${T.btnGhost} w-full !min-h-[36px] !text-xs`}
+                    style={{ color: 'var(--ok)', borderColor: 'var(--ok-line)' }}
                   >
-                    <span>⭐</span>
+                    <ModIcon name="Star" className="h-3.5 w-3.5" />
                     <span>Pedir reseña y agradecer visita</span>
                   </button>
                 )}
               </div>
 
-              {/* Botón de Impresión de Ticket Térmico */}
+              {/* Ticket Térmico */}
               <button
                 type="button"
                 onClick={() => setTicketCita(selectedCita)}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-bold px-4 py-2.5 text-xs transition-colors cursor-pointer shadow-sm"
+                className={`${T.btnGhost} w-full`}
+                style={{ borderColor: 'var(--gold-line)', background: 'var(--gold-soft)', color: 'var(--gold)' }}
               >
-                <span className="text-sm">🖨️</span>
+                <ModIcon name="Printer" className="h-4 w-4" />
                 <span>Imprimir Ticket Térmico (80mm)</span>
               </button>
 
-              {/* Sección colapsable para Reprogramar */}
+              {/* Reprogramar */}
               <AccordionSection title="Reprogramar fecha, hora o barbero" defaultOpen={false}>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -679,7 +734,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
         })()}
       </Drawer>
 
-      {/* DRAWER LATERAL: NUEVA CITA */}
+      {/* DRAWER NUEVA CITA */}
       <Drawer
         open={openNew}
         onClose={() => setOpenNew(false)}
@@ -765,7 +820,7 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
         </form>
       </Drawer>
 
-      {/* MODAL DE IMPRESIÓN DE TICKET TÉRMICO */}
+      {/* MODAL TICKET TÉRMICO */}
       <TicketTermicoModal
         open={!!ticketCita}
         onClose={() => setTicketCita(null)}

@@ -16,17 +16,27 @@ export default async function AdminPage() {
   const session = await getSessionFromCookie()
   if (!session) redirect('/?auth=admin')
 
+  let adminUser: { nombre: string; email: string } | null = null
   let rol = 'cliente'
   try {
-    const row = await db.get<{ rol: string }>('SELECT rol FROM usuarios WHERE id = ?', session.userId)
+    const row = await db.get<{ nombre: string; email: string | null; rol: string }>(
+      'SELECT nombre, email, rol FROM usuarios WHERE id = ?',
+      session.userId
+    )
     rol = row?.rol ?? 'cliente'
+    if (row) {
+      adminUser = {
+        nombre: row.nombre || session.nombre,
+        email: row.email ?? session.email ?? '',
+      }
+    }
   } catch {}
 
   if (rol !== 'admin') redirect('/?denied=1')
 
   return (
     <div className={`${fontBody.variable} ${fontDisplay.variable} ${fontMono.variable}`}>
-      <AdminDashboard />
+      <AdminDashboard adminUser={adminUser ?? undefined} />
     </div>
   )
 }
