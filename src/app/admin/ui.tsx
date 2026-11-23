@@ -6,6 +6,7 @@
  * Tooltips (sin textos explicativos permanentes) y Estados vacíos limpios.
  */
 import { type ReactNode, useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export const T = {
   panel: 'a-panel',
@@ -497,7 +498,10 @@ export function Drawer({
 }
 
 /* ==========================================================================
-   MENÚ CONTEXTUAL DE FILA (⋯) PARA ACCIONES SECUNDARIAS
+   MENÚ CONTEXTUAL FLOTANTE (⋯) PARA ACCIONES SECUNDARIAS
+   Renderizado via Portal en document.body con detección inteligente de espacio
+   (auto-flip hacia arriba si está cerca del fondo) para que nunca se corte ni
+   fuerce scroll en tablas o tarjetas de ningún módulo.
    ========================================================================== */
 export function RowMenu({
   actions,
@@ -505,47 +509,158 @@ export function RowMenu({
   actions: Array<{ label: string; onClick: () => void; danger?: boolean; disabled?: boolean }>
 }) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
+  const [pos, setPos] = useState<{
+    openUpwards: boolean
+    top?: number
+    bottom?: number
+    right: number
+    maxHeight: number
+  } | null>(null)
+
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const updatePosition = () => {
+    if (!btnRef.current) return
+    const rect = btnRef.current.getBoundingClientRect()
+    const vh = window.innerHeight
+    const vw = window.innerWidth
+    // Espacio aproximado requerido por la lista de acciones (cada acción ~38px + padding)
+    const approxHeight = Math.max(90, actions.length * 38 + 16)
+    const spaceBelow = vh - rect.bottom
+    const spaceAbove = rect.top
+    // Si abajo queda menos del espacio requerido o menos de 190px, y arriba hay más espacio, abrir hacia ARRIBA
+    const openUpwards = (spaceBelow < approxHeight + 12 || spaceBelow < 190) && spaceAbove > spaceBelow
+
+    const right = Math.max(12, vw - rect.right)
+
+    if (openUpwards) {
+      setPos({
+        openUpwards: true,
+        bottom: Math.max(8, vh - rect.top + 6),
+        right,
+        maxHeight: Math.max(120, Math.min(spaceAbove - 16, 380)),
+      })
+    } else {
+      setPos({
+        openUpwards: false,
+        top: Math.max(8, rect.bottom + 6),
+        right,
+        maxHeight: Math.max(120, Math.min(spaceBelow - 16, 380)),
+      })
+    }
+  }
+
+  const toggle = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (!open) {
+      updatePosition()
+      setOpen(true)
+    } else {
+      setOpen(false)
+    }
+  }
 
   useEffect(() => {
     if (!open) return
-    const h = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+
+    const handleResize = () => updatePosition()
+
+    const handleScroll = (e: Event) => {
+      // Si el scroll ocurre dentro del propio menú emergente, permitirlo
+      if (menuRef.current && menuRef.current.contains(e.target as Node)) return
+      setOpen(false)
     }
-    window.addEventListener('mousedown', h)
-    return () => window.removeEventListener('mousedown', h)
-  }, [open])
+
+    const handleDown = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node
+      if (
+        menuRef.current && !menuRef.current.contains(target) &&
+        btnRef.current && !btnRef.current.contains(target)
+      ) {
+        setOpen(false)
+      }
+    }
+
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+
+    window.addEventListener('resize', handleResize)
+    window.addEventListener('scroll', handleScroll, { capture: true, passive: true })
+    window.addEventListener('mousedown', handleDown)
+    window.addEventListener('touchstart', handleDown)
+    window.addEventListener('keydown', handleKey)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('scroll', handleScroll, true)
+      window.removeEventListener('mousedown', handleDown)
+      window.removeEventListener('touchstart', handleDown)
+      window.removeEventListener('keydown', handleKey)
+    }
+  }, [open, actions.length])
 
   return (
-    <div ref={ref} className="relative inline-block text-left" onClick={e => e.stopPropagation()}>
+    <div className="relative inline-block text-left" onClick={e => e.stopPropagation()}>
       <button
+        ref={btnRef}
         type="button"
-        onClick={() => setOpen(v => !v)}
-        className="grid size-8 place-items-center rounded-md border transition hover:bg-[var(--hover)]"
+        onClick={toggle}
+        className={`grid size-8 place-items-center rounded-lg border transition ${
+          open ? 'ring-2 ring-[var(--gold)]/50 bg-[var(--hover)]' : 'hover:bg-[var(--hover)]'
+        }`}
         style={{ borderColor: 'var(--line)', color: 'var(--txt-2)' }}
         aria-label="Más acciones"
+        aria-expanded={open}
       >
         <ModIcon name="MoreHorizontal" className="h-4 w-4" />
       </button>
-      {open && (
+
+      {open && mounted && pos && typeof document !== 'undefined' && createPortal(
         <div
-          className="absolute right-0 z-40 mt-1.5 w-44 origin-top-right rounded-lg border py-1 shadow-lg a-fade"
-          style={{ background: 'var(--panel)', borderColor: 'var(--line)' }}
+          ref={menuRef}
+          role="menu"
+          onClick={e => e.stopPropagation()}
+          className="fixed z-[99999] min-w-[200px] rounded-xl border p-1.5 shadow-2xl backdrop-blur-md a-fade a-floating-menu"
+          style={{
+            background: 'var(--panel)',
+            borderColor: 'var(--line)',
+            boxShadow: '0 16px 38px -6px rgba(0, 0, 0, 0.38), 0 0 0 1px var(--line)',
+            right: `${pos.right}px`,
+            ...(pos.openUpwards ? { bottom: `${pos.bottom}px` } : { top: `${pos.top}px` }),
+            maxHeight: `${pos.maxHeight}px`,
+            overflowY: 'auto',
+          }}
         >
           {actions.map((a, idx) => (
             <button
               key={idx}
               type="button"
+              role="menuitem"
               disabled={a.disabled}
-              onClick={() => { setOpen(false); a.onClick() }}
-              className={`flex w-full items-center px-3 py-2 text-left text-xs font-medium transition hover:bg-[var(--hover)] disabled:opacity-40 ${
-                a.danger ? 'text-red-600' : 'a-txt'
+              onClick={e => {
+                e.stopPropagation()
+                setOpen(false)
+                a.onClick()
+              }}
+              className={`flex w-full items-center px-3.5 py-2.5 text-left text-xs font-semibold rounded-lg transition disabled:opacity-35 disabled:cursor-not-allowed ${
+                a.danger
+                  ? 'text-red-500 hover:bg-red-500/10'
+                  : 'a-txt hover:bg-[var(--hover)]'
               }`}
             >
               {a.label}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

@@ -538,9 +538,13 @@
 
 @keyframes aFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 .a-fade { animation: aFadeIn .18s ease-out both; }
+.a-floating-menu {
+  animation: aFadeIn .15s cubic-bezier(0.16, 1, 0.3, 1) both;
+  box-shadow: 0 16px 38px -6px rgba(0, 0, 0, 0.38), 0 0 0 1px var(--line) !important;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .a-fade, .a-drawer-panel { animation: none; }
+  .a-fade, .a-drawer-panel, .a-floating-menu { animation: none; }
   .a-card-interactive:hover { transform: none; }
 }
 
