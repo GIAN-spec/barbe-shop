@@ -9291,8 +9291,37 @@ let calPopupOpen = false;
 let calViewYear = null;
 let calViewMonth = null;
 
+function isSlotPastLocal(isoDate, timeHHMM) {
+  if (!isoDate || !timeHHMM) return false;
+  const now = new Date();
+  const todayISO = toLocalDateISO(now);
+  if (isoDate < todayISO) return true;
+  if (isoDate > todayISO) return false;
+  const [h, m] = String(timeHHMM).split(':').map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return false;
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  return (h * 60 + m) <= nowMins;
+}
+
+function isShopClosedForToday() {
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  // Último turno reservable del día es 20:30 (8:30 PM)
+  return nowMins >= (20 * 60 + 30);
+}
+
+function getTomorrowISO() {
+  const dt = new Date();
+  dt.setDate(dt.getDate() + 1);
+  dt.setHours(0, 0, 0, 0);
+  return toLocalDateISO(dt);
+}
+
 function getFirstBookableISO() {
   const dt = new Date();
+  if (isShopClosedForToday()) {
+    dt.setDate(dt.getDate() + 1);
+  }
   dt.setHours(0, 0, 0, 0);
   return toLocalDateISO(dt);
 }
@@ -9417,8 +9446,9 @@ function addMinutesToTime(t, minutes) {
   return `${String(Math.floor(total / 60) % 24).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
 
-/* Indica si un slot está ocupado según el filtro de barbero (o bloqueado) */
-function slotIsTaken(ocupados, t, barberFilter, horasBloqueadas = []) {
+/* Indica si un slot está ocupado según el filtro de barbero, bloqueado o si la hora ya pasó hoy */
+function slotIsTaken(ocupados, t, barberFilter, horasBloqueadas = [], isoDate = '') {
+  if (isoDate && isSlotPastLocal(isoDate, t)) return true;
   if (horasBloqueadas && horasBloqueadas.includes(t)) return true;
   if (barberFilter === 'any') {
     return ocupados.filter(o => o.hora === t).length >= BARBEROS.length;
@@ -9432,6 +9462,9 @@ function getBookableDays(count = 14) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   let current = new Date(today);
+  if (isShopClosedForToday()) {
+    current.setDate(current.getDate() + 1);
+  }
   while (days.length < count) {
     days.push(new Date(current));
     current.setDate(current.getDate() + 1);
@@ -9469,14 +9502,19 @@ async function renderSlots() {
     allTimes.push(`${String(h).padStart(2, '0')}:30`);
   }
 
+  const todayISO = toLocalDateISO(new Date());
+  const isTodaySelected = state.reservation.date === todayISO;
+
   // Consultar disponibilidad real desde la API
   let ocupados = [];
   let horasBloqueadas = [];
+  let cerradoPorHoy = isTodaySelected && isShopClosedForToday();
   try {
     const barberParam = state.reservation.barber ?? 'any';
     const res = await API.get(`/api/citas/disponibilidad?fecha=${state.reservation.date}&barbero=${barberParam}`);
     ocupados = res.ocupados ?? [];
     horasBloqueadas = res.horasBloqueadas ?? [];
+    if (res.cerradoPorHoy) cerradoPorHoy = true;
     if (res.bloqueado) {
       head.textContent = 'Horarios Libres';
       slotsBox.innerHTML = `<div class="blocked-banner"><span class="bb-ico">🔒</span><div><b>Cerrado ese día: ${res.motivo ?? 'bloqueado'}</b><span>Elige otra fecha en el calendario.</span></div></div>`;
@@ -9484,8 +9522,37 @@ async function renderSlots() {
     }
   } catch {}
 
+  if (isTodaySelected && cerradoPorHoy) {
+    const tomorrowISO = getTomorrowISO();
+    if (state.reservation.time) {
+      state.reservation.time = null;
+      updateStepperButtons();
+    }
+    head.textContent = 'Atención Finalizada por Hoy';
+    slotsBox.innerHTML = `
+      <div class="blocked-banner" style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; padding:1.1rem 1.25rem;">
+        <div style="display:flex; align-items:center; gap:0.85rem;">
+          <span class="bb-ico" style="font-size:1.45rem;">🌙</span>
+          <div>
+            <b style="display:block; margin-bottom:0.2rem;">La barbería ya cerró por hoy (atención hasta las 8:30 PM)</b>
+            <span>Todos los horarios de hoy (${formatFechaLegible(state.reservation.date)}) ya finalizaron. Puedes reservar tu turno a partir de mañana.</span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" onclick="selectReserveDate('${tomorrowISO}');">
+          Ver horarios de mañana →
+        </button>
+      </div>`;
+    return;
+  }
+
   const barberFilter = state.reservation.barber ?? 'any';
-  const libres = allTimes.filter(t => !slotIsTaken(ocupados, t, barberFilter, horasBloqueadas));
+  const libres = allTimes.filter(t => !slotIsTaken(ocupados, t, barberFilter, horasBloqueadas, state.reservation.date));
+
+  // Si tenía seleccionada una hora que ya pasó o se ocupó, limpiarla
+  if (state.reservation.time && !libres.includes(state.reservation.time)) {
+    state.reservation.time = null;
+    updateStepperButtons();
+  }
 
   // 4.7: aviso cuando quedan pocos slots
   let warnHtml = '';
@@ -11050,7 +11117,7 @@ async function renderReschSlots() {
     allTimes.push(`${String(h).padStart(2, '0')}:30`);
   }
 
-  const libres = allTimes.filter(t => !slotIsTaken(ocupados, t, RESCH.barbero, horasBloqueadas));
+  const libres = allTimes.filter(t => !slotIsTaken(ocupados, t, RESCH.barbero, horasBloqueadas, RESCH.date));
 
   if (libres.length === 0) {
     box.innerHTML = '<p style="color:var(--err); font-size:0.85rem;">Sin horarios libres ese día. Elige otra fecha.</p>';

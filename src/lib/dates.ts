@@ -52,6 +52,38 @@ export function isTodayLima(fechaISO: string): boolean {
 }
 
 /**
+ * Devuelve los minutos transcurridos desde las 00:00 en la zona horaria America/Lima.
+ */
+export function getHoraLimaMinutos(baseDate: Date = new Date()): number {
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: TIMEZONE_BARBERIA,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).formatToParts(baseDate)
+    const h = Number(parts.find(p => p.type === 'hour')?.value ?? 0)
+    const m = Number(parts.find(p => p.type === 'minute')?.value ?? 0)
+    return (h === 24 ? 0 : h) * 60 + m
+  } catch {
+    return baseDate.getHours() * 60 + baseDate.getMinutes()
+  }
+}
+
+/**
+ * Verifica si un bloque (fecha YYYY-MM-DD y hora HH:MM) ya pasó respecto a la hora actual en Lima.
+ */
+export function isSlotPastLima(fechaISO: string, horaHHMM: string, bufferMinutes = 0): boolean {
+  const hoy = getFechaLima(0)
+  if (fechaISO < hoy) return true
+  if (fechaISO > hoy) return false
+  const [h, m] = String(horaHHMM).split(':').map(Number)
+  if (Number.isNaN(h) || Number.isNaN(m)) return false
+  const slotMinutes = h * 60 + m
+  return slotMinutes <= getHoraLimaMinutos() + bufferMinutes
+}
+
+/**
  * Convierte un timestamp UTC guardado por SQLite datetime('now') ("YYYY-MM-DD HH:MM:SS" o ISO)
  * a la fecha YYYY-MM-DD en zona horaria America/Lima.
  */

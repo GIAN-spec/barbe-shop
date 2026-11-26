@@ -8,6 +8,7 @@
  */
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { getFechaLima, getHoraLimaMinutos, isSlotPastLima } from '@/lib/dates'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -78,12 +79,39 @@ export async function GET(request: Request) {
   }
 
   // Bloqueos por hora puntual: slots inválidos para TODOS los barberos
-  const horasBloqueadas = bloqueos.filter(b => b.hora).map(b => b.hora as string)
+  const horasBloqueadas = new Set<string>(bloqueos.filter(b => b.hora).map(b => b.hora as string))
+
+  // Si la fecha consultada es hoy (o anterior), bloquear automáticamente todas las horas que ya pasaron
+  const hoyLima = getFechaLima(0)
+  let cerradoPorHoy = false
+  if (fecha < hoyLima) {
+    return NextResponse.json({
+      fecha,
+      bloqueado: true,
+      motivo: 'Fecha pasada',
+      ocupados: [],
+      horasBloqueadas: [],
+    }, { headers: NO_CACHE_HEADERS })
+  }
+  if (fecha === hoyLima) {
+    for (let h = 8; h < 21; h++) {
+      for (const m of ['00', '30']) {
+        const slot = `${String(h).padStart(2, '0')}:${m}`
+        if (isSlotPastLima(fecha, slot)) {
+          horasBloqueadas.add(slot)
+        }
+      }
+    }
+    if (getHoraLimaMinutos() >= 20 * 60 + 30) {
+      cerradoPorHoy = true
+    }
+  }
 
   return NextResponse.json({
     fecha,
     bloqueado: false,
+    cerradoPorHoy,
     ocupados: citas,
-    horasBloqueadas,
+    horasBloqueadas: Array.from(horasBloqueadas),
   }, { headers: NO_CACHE_HEADERS })
 }

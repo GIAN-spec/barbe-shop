@@ -8,7 +8,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireSession } from '@/lib/auth'
-import { getFechaLima } from '@/lib/dates'
+import { getFechaLima, isSlotPastLima } from '@/lib/dates'
 
 type RouteContext = { params: Promise<{ id: string }> }
 
@@ -71,6 +71,9 @@ export async function PATCH(request: Request, ctx: RouteContext) {
     }
     if (targetFecha < getFechaLima(0)) {
       return NextResponse.json({ error: 'No puedes reagendar a una fecha pasada.' }, { status: 400 })
+    }
+    if (isSlotPastLima(targetFecha, targetHora)) {
+      return NextResponse.json({ error: 'Ese horario del día de hoy ya pasó. Selecciona una hora futura.' }, { status: 400 })
     }
     const bloqueo = await horaBloqueada(targetFecha, targetHora)
     if (bloqueo) {

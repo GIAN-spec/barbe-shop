@@ -5,7 +5,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireSession } from '@/lib/auth'
-import { getFechaLima } from '@/lib/dates'
+import { getFechaLima, isSlotPastLima } from '@/lib/dates'
 import { randomUUID } from 'crypto'
 
 export const dynamic = 'force-dynamic'
@@ -83,6 +83,9 @@ export async function POST(request: Request) {
     const hoyLima = getFechaLima(0)
     if (String(fecha) < hoyLima) {
       return NextResponse.json({ error: 'No se pueden agendar citas en fechas pasadas.' }, { status: 400 })
+    }
+    if (isSlotPastLima(String(fecha), String(hora))) {
+      return NextResponse.json({ error: 'Ese horario del día de hoy ya pasó. Por favor selecciona una hora futura o agenda para mañana.' }, { status: 400 })
     }
 
     // Verificar bloqueos (día completo u horario puntual del admin)
