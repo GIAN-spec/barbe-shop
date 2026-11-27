@@ -209,7 +209,6 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
 
       <ScreenHeader
         title="Agenda"
-        sub="Vista en lista, columnas simultáneas por barbero y calendario semanal"
         primaryAction={{
           label: 'Nueva cita',
           icon: 'Plus',
@@ -649,7 +648,6 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
                     <ModIcon name="MessageCircle" className="h-3.5 w-3.5" />
                     <span>Avisos por WhatsApp</span>
                   </span>
-                  <span className="text-[11px] a-muted font-normal">1 clic</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -739,7 +737,6 @@ export default function TabAgenda({ roleMode = 'owner' }: { roleMode?: RoleMode 
         open={openNew}
         onClose={() => setOpenNew(false)}
         title="Nueva cita"
-        sub="Registra una reserva o atención presencial"
         footer={
           <button type="submit" form="form-agenda-nueva" className={`${T.btnPrimary} w-full`}>
             Registrar cita

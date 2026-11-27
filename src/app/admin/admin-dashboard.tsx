@@ -229,7 +229,6 @@ export default function AdminDashboard({
             {!collapsed && (
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold tracking-tight text-white">Chino Barbershop</p>
-                <p className="text-[11px] text-zinc-300">Gestión del estudio</p>
               </div>
             )}
           </div>

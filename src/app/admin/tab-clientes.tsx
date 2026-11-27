@@ -305,7 +305,6 @@ export function TabClientes() {
         open={openNew}
         onClose={() => setOpenNew(false)}
         title="Nuevo cliente"
-        sub="Crea su ficha y tarjeta de fidelidad VIP"
         footer={
           <button type="submit" form="form-nuevo-cliente" className={`${T.btnPrimary} w-full`}>
             Guardar cliente

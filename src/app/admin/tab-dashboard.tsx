@@ -242,8 +242,7 @@ export default function TabDashboard({
       <Toast msg={msg} tone={tone} />
 
       <ScreenHeader
-        title="Resumen Operativo"
-        sub={`${fechaLarga(hoy)} · Estado en vivo del estudio`}
+        title="Resumen"
         primaryAction={{
           label: 'Nueva cita',
           icon: 'Plus',
@@ -329,7 +328,7 @@ export default function TabDashboard({
 
             {totalPendientesAtencion === 0 ? (
               <div className="py-10 text-center">
-                <p className="text-xs a-muted">Operación al día. Sin pagos pendientes, pedidos por despachar ni quiebres de stock.</p>
+                <p className="text-xs a-muted">Sin alertas pendientes.</p>
               </div>
             ) : (
               <div className="divide-y" style={{ borderColor: 'var(--line)' }}>
@@ -400,11 +399,11 @@ export default function TabDashboard({
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
               <h2 className="text-sm font-bold a-txt">Ingresos últimos 7 días</h2>
-              <p className="text-xs a-muted">
-                {hoverDay
-                  ? `${fechaLarga(hoverDay.iso)}: Serv. ${money(hoverDay.servicios)} · Tienda ${money(hoverDay.tienda)} (${hoverDay.citas} citas)`
-                  : 'Pasa el cursor sobre una barra para ver el desglose'}
-              </p>
+              {hoverDay && (
+                <p className="text-xs a-muted mt-0.5">
+                  {fechaLarga(hoverDay.iso)}: Serv. {money(hoverDay.servicios)} · Tienda {money(hoverDay.tienda)} ({hoverDay.citas} citas)
+                </p>
+              )}
             </div>
             <p className="font-mono text-lg font-bold a-txt shrink-0">{money(totalSemanal)}</p>
           </div>
@@ -626,7 +625,6 @@ export default function TabDashboard({
         open={openNewCita}
         onClose={() => setOpenNewCita(false)}
         title="Nueva cita"
-        sub={`Para hoy (${fechaLarga(hoy)})`}
         footer={
           <button type="submit" form="form-resumen-cita" className={`${T.btnPrimary} w-full`}>
             Guardar cita

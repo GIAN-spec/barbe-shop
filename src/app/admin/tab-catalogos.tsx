@@ -124,8 +124,7 @@ export function TabServicios() {
       <Toast msg={msg} tone={tone} />
 
       <ScreenHeader
-        title="Catálogo de Servicios"
-        sub={`${items.length} servicios configurados con precios, tiempos y características`}
+        title="Servicios"
         extraRight={
           <div className="a-seg">
             <button type="button" onClick={() => setVista('tarjetas')} className={`a-seg-btn ${vista === 'tarjetas' ? 'active' : ''}`}>
@@ -310,7 +309,6 @@ export function TabServicios() {
         open={!!editing}
         onClose={() => setEditing(null)}
         title={isNew ? 'Nuevo servicio' : `Editar · ${editing?.nombre}`}
-        sub="Configura imagen, precio, duración y características"
         footer={
           editing && (
             <div className="flex gap-2">
@@ -532,8 +530,7 @@ export function TabProductos() {
       <Toast msg={msg} tone={tone} />
 
       <ScreenHeader
-        title="Catálogo de Productos"
-        sub={`${items.length} productos oficiales en inventario para venta online y en local`}
+        title="Productos"
         extraRight={
           <div className="a-seg">
             <button type="button" onClick={() => setVista('tarjetas')} className={`a-seg-btn ${vista === 'tarjetas' ? 'active' : ''}`}>
@@ -750,7 +747,6 @@ export function TabProductos() {
         open={!!editing}
         onClose={() => setEditing(null)}
         title={isNew ? 'Nuevo producto' : `Editar · ${editing?.nombre}`}
-        sub="Actualiza foto, precio, stock y características"
         footer={
           editing && (
             <div className="flex gap-2">
@@ -974,8 +970,7 @@ export function TabBarberos() {
       <Toast msg={msg} tone={tone} />
 
       <ScreenHeader
-        title="Equipo de Barberos"
-        sub="Perfiles profesionales, especialidades, horarios de trabajo, días libres y comisión"
+        title="Barberos"
         primaryAction={{
           label: 'Incorporar barbero',
           icon: 'Plus',
@@ -1106,7 +1101,6 @@ export function TabBarberos() {
         open={!!editing}
         onClose={() => setEditing(null)}
         title={isNew ? 'Incorporar barbero' : `Editar · ${editing?.nombre}`}
-        sub="Perfil, foto, comisión y horarios de atención"
         footer={
           editing && (
             <div className="flex gap-2">
@@ -1313,8 +1307,7 @@ export function TabGaleria() {
       <Toast msg={msg} tone={tone} />
 
       <ScreenHeader
-        title="Galería Lookbook"
-        sub="Trabajos reales exhibidos en la sección de galería de la web pública"
+        title="Galería"
         primaryAction={{
           label: 'Subir foto',
           icon: 'Plus',

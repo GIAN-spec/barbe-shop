@@ -438,8 +438,7 @@ export default function TabPagos() {
       <Toast msg={msg} tone={tone} />
 
       <ScreenHeader
-        title="Caja, Pagos y Liquidación"
-        sub="Cierre consolidado de servicios y tienda por método de pago, comisiones del equipo y auditoría"
+        title="Caja y Pagos"
         extraRight={
           <button type="button" onClick={exportarReporteActual} className={T.btnGhost}>
             <ModIcon name="Download" className="h-4 w-4" />

@@ -164,7 +164,6 @@ export default function TabPedidos() {
 
       <ScreenHeader
         title="Pedidos"
-        sub="Órdenes online y ventas en mostrador con descuento automático de stock"
         primaryAction={{
           label: 'Nuevo pedido',
           icon: 'Plus',
@@ -387,7 +386,6 @@ export default function TabPedidos() {
         open={openNew}
         onClose={() => setOpenNew(false)}
         title="Nuevo pedido"
-        sub="Venta directa en mostrador (descuenta stock)"
         footer={
           <button
             type="submit"
